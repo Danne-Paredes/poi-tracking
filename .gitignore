@@ -11,6 +11,9 @@
 # production
 /build
 
+# coinfig
+/src/config
+
 # misc
 .DS_Store
 .env.local
