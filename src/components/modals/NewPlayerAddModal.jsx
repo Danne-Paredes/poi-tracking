@@ -6,6 +6,7 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
   const [formState, setFormState] = useState({
     poi: '',
     poiId: '',
+    poiDescription: '',
     isNew: false,
     poiList: [],
     selectedDateTime: '',
@@ -21,7 +22,7 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
        return { value: casino, label: casino };
     })];
 
-  const { poi, poiId, isNew, selectedDateTime, selectedLocations, poiList } = formState;
+  const { poi, poiId, isNew, selectedDateTime, selectedLocations, poiList, poiDescription } = formState;
   const inputRef = useRef(null);
   const modalRef = useRef(null);
 
@@ -109,6 +110,7 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
         ...prevState,
         poiId: selectedPoi.id,
         poi: selectedPoi,
+        poiDescription: selectedPoi.description? selectedPoi.description : '',
       }));
     } else {
       setFormState((prevState) => ({
@@ -175,21 +177,27 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
           {/*body*/}
           <div className="relative p-6 flex-auto">
             <input
+              className='justify-center mx-auto items-center text-center block mb-2'
               type="datetime-local"
               defaultValue={selectedDateTime}
               onChange={handleDateTimeChange}
             />
-            <br/>
             <label className='text-kv-gray'>New POI:</label>
             <input type="checkbox" checked={isNew} onChange={handleIsNewChange} />
             <br/>
             {!isNew && (
               <SingleSelect ref={inputRef} id="pois" onKeyDown={handleKeyDown} onChange={handleAddPoi} className="max-w-xs" value={poi.name ? { label: poi.name, value: poi.name } : null} options={options} placeholder='Select a Player'/>
             )}
+            {!isNew && (
+              <>
+                <label className='text-kv-gray'> Description: </label>
+                <p className='text-kv-gray text-center'>{poiDescription}</p>
+              </>
+            )}
             {isNew && (
               <>
                   <input
-                  className='justify-center items-center text-center'
+                  className='justify-center mx-auto items-center text-center mb-2 block'
                     ref={inputRef}
                     id="pois"
                     type="text"
@@ -198,12 +206,11 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
                     onChange={handleAddPoi}
                     required
                     />
-                    <br/>
-                  <input
+                  <textarea
                     id="description"
-                    type="text-area"
+                    className='justify-center mx-auto items-center text-center block mb-2'
                     onKeyDown={handleKeyDown}
-                    placeholder="POI Description"
+                    placeholder="Enter Description"
                     onChange={handleAddDescription}
                     required
                     />
