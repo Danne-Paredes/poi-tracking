@@ -22,7 +22,7 @@ export function PoiCard({
             <div className="text-center text-gray-400 text-xs font-semibold">
               <p>{poi.description}</p>
             </div>
-            <div id="btn-menu" className="py-5 grid grid-cols-4 gap-4 justify-items-center">
+            <div id="btn-menu" className="py-5 grid grid-cols-4 xxxxs:grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 justify-items-center">
                 <button type="button" className="btn-sm"><FiDollarSign className="inner-icon" onClick={()=>console.log(poi)} /></button>
                 <button type="button" className="btn-sm"><BsClock className="inner-icon" /></button>
                 <button type="button" className="btn-sm"><BsFillPersonLinesFill className="inner-icon" /></button>

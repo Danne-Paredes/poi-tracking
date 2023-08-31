@@ -7,7 +7,8 @@ module.exports = {
     extend: {
       screens: {
         'xxs': '440px',
-        'xxxs': '340px'
+        'xxxs': '340px',
+        'xxxxs': '240px',
       },
       colors: {
         'kv-red': "#d02424",
