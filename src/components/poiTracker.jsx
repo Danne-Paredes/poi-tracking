@@ -134,15 +134,27 @@ const PoiTracker = () => {
 
   return (
     <>
-      <div className='flex justify-center mt-10'>
-        <SingleSelect className="max-w-xs" onChange={handleCasinoChange} value={selectedCasino ? { label: selectedCasino, value: selectedCasino } : null} options={options} placeholder='Select a casino'/>
+      <div className='flex justify-center mt-10 items-center'>
+      <SingleSelect
+          className="max-w-xs"
+          onChange={handleCasinoChange}
+          value={selectedCasino ? { label: selectedCasino, value: selectedCasino } : null}
+          options={options}
+          placeholder='Select a casino'
+          styles={{
+            control: (base) => ({
+              ...base,
+              width: 200, // or any other fixed width
+            }),
+          }}
+        />
       </div>
-      {/* <div className='flex justify-center mt-10'>
+      <div className='flex justify-center mt-10'>
             <button className='btn' onClick={()=>console.log(poiList)}>poiList</button>
             <button className='btn' onClick={()=>console.log(currentPoiList)}>current poiList</button>
             <button className='btn' onClick={()=>console.log(dataValsList.casinos)}>current dataValsList</button>
-            <button className='btn' onClick={()=>setCurrentPoiList([])}>reset current poiList</button>
-      </div> */}
+            <button className='btn' onClick={()=>setSelectedCasino('')}>reset current poiList</button>
+      </div>
 
       {currentPoiList.length === 0  && (
                     <div className='flex justify-center mt-10'>
