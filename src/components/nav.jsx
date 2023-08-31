@@ -65,7 +65,7 @@ export function Nav({}) {
           </li>
         </ul>
         <div className="sm:hidden block">
-          <GiIronCross className='absolute right-0' size={32} onClick={handleDropdown} />
+          <GiIronCross className='absolute right-3' size={32} onClick={handleDropdown} />
           {isDropdownOpen &&
             <ul ref={dropdownRef} className="absolute right-0 mt-8 bg-slate-gray border text-kv-gray  border-gray-200 rounded shadow-lg">
               <li>Input Engine</li>

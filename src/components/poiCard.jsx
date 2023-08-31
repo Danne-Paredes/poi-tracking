@@ -9,29 +9,36 @@ import { AiOutlinePlusCircle, AiOutlineMinusCircle } from 'react-icons/ai'
 
 
 export function PoiCard({
-  handleMenuOpen,
   openPlayerAddModal,
-  poi
+  poi,
+  handlePoiRemove,
+  index
 }) {
-  return <div className="flex justify-center mt-5">
-        <div onClick={handleMenuOpen} className="flex">
-          <div className="player-card mr-2">
+  return (
+      <div className="flex justify-center mt-5 mx-auto xxs:max-w-screen-md">
+        <div className="flex-cols xxs:flex">
+          <div className="player-card ml-2 mr-2">
             <h3 className="text-center text-xl text-kv-gray font-medium">{poi.name}</h3>
             <div className="text-center text-gray-400 text-xs font-semibold">
               <p>{poi.description}</p>
             </div>
-            <div id="btn-menu" className={`flex justify-center py-5`}>
-              <button type="button" className="btn-sm"><FiDollarSign className="inner-icon" onClick={()=>console.log(poi)} /></button>
-              <button type="button" className="btn-sm"><BsClock className="inner-icon" /></button>
-              <button type="button" className="btn-sm"><BsFillPersonLinesFill className="inner-icon" /></button>
-              <button type="button" className="btn-sm"><PiNotepadLight className="inner-icon" /></button>
+            <div id="btn-menu" className="py-5 grid grid-cols-4 gap-4 justify-items-center">
+                <button type="button" className="btn-sm"><FiDollarSign className="inner-icon" onClick={()=>console.log(poi)} /></button>
+                <button type="button" className="btn-sm"><BsClock className="inner-icon" /></button>
+                <button type="button" className="btn-sm"><BsFillPersonLinesFill className="inner-icon" /></button>
+                <button type="button" className="btn-sm"><PiNotepadLight className="inner-icon" /></button>
             </div>
           </div>
-          <div id="btn-menu-2" className={`flex flex-col space-y-4 py-3`}>
-            <button type="button" className="btn-sm bg-dark-leather"><AiOutlinePlusCircle className="inner-icon" onClick={openPlayerAddModal} /></button>
-            <button type="button" className="btn-sm bg-dark-leather"><AiOutlineMinusCircle className="inner-icon" /></button>
-          </div>
+          <div id="btn-menu-2" className="flex flex-row xxs:flex-col space-x-4 xxs:space-x-0 xxs:space-y-4 items-center justify-center py-3 mx-auto">
+    <button type="button" className="btn-sm bg-dark-leather h-10 w-10 flex items-center justify-center"><AiOutlinePlusCircle className="inner-icon" onClick={openPlayerAddModal} /></button>
+    <button type="button" className="btn-sm bg-dark-leather h-10 w-10 flex items-center justify-center"><AiOutlineMinusCircle className="inner-icon" onClick={() => {
+                            if (window.confirm('Are you sure you want to remove this POI?')) {
+                              handlePoiRemove(index);
+                            }
+                          }} /></button>
+</div>
+
         </div>
-      </div>;
-}
-  
+      </div>
+)}
+

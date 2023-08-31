@@ -21,7 +21,7 @@ const PoiTracker = () => {
     const savedCasino = sessionStorage.getItem('currentCasino');
     return savedCasino ? JSON.parse(savedCasino) : [];
   }); // Initialize as an empty array
-  const options = [{ value: "All Casinos", label: "All Casinos" }, 
+  const options = [ 
                  ...dataValsList.casinos.map((casino) => {
                     return { value: casino, label: casino };
                  })];
@@ -58,6 +58,7 @@ const PoiTracker = () => {
   
     if (isDuplicate) {
       console.log('Duplicate POI name!');
+      window.alert(`Name:\n${poi.name} is already active`);
       // Handle duplicate case here (e.g., show error message)
       return;
     }
@@ -91,28 +92,30 @@ const PoiTracker = () => {
   
     setOpenPlayerAddModal(false);
   };
-
-
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const handleMenuOpen = () => {
-    setIsMenuOpen(!isMenuOpen);
-  }
   
   const handleOpenPlayerAddModal = () => {
     console.log('click')
     setOpenPlayerAddModal(true);
-};
+  };
+
+  const handlePoiRemove = (index) => {
+    const list = [...currentPoiList];
+    list.splice(index, 1);
+    setCurrentPoiList(list);
+    sessionStorage.setItem('currentPoiList', JSON.stringify(list));
+  };
+
 
   return (
     <>
       <div className='flex justify-center mt-10'>
         <SingleSelect className="max-w-xs" onChange={handleCasinoChange} value={selectedCasino ? { label: selectedCasino, value: selectedCasino } : null} options={options} placeholder='Select a casino'/>
       </div>
-      <div className='flex justify-center mt-10'>
+      {/* <div className='flex justify-center mt-10'>
             <button className='btn' onClick={()=>console.log(poiList)}>poiList</button>
             <button className='btn' onClick={()=>console.log(currentPoiList)}>current poiList</button>
             <button className='btn' onClick={()=>setCurrentPoiList([])}>reset current poiList</button>
-      </div>
+      </div> */}
 
       {currentPoiList.length === 0  && (
                     <div className='flex justify-center mt-10'>
@@ -125,10 +128,10 @@ const PoiTracker = () => {
                       </button>
                     </div>
                   )}
-      <div className='flex justify-center mt-10 space-x-10'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 gap-10 justify-center mt-10'>
           {
             currentPoiList && currentPoiList.map((singlePoi, index) => (
-              <PoiCard key={index} poi={singlePoi} handleMenuOpen={handleMenuOpen} openPlayerAddModal={handleOpenPlayerAddModal} />
+              <PoiCard key={index} poi={singlePoi} handlePoiRemove={handlePoiRemove} index={index} openPlayerAddModal={handleOpenPlayerAddModal} />
             ))
           }
       </div>

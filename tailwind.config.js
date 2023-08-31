@@ -5,6 +5,10 @@ module.exports = {
   ],
   theme: {
     extend: {
+      screens: {
+        'xxs': '440px',
+        'xxxs': '340px'
+      },
       colors: {
         'kv-red': "#d02424",
         "kv-gray": "#b8b4b4",
