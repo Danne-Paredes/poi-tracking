@@ -1,5 +1,6 @@
 import React, {useState, useEffect, useRef} from 'react'
 import SingleSelect from '../singleSelect';
+import MultiSelect from '../multiSelect';
 
 export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, selectedCasino }) => {
   const [formState, setFormState] = useState({
@@ -14,6 +15,10 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
   const options = [ 
     ...poiInfo.map((poi) => {
        return { value: poi.name, label: poi.name };
+    })];
+  const locationOptions = [ 
+    ...casinos.map((casino) => {
+       return { value: casino, label: casino };
     })];
 
   const { poi, poiId, isNew, selectedDateTime, selectedLocations, poiList } = formState;
@@ -31,6 +36,7 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
     setFormState((prevState) => ({
       ...prevState,
       isNew: !prevState.isNew,
+      poi:'',
     }));
     console.log(isNew);
   };
@@ -82,9 +88,21 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
 
   const handleAddPoi = (e) => {
     const enteredPoi = e.value;
-    const selectedPoi = formState.poiList.find((poi) => poi.name === enteredPoi);
-    console.log('selectedPoi')
-    console.log(selectedPoi)
+    const selectedPoi =  formState.poiList.find((poi) => poi.name === enteredPoi);
+
+    if (isNew) {
+      const newPoi = {
+        ...poi,
+        active: true,
+        name:e.target.value,
+        casinos: selectedLocations? selectedLocations : [],
+      }
+      setFormState((prevState) => ({
+        ...prevState,
+        poi: newPoi,
+      }));
+      return
+    }
 
     if (selectedPoi) {
       setFormState((prevState) => ({
@@ -99,8 +117,44 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
       }));
     }
   };
+  const handleLocationChange = (selectedLocations) => {
+    const newPoi = {
+      ...poi,
+      casinos: selectedLocations? selectedLocations : [],
+    }
+    setFormState((prevState) => ({
+      ...prevState,
+      selectedLocations,
+      poi:newPoi,
+    }));
+  }; 
+  const handleAddDescription = (event) => {
+    const description = event.target.value;
+    const newPoi = {
+      ...poi,
+      description: description,
+    }
+  
+    setFormState((prevState) => ({
+      ...prevState,
+      poi: newPoi,
+    }));
+  };
 
   const handleSubmit = () => {
+    if (!formState.poi || (!formState.poi.name && !formState.poi.poi)) {
+        window.alert("Please select or enter a POI name.");
+        return;
+    } else{
+      console.log('formState.poi')
+      console.log(formState.poi)
+      console.log('formState.poi.name')
+      console.log(formState.poi.name)
+      console.log('formState.poi.poi')
+      console.log(formState.poi.poi)
+      console.log('formState.poiList')
+      console.log(formState.poiList)
+    }
     const selectedPoi = formState.poiList.find(
       (poi) => poi.name.toLowerCase() === formState.poi.name.toLowerCase()
     );
@@ -141,6 +195,38 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
             {!isNew && (
               <SingleSelect ref={inputRef} id="pois" onKeyDown={handleKeyDown} onChange={handleAddPoi} className="max-w-xs" value={poi.name ? { label: poi.name, value: poi.name } : null} options={options} placeholder='Select a Player'/>
             )}
+            {isNew && (
+              <>
+                  <input
+                  className='justify-center items-center text-center'
+                    ref={inputRef}
+                    id="pois"
+                    type="text"
+                    onKeyDown={handleKeyDown}
+                    placeholder="Enter POI Name"
+                    onChange={handleAddPoi}
+                    required
+                    />
+                    <br/>
+                  <input
+                    id="description"
+                    type="text-area"
+                    onKeyDown={handleKeyDown}
+                    placeholder="POI Description"
+                    onChange={handleAddDescription}
+                    required
+                    />
+              </>
+          )}
+          {isNew && (
+            <MultiSelect 
+              className='pref-input input' 
+              options={casinos} 
+              placeholder='Select Active Casinos' 
+              onChange={handleLocationChange}
+            />
+          )}
+
           </div>
           {/*footer*/}
           <div className="flex items-center justify-end p-6 border-t border-solid border-slate-200 rounded-b">

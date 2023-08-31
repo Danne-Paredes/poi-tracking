@@ -77,8 +77,9 @@ const PoiTracker = () => {
     sessionStorage.setItem('currentPoiList', JSON.stringify(newList));
   
     const newPoi = {
-      poi: poi,
+      name: poi.name,
       casinos: casinos.length ? casinos : selectedCasino,
+      description: poi.description ? poi.description : '', 
       active: true,
     };
   
@@ -114,6 +115,7 @@ const PoiTracker = () => {
       {/* <div className='flex justify-center mt-10'>
             <button className='btn' onClick={()=>console.log(poiList)}>poiList</button>
             <button className='btn' onClick={()=>console.log(currentPoiList)}>current poiList</button>
+            <button className='btn' onClick={()=>console.log(dataValsList.casinos)}>current dataValsList</button>
             <button className='btn' onClick={()=>setCurrentPoiList([])}>reset current poiList</button>
       </div> */}
 
