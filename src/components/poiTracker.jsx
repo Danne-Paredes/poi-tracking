@@ -112,7 +112,8 @@ const PoiTracker = () => {
   const handleAddPoiTransaction = (amount,date,type, note,index) => {
     const transactionDetails = { amount: amount, date:date, type:type, note:note }
     const newArray = [...currentPoiList];
-
+    console.log('transactionDetails')
+    console.log(transactionDetails)
     if (newArray[index].transactions) {
       // If it exists, add 'transactionsDetails' to the 'transactions' array of dictionaries
       newArray[index].transactions.push(transactionDetails);

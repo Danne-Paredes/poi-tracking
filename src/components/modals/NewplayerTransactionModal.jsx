@@ -25,6 +25,8 @@ export const NewPlayerTransactionModal = ({ setShowModal, addTransaction, index 
   };
   
   useEffect(() => {
+    console.log('index')
+    console.log(index)
     const currentDate = new Date();
     currentDate.setHours(currentDate.getHours() - 7);
     const adjustedDateTime = currentDate.toISOString().slice(0, 16);
@@ -48,31 +50,31 @@ export const NewPlayerTransactionModal = ({ setShowModal, addTransaction, index 
 
     },[transactionAmount,selectedDateTime,note,type]);
 
-  useEffect(() => {
-    if (setShowModal && inputRef.current) {
-      inputRef.current.focus();
-    }
-
-    const handleEscape = (event) => {
-      if (event.key === 'Escape' && setShowModal) {
-        setShowModal(false);
+    useEffect(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
       }
-    };
-
-    const handleClickOutside = (event) => {
-      if (modalRef.current && !modalRef.current.contains(event.target) && setShowModal) {
-        setShowModal(false);
-      }
-    };
-
-    document.addEventListener('keydown', handleEscape);
-    document.addEventListener('mousedown', handleClickOutside);
-
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [setShowModal]);
+  
+      const handleEscape = (event) => {
+        if (event.key === 'Escape') {
+          setShowModal(false);
+        }
+      };
+  
+      const handleClickOutside = (event) => {
+        if (modalRef.current && !modalRef.current.contains(event.target)) {
+          setShowModal(false);
+        }
+      };
+  
+      document.addEventListener('keydown', handleEscape);
+      document.addEventListener('mousedown', handleClickOutside);
+  
+      return () => {
+        document.removeEventListener('keydown', handleEscape);
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }, []);
 
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
@@ -96,13 +98,12 @@ export const NewPlayerTransactionModal = ({ setShowModal, addTransaction, index 
     }));
     console.log(`Note: ${note}`)
   }
-  const handleTypeChange = (e)=>{
-    const type = e.target.value;
-    setFormState((prevState) => ({
-      ...prevState,
-      type: type,
-    }));
-    console.log(`type: ${type}`)
+  const handleTypeChange = (type)=>{
+      setFormState((prevState) => ({
+          ...prevState,
+          type: type,
+      }));
+      console.log(`type: ${type}`)
   }
 
   const handleSubmit = () => {
@@ -127,22 +128,46 @@ export const NewPlayerTransactionModal = ({ setShowModal, addTransaction, index 
           </div>
           {/*body*/}
           <div className="relative p-6 flex-auto">
-            <input
-              type="datetime-local"
-              defaultValue={selectedDateTime}
-              onChange={handleDateTimeChange}
-            />
-            <br/>
-            <div className='radio-group'>
-                  <input onClick={handleTypeChange} type="radio" defaultValue="Buy In" name="gender" defaultChecked/> Buy In <br></br>
-                  <input onClick={handleTypeChange} type="radio" defaultValue="Cash Out" name="gender" /> Cash Out
+            <div className='flex justify-center mx-auto items-center text-center block mb-2'>
+                <input
+                    className='block mb-2'
+                    type="datetime-local"
+                    defaultValue={selectedDateTime}
+                    onChange={handleDateTimeChange}
+                />
             </div>
-            <br/>
-            <input onKeyDown={handleKeyDown} ref={inputRef} type='number'   onChange={handleAmountChange}/>
-              <textarea onKeyDown={handleKeyDown} onChange={handleNoteChange}></textarea>
-            
+            <div className='justify-center mx-auto items-center text-center block mb-2'>
+                <label className=' text-kv-gray mr-5'>
+                    <input 
+                        className='mr-2'
+                        onChange={() => handleTypeChange("Buy In")} 
+                        type="radio" 
+                        value="Buy In" 
+                        name="gender" 
+                        defaultChecked
+                    /> 
+                    Buy In
+                </label>
+                <label className=' text-kv-gray'>
+                    <input 
+                        className='mr-2'
+                        onChange={() => handleTypeChange("Cash Out")} 
+                        type="radio" 
+                        value="Cash Out" 
+                        name="gender"
+                    /> 
+                    Cash Out
+                </label>
+            </div>
 
-          </div>
+            <div className='flex justify-center mx-auto items-center text-center block mb-2'>
+                <input onKeyDown={handleKeyDown} ref={inputRef} type='number' placeholder='Amount' onChange={handleAmountChange}/>
+            </div>
+            <div className='flex justify-center mx-auto items-center text-center block mb-2'>
+                <textarea onKeyDown={handleKeyDown} placeholder='Notes' onChange={handleNoteChange}></textarea>
+            </div>
+        </div>
+
           {/*footer*/}
           <div className="flex items-center justify-end p-6 border-t border-solid border-slate-200 rounded-b">
             <button
