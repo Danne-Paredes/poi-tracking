@@ -24,7 +24,7 @@ function App() {
     return <div>Loading...</div>;
   }
   return (
-    <div className="bg-[url('./images/darkdenim3.png')] min-h-full w-full bg-repeat">
+    <div className="bg-[url('./images/darkdenim3.png')] w-full bg-repeat min-h-screen">
       <Router >
         {user && <Nav/>}
           <Routes>
