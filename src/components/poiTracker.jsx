@@ -1,6 +1,7 @@
 import PlayerAddModal from "./modals/playerAddModal";
 import { NewPlayerAddModal } from "./modals/NewPlayerAddModal";
 import { NewPlayerTransactionModal } from "./modals/NewplayerTransactionModal";
+import { NewPlayerArriveDepartModal } from "./modals/NewPlayerArriveDepartModal";
 
 
 import { PoiCard } from './poiCard';
@@ -13,8 +14,10 @@ import { AiOutlinePlusCircle  } from 'react-icons/ai'
 const PoiTracker = () => {
   const [openPlayerAddModal,setOpenPlayerAddModal] = useState(false)
   const [openPlayerTransactionModal,setOpenPlayerTransactionModal] = useState(false)
+  const [openPlayerArriveDepartModal,setOpenPlayerArriveDepartModal] = useState(false)
   const [poiList, setPoiList] = useState([])
   const [poiIndex, setPoiIndex] = useState('')
+  const [poi, setPoi] = useState([]);
   const [currentPoiList, setCurrentPoiList] = useState(() => {
     const savedPoiList = sessionStorage.getItem('currentPoiList');
     return savedPoiList ? JSON.parse(savedPoiList) : [];
@@ -132,6 +135,42 @@ const PoiTracker = () => {
     setOpenPlayerTransactionModal(true)
   }
 
+  const handleArriveDepart = (index)=>{
+    setPoi(currentPoiList[index])
+    setPoiIndex(index)
+    setOpenPlayerArriveDepartModal(true)
+  }
+
+  const handleAddArriveDepart = async (newPoi, newIndex) => {
+    const updatedPoiList = [...currentPoiList];
+    updatedPoiList[newIndex] = newPoi;
+  
+    setCurrentPoiList(updatedPoiList);
+    sessionStorage.setItem("currentPoiList", JSON.stringify(updatedPoiList));
+    setOpenPlayerArriveDepartModal(false);
+  
+    if (newPoi.departure) {
+      const collectionName = "poi";
+      const collectionRef = collection(db, collectionName);
+      const docRef = doc(collectionRef, newPoi.id);
+  
+      try {
+        await updateDoc(docRef, {
+          visits: arrayUnion({
+            casino:selectedCasino,
+            arrival: newPoi.arrival,
+            departure: newPoi.departure,
+            transactions: newPoi.transactions,
+          }),
+        });
+        handlePoiRemove(newIndex)
+        console.log("Collection updated successfully!");
+      } catch (error) {
+        console.error("Error updating collection:", error);
+      }
+    }
+  };
+
   return (
     <>
       <div className='flex justify-center mt-10 items-center'>
@@ -149,12 +188,12 @@ const PoiTracker = () => {
           }}
         />
       </div>
-      <div className='flex justify-center mt-10'>
+      {/* <div className='flex justify-center mt-10'>
             <button className='btn' onClick={()=>console.log(poiList)}>poiList</button>
             <button className='btn' onClick={()=>console.log(currentPoiList)}>current poiList</button>
             <button className='btn' onClick={()=>console.log(dataValsList.casinos)}>current dataValsList</button>
             <button className='btn' onClick={()=>setSelectedCasino('')}>reset current poiList</button>
-      </div>
+      </div> */}
 
       {currentPoiList.length === 0  && (
                     <div className='flex justify-center mt-10'>
@@ -170,7 +209,7 @@ const PoiTracker = () => {
       <div className='grid grid-cols-1 sm:grid-cols-2 gap-10 justify-center mt-10'>
           {
             currentPoiList && currentPoiList.map((singlePoi, index) => (
-              <PoiCard key={index} poi={singlePoi} handlePoiRemove={handlePoiRemove} index={index} openPlayerAddModal={handleOpenPlayerAddModal} openPlayerTransactionModal={handleTransactionOpen} />
+              <PoiCard key={index} poi={singlePoi} handlePoiRemove={handlePoiRemove} index={index} openPlayerAddModal={handleOpenPlayerAddModal} openPlayerTransactionModal={handleTransactionOpen} openPlayerArriveDepartModal={handleArriveDepart} />
             ))
           }
       </div>
@@ -178,6 +217,7 @@ const PoiTracker = () => {
       {/* {openPlayerAddModal && <PlayerAddModal  poiInfo={poiList} addPoi={handleAddPoi} casinos={dataValsList.casinos} selectedCasino={selectedCasino} isOpen={()=>setOpenPlayerAddModal()} />} */}
       {openPlayerAddModal && <NewPlayerAddModal setShowModal={setOpenPlayerAddModal} poiInfo={poiList} addPoi={handleAddPoi} casinos={dataValsList.casinos} selectedCasino={selectedCasino} />}
       {openPlayerTransactionModal && <NewPlayerTransactionModal setShowModal={setOpenPlayerTransactionModal} index={poiIndex} addTransaction={handleAddPoiTransaction} />}
+      {openPlayerArriveDepartModal && <NewPlayerArriveDepartModal setShowModal={setOpenPlayerArriveDepartModal} index={poiIndex} poi={poi} addPoi={handleAddArriveDepart}  poiList={poiList} />}
     </>
   )
 }
