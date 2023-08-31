@@ -2,28 +2,19 @@ import React, {useState, useEffect, useRef} from 'react'
 import SingleSelect from '../singleSelect';
 import MultiSelect from '../multiSelect';
 
-export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, selectedCasino }) => {
+export const NewPlayerTransactionModal = ({ setShowModal, addTransaction, index }) => {
   const [formState, setFormState] = useState({
-    poi: '',
-    poiId: '',
-    isNew: false,
-    poiList: [],
+    transactionAmount: 0,
     selectedDateTime: '',
-    selectedLocations: [],
+    type: 'Buy In',
+    note: '',
+    transactionDetails: [],
   });
 
-  const options = [ 
-    ...poiInfo.map((poi) => {
-       return { value: poi.name, label: poi.name };
-    })];
-  const locationOptions = [ 
-    ...casinos.map((casino) => {
-       return { value: casino, label: casino };
-    })];
-
-  const { poi, poiId, isNew, selectedDateTime, selectedLocations, poiList } = formState;
   const inputRef = useRef(null);
   const modalRef = useRef(null);
+
+  const { transactionAmount, selectedDateTime, type, note, transactionDetails } = formState;
 
   const handleDateTimeChange = (event) => {
     const inputDate = event.target.value;
@@ -31,14 +22,6 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
       ...prevState,
       selectedDateTime: inputDate,
     }));
-  };
-  const handleIsNewChange = (e) => {
-    setFormState((prevState) => ({
-      ...prevState,
-      isNew: !prevState.isNew,
-      poi:'',
-    }));
-    console.log(isNew);
   };
   
   useEffect(() => {
@@ -48,11 +31,22 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
     setFormState((prevState) => ({
       ...prevState,
       selectedDateTime: adjustedDateTime,
-      poiList: poiInfo,
-      locations: casinos,
-
     }));
   }, []);
+
+  useEffect(()=>{
+    setFormState((prevState) => ({
+      ...prevState,
+      transactionDetails: {
+        date:selectedDateTime,
+        type:type,
+        amount:transactionAmount,
+        note:note,
+        index:index
+      },
+    }));
+
+    },[transactionAmount,selectedDateTime,note,type]);
 
   useEffect(() => {
     if (setShowModal && inputRef.current) {
@@ -86,77 +80,36 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
     }
   };
 
-  const handleAddPoi = (e) => {
-    const enteredPoi = e.value;
-    const selectedPoi =  formState.poiList.find((poi) => poi.name === enteredPoi);
-
-    if (isNew) {
-      const newPoi = {
-        ...poi,
-        active: true,
-        name:e.target.value,
-        casinos: selectedLocations? selectedLocations : [],
-      }
-      setFormState((prevState) => ({
-        ...prevState,
-        poi: newPoi,
-      }));
-      return
-    }
-
-    if (selectedPoi) {
-      setFormState((prevState) => ({
-        ...prevState,
-        poiId: selectedPoi.id,
-        poi: selectedPoi,
-      }));
-    } else {
-      setFormState((prevState) => ({
-        ...prevState,
-        poi: selectedPoi,
-      }));
-    }
-  };
-  const handleLocationChange = (selectedLocations) => {
-    const newPoi = {
-      ...poi,
-      casinos: selectedLocations? selectedLocations : [],
-    }
+  const handleAmountChange = (e)=>{
+    const inputNumber = parseInt(e.target.value);
     setFormState((prevState) => ({
       ...prevState,
-      selectedLocations,
-      poi:newPoi,
+      transactionAmount: inputNumber,
     }));
-  }; 
-  const handleAddDescription = (event) => {
-    const description = event.target.value;
-    const newPoi = {
-      ...poi,
-      description: description,
-    }
-  
+    console.log(`transaction amount: ${transactionAmount}`)
+  }
+  const handleNoteChange = (e)=>{
+    const note = e.target.value;
     setFormState((prevState) => ({
       ...prevState,
-      poi: newPoi,
+      note: note,
     }));
-  };
+    console.log(`Note: ${note}`)
+  }
+  const handleTypeChange = (e)=>{
+    const type = e.target.value;
+    setFormState((prevState) => ({
+      ...prevState,
+      type: type,
+    }));
+    console.log(`type: ${type}`)
+  }
 
   const handleSubmit = () => {
-    if (!formState.poi || (!formState.poi.name && !formState.poi.poi)) {
-        window.alert("Please select or enter a POI name.");
-        return;
-    }
-    const selectedPoi = formState.poiList.find(
-      (poi) => poi.name.toLowerCase() === formState.poi.name.toLowerCase()
-    );
-    console.log("selected:");
-    console.log(selectedPoi);
-    if (selectedPoi && isNew) {
-      const casinosList = selectedPoi.casinos.join('\n');
-      window.alert(`Name Unavailable\n${selectedPoi.name} is already listed at the following casinos:\n${casinosList}`);
-      return;
-    }
-    addPoi(poi, selectedDateTime, poiId, selectedLocations, isNew);
+    const {amount,date,type, note,index} = transactionDetails
+    console.log('index:')
+    console.log(index)
+    addTransaction(amount,date,type, note,index)
   };
 
   return (
@@ -169,7 +122,7 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
           {/*header*/}
           <div onClick={()=>console.log(formState)}  className="flex items-start justify-between p-5 border-b border-solid border-slate-200 rounded-t">
             <h3 className="text-3xl font-semibold text-center text-kv-gray" >
-              Track Player of Interest
+              Add Transaction
             </h3>
           </div>
           {/*body*/}
@@ -180,43 +133,14 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
               onChange={handleDateTimeChange}
             />
             <br/>
-            <label className='text-kv-gray'>New POI:</label>
-            <input type="checkbox" checked={isNew} onChange={handleIsNewChange} />
+            <div className='radio-group'>
+                  <input onClick={handleTypeChange} type="radio" defaultValue="Buy In" name="gender" defaultChecked/> Buy In <br></br>
+                  <input onClick={handleTypeChange} type="radio" defaultValue="Cash Out" name="gender" /> Cash Out
+            </div>
             <br/>
-            {!isNew && (
-              <SingleSelect ref={inputRef} id="pois" onKeyDown={handleKeyDown} onChange={handleAddPoi} className="max-w-xs" value={poi.name ? { label: poi.name, value: poi.name } : null} options={options} placeholder='Select a Player'/>
-            )}
-            {isNew && (
-              <>
-                  <input
-                  className='justify-center items-center text-center'
-                    ref={inputRef}
-                    id="pois"
-                    type="text"
-                    onKeyDown={handleKeyDown}
-                    placeholder="Enter POI Name"
-                    onChange={handleAddPoi}
-                    required
-                    />
-                    <br/>
-                  <input
-                    id="description"
-                    type="text-area"
-                    onKeyDown={handleKeyDown}
-                    placeholder="POI Description"
-                    onChange={handleAddDescription}
-                    required
-                    />
-              </>
-          )}
-          {isNew && (
-            <MultiSelect 
-              className='pref-input input' 
-              options={casinos} 
-              placeholder='Select Active Casinos' 
-              onChange={handleLocationChange}
-            />
-          )}
+            <input onKeyDown={handleKeyDown} ref={inputRef} type='number'   onChange={handleAmountChange}/>
+              <textarea onKeyDown={handleKeyDown} onChange={handleNoteChange}></textarea>
+            
 
           </div>
           {/*footer*/}

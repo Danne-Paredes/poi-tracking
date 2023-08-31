@@ -1,5 +1,6 @@
 import PlayerAddModal from "./modals/playerAddModal";
 import { NewPlayerAddModal } from "./modals/NewPlayerAddModal";
+import { NewPlayerTransactionModal } from "./modals/NewplayerTransactionModal";
 
 
 import { PoiCard } from './poiCard';
@@ -11,7 +12,9 @@ import { AiOutlinePlusCircle  } from 'react-icons/ai'
 
 const PoiTracker = () => {
   const [openPlayerAddModal,setOpenPlayerAddModal] = useState(false)
+  const [openPlayerTransactionModal,setOpenPlayerTransactionModal] = useState(false)
   const [poiList, setPoiList] = useState([])
+  const [poiIndex, setPoiIndex] = useState('')
   const [currentPoiList, setCurrentPoiList] = useState(() => {
     const savedPoiList = sessionStorage.getItem('currentPoiList');
     return savedPoiList ? JSON.parse(savedPoiList) : [];
@@ -106,6 +109,27 @@ const PoiTracker = () => {
     sessionStorage.setItem('currentPoiList', JSON.stringify(list));
   };
 
+  const handleAddPoiTransaction = (amount,date,type, note,index) => {
+    const transactionDetails = { amount: amount, date:date, type:type, note:note }
+    const newArray = [...currentPoiList];
+
+    if (newArray[index].transactions) {
+      // If it exists, add 'transactionsDetails' to the 'transactions' array of dictionaries
+      newArray[index].transactions.push(transactionDetails);
+    } else {
+      // If it doesn't exist, create a new 'transaction' array with 'transactionDetails'
+      newArray[index].transactions = [transactionDetails];
+    }
+
+    setCurrentPoiList(newArray);
+    sessionStorage.setItem('currentPoiList', JSON.stringify(newArray));
+    setOpenPlayerTransactionModal(false)
+  };
+
+  const handleTransactionOpen = (index)=>{
+    setPoiIndex(index)
+    setOpenPlayerTransactionModal(true)
+  }
 
   return (
     <>
@@ -133,13 +157,14 @@ const PoiTracker = () => {
       <div className='grid grid-cols-1 sm:grid-cols-2 gap-10 justify-center mt-10'>
           {
             currentPoiList && currentPoiList.map((singlePoi, index) => (
-              <PoiCard key={index} poi={singlePoi} handlePoiRemove={handlePoiRemove} index={index} openPlayerAddModal={handleOpenPlayerAddModal} />
+              <PoiCard key={index} poi={singlePoi} handlePoiRemove={handlePoiRemove} index={index} openPlayerAddModal={handleOpenPlayerAddModal} openPlayerTransactionModal={handleTransactionOpen} />
             ))
           }
       </div>
 
       {/* {openPlayerAddModal && <PlayerAddModal  poiInfo={poiList} addPoi={handleAddPoi} casinos={dataValsList.casinos} selectedCasino={selectedCasino} isOpen={()=>setOpenPlayerAddModal()} />} */}
       {openPlayerAddModal && <NewPlayerAddModal setShowModal={setOpenPlayerAddModal} poiInfo={poiList} addPoi={handleAddPoi} casinos={dataValsList.casinos} selectedCasino={selectedCasino} />}
+      {openPlayerTransactionModal && <NewPlayerTransactionModal setShowModal={setOpenPlayerTransactionModal} index={poiIndex} addTransaction={handleAddPoiTransaction} />}
     </>
   )
 }

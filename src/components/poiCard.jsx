@@ -10,6 +10,7 @@ import { AiOutlinePlusCircle, AiOutlineMinusCircle } from 'react-icons/ai'
 
 export function PoiCard({
   openPlayerAddModal,
+  openPlayerTransactionModal,
   poi,
   handlePoiRemove,
   index
@@ -22,11 +23,11 @@ export function PoiCard({
             <div className="text-center text-gray-400 text-xs font-semibold">
               <p>{poi.description}</p>
             </div>
-            <div id="btn-menu" className="py-5 grid grid-cols-4 xxxxs:grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 justify-items-center">
-                <button type="button" className="btn-sm"><FiDollarSign className="inner-icon" onClick={()=>console.log(poi)} /></button>
-                <button type="button" className="btn-sm"><BsClock className="inner-icon" /></button>
-                <button type="button" className="btn-sm"><BsFillPersonLinesFill className="inner-icon" /></button>
-                <button type="button" className="btn-sm"><PiNotepadLight className="inner-icon" /></button>
+            <div id="btn-menu" className="py-5 grid grid-cols-4 xxxxs:grid-cols-2 xxs:grid-cols-4 sm:grid-cols-4 md:grid-cols-4 gap-4 justify-items-center">
+                <button type="button" className="btn-sm"><FiDollarSign className="inner-icon" onClick={openPlayerTransactionModal} /></button>
+                <button type="button" className="btn-sm"><BsClock className="inner-icon"  onClick={()=>console.log(poi)} /></button>
+                <button type="button" className="btn-sm"><BsFillPersonLinesFill className="inner-icon"  onClick={()=>console.log(poi)} /></button>
+                <button type="button" className="btn-sm"><PiNotepadLight className="inner-icon"  onClick={()=>console.log(poi)} /></button>
             </div>
           </div>
           <div id="btn-menu-2" className="flex flex-row xxs:flex-col space-x-4 xxs:space-x-0 xxs:space-y-4 items-center justify-center py-3 mx-auto">
