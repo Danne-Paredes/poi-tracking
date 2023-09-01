@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Select from "react-select";
 
 
-const SingleSelect = React.forwardRef(({ options, placeholder, onChange, className, value }, ref) => {
+const SingleSelect = React.forwardRef(({ options, placeholder, onChange, className, value,onKeyDown }, ref) => {
   const customStyles = {
     option: (provided, state) => ({
       ...provided,
@@ -22,9 +22,11 @@ const SingleSelect = React.forwardRef(({ options, placeholder, onChange, classNa
   };
 
   return (
-    <div className="SingleSelect" ref={ref}>
+    <div className="SingleSelect">
       <Select
+        ref={ref}
         className={className}
+        onKeyDown={onKeyDown}
         styles={customStyles}
         placeholder={placeholder}
         value={value}

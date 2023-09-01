@@ -1,51 +1,52 @@
-import React, { useState, useRef, useEffect} from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { auth } from '../config/firebase';
 import { useNavigate } from 'react-router-dom';
 import Logout from './logout';
-import { GiIronCross } from 'react-icons/gi'
-
+import { GiIronCross } from 'react-icons/gi';
 
 export function Nav({}) {
-  // allows you to navigate(path_you_want)
   const navigate = useNavigate();
-  
+  const menuIconRef = useRef(null);
 
-  // controls if dropdown is open
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  
-  // sets dropdown open on click
+
   const handleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
-  }
-  
-  // defines reference for dropdown, allows us to close dropdown when we click outside
+  };
+
   const dropdownRef = useRef(null);
-  
+
   const handleClickOutside = (event) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target) && !menuIconRef.current.contains(event.target)) {
       setIsDropdownOpen(false);
     }
   };
-  // on open, activates handleClickOutside
+
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
-  
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
-  
-  // Logout button logic
+
   const handleSignOut = async () => {
     try {
       await auth.signOut();
       navigate('/login');
     } catch (error) {
-      // Handle error
       console.error(error);
     }
   };
-
 
   return (
     <nav className='pt-3'>
@@ -65,17 +66,19 @@ export function Nav({}) {
           </li>
         </ul>
         <div className="sm:hidden block">
-          <GiIronCross className='absolute right-3' size={32} onClick={handleDropdown} />
+          <div ref={menuIconRef}>
+            <GiIronCross className='absolute right-3' size={32} onClick={handleDropdown} />
+          </div>
           {isDropdownOpen &&
-            <ul ref={dropdownRef} className="absolute right-0 mt-8 bg-slate-gray border text-kv-gray  border-gray-200 rounded shadow-lg">
+            <ul ref={dropdownRef} className="absolute right-0 mt-8 bg-slate-gray border text-kv-gray border-gray-200 rounded shadow-lg z-50">
               <li>Input Engine</li>
               <li>Individual Lookup</li>
               <li>Roster</li>
-              <li  className='hover:bg-kv-red' onClick={handleSignOut}>Logout</li>
+              <li className='hover:bg-kv-red' onClick={handleSignOut}>Logout</li>
             </ul>
           }
         </div>
       </div>
     </nav>
-  );  
+  );
 }

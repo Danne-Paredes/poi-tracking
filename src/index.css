@@ -5,6 +5,12 @@
 .btn{
     @apply bg-black hover:bg-kv-red text-kv-gray font-bold py-2 px-4 rounded
 }
+.btn-gray{
+    @apply bg-kv-gray text-kv-red hover:bg-kv-red hover:text-kv-gray font-bold py-2 px-4 rounded
+}
+.btn-close{
+    @apply text-red-500  font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150
+}
 .btn-sm {
     @apply bg-black hover:bg-kv-red text-kv-gray font-bold w-16 h-16 rounded flex items-center justify-center mr-2;
 }
@@ -40,3 +46,7 @@ ul li:hover {
     background-color: #d02424;
     color: black;
   }
+
+table thead {
+    color: #b8b4b4;
+}

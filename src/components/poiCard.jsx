@@ -26,19 +26,19 @@ export function PoiCard({
               <p>{poi.description}</p>
             </div>
             <div id="btn-menu" className="py-5 grid grid-cols-4 xxxxs:grid-cols-2 xxs:grid-cols-4 sm:grid-cols-4 md:grid-cols-4 gap-4 justify-items-center">
-                <button type="button" className="btn-sm"><FiDollarSign className="inner-icon" onClick={()=>openPlayerTransactionModal(index)} /></button>
-                <button type="button" className="btn-sm"><BsClock className="inner-icon"  onClick={()=>openPlayerArriveDepartModal(index)} /></button>
-                <button type="button" className="btn-sm"><PiNotepadLight className="inner-icon"  onClick={()=>openPlayerNotesModal(index)} /></button>
-                <button type="button" className="btn-sm"><BsFillPersonLinesFill className="inner-icon"  onClick={()=>console.log(poi)} /></button>
+                <button type="button" className="btn-sm" onClick={()=>openPlayerTransactionModal(index)}><FiDollarSign className="inner-icon"  /></button>
+                <button type="button" className="btn-sm" onClick={()=>openPlayerArriveDepartModal(index)}><BsClock className="inner-icon"   /></button>
+                <button type="button" className="btn-sm" onClick={()=>openPlayerNotesModal(index)}><PiNotepadLight className="inner-icon"   /></button>
+                <button type="button" className="btn-sm" onClick={()=>console.log(poi)}><BsFillPersonLinesFill className="inner-icon"/></button>
             </div>
           </div>
           <div id="btn-menu-2" className="flex flex-row xxs:flex-col space-x-4 xxs:space-x-0 xxs:space-y-4 items-center justify-center py-3 mx-auto">
-    <button type="button" className="btn-sm bg-dark-leather h-10 w-10 flex items-center justify-center"><AiOutlinePlusCircle className="inner-icon" onClick={openPlayerAddModal} /></button>
-    <button type="button" className="btn-sm bg-dark-leather h-10 w-10 flex items-center justify-center"><AiOutlineMinusCircle className="inner-icon" onClick={() => {
+    <button type="button" className="btn-sm bg-dark-leather h-10 w-10 flex items-center justify-center" onClick={openPlayerAddModal}><AiOutlinePlusCircle className="inner-icon"  /></button>
+    <button type="button" className="btn-sm bg-dark-leather h-10 w-10 flex items-center justify-center" onClick={() => {
                             if (window.confirm('Are you sure you want to remove this POI?')) {
                               handlePoiRemove(index);
                             }
-                          }} /></button>
+                          }}><AiOutlineMinusCircle className="inner-icon"/></button>
 </div>
 
         </div>

@@ -1,4 +1,3 @@
-import PlayerAddModal from "./modals/playerAddModal";
 import { NewPlayerAddModal } from "./modals/NewPlayerAddModal";
 import { NewPlayerTransactionModal } from "./modals/NewplayerTransactionModal";
 import { NewPlayerArriveDepartModal } from "./modals/NewPlayerArriveDepartModal";
@@ -27,7 +26,7 @@ const PoiTracker = () => {
   const [dataValsList, setDataValsList] = useState({ casinos: [] })
   const [selectedCasino, setSelectedCasino] = useState(() => {
     const savedCasino = sessionStorage.getItem('currentCasino');
-    return savedCasino ? JSON.parse(savedCasino) : [];
+    return savedCasino ? JSON.parse(savedCasino) : {value: 'Select A Casino', label: 'Select A Casino'};
   }); // Initialize as an empty array
   const options = [ 
                  ...dataValsList.casinos.map((casino) => {
@@ -118,7 +117,11 @@ const PoiTracker = () => {
   const handleAddPoiTransaction = (amount, date, type, note, index) => {
     const transactionDetails = { amount: amount, date: date, type: type, note: note };
     const newArray = [...currentPoiList];
-  
+    
+    if (type !== 'Note' && amount === 0){
+      return
+    }
+    
     // Update transactions
     if (newArray[index].transactions) {
       newArray[index].transactions.push(transactionDetails);
@@ -202,25 +205,22 @@ const PoiTracker = () => {
     <>
       <div className='flex justify-center mt-10 items-center'>
       <SingleSelect
-          className="max-w-xs"
+          className="max-w-xs snap-center"
           onChange={handleCasinoChange}
           value={selectedCasino ? { label: selectedCasino, value: selectedCasino } : null}
           options={options}
           placeholder='Select a casino'
-          styles={{
-            control: (base) => ({
-              ...base,
-              width: 200, // or any other fixed width
-            }),
-          }}
         />
       </div>
-      <div className='flex justify-center mt-10'>
+      {/* <div className='flex justify-center mt-10'>
             <button className='btn' onClick={()=>console.log(poiList)}>poiList</button>
             <button className='btn' onClick={()=>console.log(currentPoiList)}>current poiList</button>
-            <button className='btn' onClick={()=>console.log(dataValsList.casinos)}>current dataValsList</button>
-            <button className='btn' onClick={()=>setSelectedCasino('')}>reset current poiList</button>
-      </div>
+            <button className='btn' onClick={()=>console.log(selectedCasino)}>current selectedCasino</button>
+            <button className='btn' onClick={()=>{
+                                  setSelectedCasino('')
+                                  sessionStorage.setItem("currentCasino", JSON.stringify(''))
+            }}>reset selectedCasino poiList</button>
+      </div> */}
 
       {currentPoiList.length === 0  && (
                     <div className='flex justify-center mt-10'>
