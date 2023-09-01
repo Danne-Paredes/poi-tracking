@@ -2,6 +2,7 @@ import PlayerAddModal from "./modals/playerAddModal";
 import { NewPlayerAddModal } from "./modals/NewPlayerAddModal";
 import { NewPlayerTransactionModal } from "./modals/NewplayerTransactionModal";
 import { NewPlayerArriveDepartModal } from "./modals/NewPlayerArriveDepartModal";
+import { NewPlayerNotesModal } from "./modals/NewPlayerNotesModal";
 
 
 import { PoiCard } from './poiCard';
@@ -15,6 +16,7 @@ const PoiTracker = () => {
   const [openPlayerAddModal,setOpenPlayerAddModal] = useState(false)
   const [openPlayerTransactionModal,setOpenPlayerTransactionModal] = useState(false)
   const [openPlayerArriveDepartModal,setOpenPlayerArriveDepartModal] = useState(false)
+  const [openPlayerNotesModal,setOpenPlayerNotesModal] = useState(false)
   const [poiList, setPoiList] = useState([])
   const [poiIndex, setPoiIndex] = useState('')
   const [poi, setPoi] = useState([]);
@@ -76,6 +78,7 @@ const PoiTracker = () => {
         arrival: arrival,
         description: poi.description, 
         casinos: casinos.length ? casinos : selectedCasino,
+        visits: poi.visits,
         id: id },
     ];
   
@@ -112,23 +115,42 @@ const PoiTracker = () => {
     sessionStorage.setItem('currentPoiList', JSON.stringify(list));
   };
 
-  const handleAddPoiTransaction = (amount,date,type, note,index) => {
-    const transactionDetails = { amount: amount, date:date, type:type, note:note }
+  const handleAddPoiTransaction = (amount, date, type, note, index) => {
+    const transactionDetails = { amount: amount, date: date, type: type, note: note };
     const newArray = [...currentPoiList];
-    console.log('transactionDetails')
-    console.log(transactionDetails)
+  
+    // Update transactions
     if (newArray[index].transactions) {
-      // If it exists, add 'transactionsDetails' to the 'transactions' array of dictionaries
       newArray[index].transactions.push(transactionDetails);
     } else {
-      // If it doesn't exist, create a new 'transaction' array with 'transactionDetails'
       newArray[index].transactions = [transactionDetails];
     }
-
+  
+    // Create new visit
+    const newVisit = {
+      arrival: newArray[index].arrival,
+      casino: newArray[index].casino,
+      transactions: newArray[index].transactions,
+    }
+  
+    // Update visits
+    if (newArray[index].visits) {
+      const lastVisit = newArray[index].visits[newArray[index].visits.length - 1];
+      if (lastVisit.departure) {
+        newArray[index].visits.push(newVisit);
+      } else {
+        lastVisit.transactions = newArray[index].transactions;
+      }
+    } else {
+      newArray[index].visits = [newVisit];
+    }
+  
     setCurrentPoiList(newArray);
     sessionStorage.setItem('currentPoiList', JSON.stringify(newArray));
     setOpenPlayerTransactionModal(false)
   };
+  
+  
 
   const handleTransactionOpen = (index)=>{
     setPoiIndex(index)
@@ -171,6 +193,11 @@ const PoiTracker = () => {
     }
   };
 
+  const handleNotesOpen = (index)=>{
+    setPoi(currentPoiList[index])
+    setOpenPlayerNotesModal(true)
+  }
+
   return (
     <>
       <div className='flex justify-center mt-10 items-center'>
@@ -188,12 +215,12 @@ const PoiTracker = () => {
           }}
         />
       </div>
-      {/* <div className='flex justify-center mt-10'>
+      <div className='flex justify-center mt-10'>
             <button className='btn' onClick={()=>console.log(poiList)}>poiList</button>
             <button className='btn' onClick={()=>console.log(currentPoiList)}>current poiList</button>
             <button className='btn' onClick={()=>console.log(dataValsList.casinos)}>current dataValsList</button>
             <button className='btn' onClick={()=>setSelectedCasino('')}>reset current poiList</button>
-      </div> */}
+      </div>
 
       {currentPoiList.length === 0  && (
                     <div className='flex justify-center mt-10'>
@@ -209,7 +236,7 @@ const PoiTracker = () => {
       <div className='grid grid-cols-1 sm:grid-cols-2 gap-10 justify-center mt-10'>
           {
             currentPoiList && currentPoiList.map((singlePoi, index) => (
-              <PoiCard key={index} poi={singlePoi} handlePoiRemove={handlePoiRemove} index={index} openPlayerAddModal={handleOpenPlayerAddModal} openPlayerTransactionModal={handleTransactionOpen} openPlayerArriveDepartModal={handleArriveDepart} />
+              <PoiCard key={index} poi={singlePoi} handlePoiRemove={handlePoiRemove} index={index} openPlayerAddModal={handleOpenPlayerAddModal} openPlayerTransactionModal={handleTransactionOpen} openPlayerArriveDepartModal={handleArriveDepart} openPlayerNotesModal={handleNotesOpen} />
             ))
           }
       </div>
@@ -218,6 +245,7 @@ const PoiTracker = () => {
       {openPlayerAddModal && <NewPlayerAddModal setShowModal={setOpenPlayerAddModal} poiInfo={poiList} addPoi={handleAddPoi} casinos={dataValsList.casinos} selectedCasino={selectedCasino} />}
       {openPlayerTransactionModal && <NewPlayerTransactionModal setShowModal={setOpenPlayerTransactionModal} index={poiIndex} addTransaction={handleAddPoiTransaction} />}
       {openPlayerArriveDepartModal && <NewPlayerArriveDepartModal setShowModal={setOpenPlayerArriveDepartModal} index={poiIndex} poi={poi} addPoi={handleAddArriveDepart}  poiList={poiList} />}
+      {openPlayerNotesModal && <NewPlayerNotesModal setShowModal={setOpenPlayerNotesModal} poi={poi} />}
     </>
   )
 }

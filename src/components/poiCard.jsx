@@ -12,6 +12,7 @@ export function PoiCard({
   openPlayerAddModal,
   openPlayerTransactionModal,
   openPlayerArriveDepartModal,
+  openPlayerNotesModal,
   poi,
   handlePoiRemove,
   index
@@ -27,7 +28,7 @@ export function PoiCard({
             <div id="btn-menu" className="py-5 grid grid-cols-4 xxxxs:grid-cols-2 xxs:grid-cols-4 sm:grid-cols-4 md:grid-cols-4 gap-4 justify-items-center">
                 <button type="button" className="btn-sm"><FiDollarSign className="inner-icon" onClick={()=>openPlayerTransactionModal(index)} /></button>
                 <button type="button" className="btn-sm"><BsClock className="inner-icon"  onClick={()=>openPlayerArriveDepartModal(index)} /></button>
-                <button type="button" className="btn-sm"><PiNotepadLight className="inner-icon"  onClick={()=>console.log(poi)} /></button>
+                <button type="button" className="btn-sm"><PiNotepadLight className="inner-icon"  onClick={()=>openPlayerNotesModal(index)} /></button>
                 <button type="button" className="btn-sm"><BsFillPersonLinesFill className="inner-icon"  onClick={()=>console.log(poi)} /></button>
             </div>
           </div>
