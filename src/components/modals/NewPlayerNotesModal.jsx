@@ -23,24 +23,43 @@ export const NewPlayerNotesModal = ({ setShowModal, poi }) => {
   }
   const dateTimeTransformer = (date) => {
     const transformedDate = date.split('T')
-    return `${transformedDate[0]}\n${transformedDate[1]}`
+    return `${transformedDate[0]} ${transformedDate[1]}`
   }
 
   const sortedVisits = [...poi.visits].sort((a, b) => new Date(b.arrival) - new Date(a.arrival));
   const options = sortedVisits.map(visit => ({
     value: visit.arrival,
-    label: dateTimeTransformer(visit.arrival),
-  }));
+    label: visit.arrival ? dateTimeTransformer(visit.arrival) : '',
+    departure: visit.departure
+    }));
+
+    const calculatedTotal = () => {
+      let total = 0;
+      if (selectedTransactions) {
+        selectedTransactions.forEach(transaction => {
+          if (transaction.type === 'Buy In') {
+            total -= parseInt(transaction.amount, 10);
+          } else if (transaction.type === 'Cash Out') {
+            total += parseInt(transaction.amount, 10);
+          }
+        });
+      }
+      return total;
+    };    
 
   useEffect(() => {
+    console.log('poi.visits')
+    console.log(poi.visits)
     const mostRecentVisit = sortedVisits[0];
+    const sortedTransactions = [...mostRecentVisit.transactions].sort((a, b) => new Date(a.date) - new Date(b.date));
     setFormState({
-      total: 0,
+      total: calculatedTotal(),
       selectedVisit: {
         value: mostRecentVisit.arrival,
         label: dateTimeTransformer(mostRecentVisit.arrival),
+        departure: mostRecentVisit.departure,
       },
-      selectedTransactions: mostRecentVisit.transactions,
+      selectedTransactions: sortedTransactions,
     });
 
     const handleEscape = (event) => {
@@ -56,19 +75,11 @@ export const NewPlayerNotesModal = ({ setShowModal, poi }) => {
     };
 
     document.addEventListener('keydown', handleEscape);
-    document.addEventListener('mousedown', handleClickOutside);
-
-    const calculatedTotal = () => {
-      if (poi.transactions) {
-        poi.transactions.forEach(transaction => {
-          console.log(transaction);
-        });
-      }
-    };
+    document.addEventListener('mousedown', handleClickOutside);  
 
     setFormState((prevState) => ({
       ...prevState,
-      total: calculatedTotal,
+      total: calculatedTotal(),
     }));
 
     return () => {
@@ -79,23 +90,17 @@ export const NewPlayerNotesModal = ({ setShowModal, poi }) => {
 
 
   useEffect(() => {
-    const calculatedTotal = () => {
-      if (poi.transactions) {
-        poi.transactions.forEach(transaction => {
-          console.log(transaction);
-        });
-      }
-    };
-
     setFormState((prevState) => ({
       ...prevState,
-      total: calculatedTotal,
+      total: calculatedTotal(),
     }));
-  }, [poi.transactions]);
+  }, [selectedTransactions]);
+  
 
   const handleVisitSelect = (e) => {
     const selectedArrival = e.value;
     const selectedVisit = sortedVisits.find(visit => visit.arrival === selectedArrival);
+    const sortedTransactions = [...selectedVisit.transactions].sort((a, b) => new Date(a.date) - new Date(b.date));
 
     if (selectedVisit) {
       setFormState(prevState => ({
@@ -103,8 +108,9 @@ export const NewPlayerNotesModal = ({ setShowModal, poi }) => {
         selectedVisit: {
           value: selectedVisit.arrival,
           label: dateTimeTransformer(selectedVisit.arrival),
+          departure: selectedVisit.departure,
         },
-        selectedTransactions: selectedVisit.transactions,
+        selectedTransactions: sortedTransactions,
       }));
     }
   };
@@ -114,7 +120,7 @@ export const NewPlayerNotesModal = ({ setShowModal, poi }) => {
     <div
       className="justify-center items-start pt-6 flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none bg-dark-denim"
     >
-      <div ref={modalRef} className="relative w-auto  mx-auto max-w-3xl">
+      <div ref={modalRef} className="relative w-auto  mx-auto max-w-3xl xxs:w-2/3">
         {/*content*/}
         <div className="border-0 rounded-lg mt-0 items-center shadow-lg relative flex flex-col w-full bg-dark-leather-2 outline-none focus:outline-none">
           {/*header*/}
@@ -130,7 +136,8 @@ export const NewPlayerNotesModal = ({ setShowModal, poi }) => {
               value={selectedVisit}
               onChange={handleVisitSelect}
             />
-            <div className='text-kv-gray mt-2'>Arrival: {selectedVisit.arrival}</div>
+            <div className='text-kv-gray mt-2'>Arrival: {selectedVisit.value ? dateTimeTransformer(selectedVisit.value) : ''}</div>
+            <div className='text-kv-gray mt-2'>Departure: {selectedVisit.departure ? dateTimeTransformer(selectedVisit.departure) : ''}</div>
             <table className='justify-center items-center mt-2'>
               <thead className=''>
                 <tr>
@@ -153,8 +160,9 @@ export const NewPlayerNotesModal = ({ setShowModal, poi }) => {
                 </React.Fragment>
                 ))}
             </tbody>
-
             </table>
+            <div className='mt-2 text-kv-gray justify-center text-center items-center'>Total: <span className={total >= 0 ? 'text-blue-500' : 'text-kv-red'}>${total}</span></div>
+
           </div>
           {/*footer*/}
           <div className="flex items-center justify-end p-6 border-t border-solid border-slate-200 rounded-b">

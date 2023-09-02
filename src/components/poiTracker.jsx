@@ -26,7 +26,7 @@ const PoiTracker = () => {
   const [dataValsList, setDataValsList] = useState({ casinos: [] })
   const [selectedCasino, setSelectedCasino] = useState(() => {
     const savedCasino = sessionStorage.getItem('currentCasino');
-    return savedCasino ? JSON.parse(savedCasino) : {value: 'Select A Casino', label: 'Select A Casino'};
+    return savedCasino ? JSON.parse(savedCasino) : 'Select A Casino';
   }); // Initialize as an empty array
   const options = [ 
                  ...dataValsList.casinos.map((casino) => {
