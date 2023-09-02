@@ -44,9 +44,18 @@ const PoiTracker = () => {
       const data2 = await getPoiData();
       setDataValsList(data);
       setPoiList(data2);
+
+      // Update currentPoiList with new visits from poiList
+      const updatedCurrentPoiList = currentPoiList.map(currentPoi => {
+        const matchingPoi = data2.find(poi => poi.id === currentPoi.id);
+        return matchingPoi ? { ...currentPoi, visits: matchingPoi.visits } : currentPoi;
+      });
+      setCurrentPoiList(updatedCurrentPoiList);
+      sessionStorage.setItem('currentPoiList', JSON.stringify(updatedCurrentPoiList));
     };
     fetchDataVals();
-  }, [])
+  }, []);
+
 
   const handleAddPoi = (poi, arrival, id, casinos, isNew) => {
     console.log('made it to poitracker');
@@ -195,6 +204,7 @@ const PoiTracker = () => {
       }
     }
   };
+
 
   const handleNotesOpen = (index)=>{
     setPoi(currentPoiList[index])

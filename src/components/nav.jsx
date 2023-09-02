@@ -53,13 +53,13 @@ export function Nav({}) {
       <div className="flex justify-between items-center">
         <ul className="flex-1 flex justify-center items-center gap-3 sm:flex hidden">
           <li>
-            <button className="btn">Input Engine</button>
+            <button onClick={()=>navigate('/')} className="btn">Input Engine</button>
           </li>
           <li>
-            <button className='btn'>Individual Lookup</button>
+            <button className='btn' onClick={()=>navigate('/lookup')} >Individual Lookup</button>
           </li>
           <li>
-            <button className='btn'>Roster</button>
+            <button className='btn' onClick={()=>navigate('/roster')}>Roster</button>
           </li>
           <li>
             <Logout />
@@ -71,9 +71,9 @@ export function Nav({}) {
           </div>
           {isDropdownOpen &&
             <ul ref={dropdownRef} className="absolute right-0 mt-8 bg-slate-gray border text-kv-gray border-gray-200 rounded shadow-lg z-50">
-              <li>Input Engine</li>
-              <li>Individual Lookup</li>
-              <li>Roster</li>
+              <li onClick={()=>navigate('/')}>Input Engine</li>
+              <li onClick={()=>navigate('/lookup')}>Individual Lookup</li>
+              <li onClick={()=>navigate('/roster')}>Roster</li>
               <li className='hover:bg-kv-red' onClick={handleSignOut}>Logout</li>
             </ul>
           }

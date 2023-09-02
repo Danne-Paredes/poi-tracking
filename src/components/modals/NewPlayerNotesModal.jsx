@@ -136,32 +136,33 @@ export const NewPlayerNotesModal = ({ setShowModal, poi }) => {
               value={selectedVisit}
               onChange={handleVisitSelect}
             />
-            <div className='text-kv-gray mt-2'>Arrival: {selectedVisit.value ? dateTimeTransformer(selectedVisit.value) : ''}</div>
-            <div className='text-kv-gray mt-2'>Departure: {selectedVisit.departure ? dateTimeTransformer(selectedVisit.departure) : ''}</div>
-            <table className='justify-center items-center mt-2'>
-              <thead className=''>
-                <tr>
-                  <th>Time</th>
-                  <th>Buy In</th>
-                  <th>Cash Out</th>
-                </tr>
-              </thead>
-              <tbody>
-                {selectedTransactions.length > 0 && selectedTransactions.map((item, index) => (
-                <React.Fragment key={index}>
-                    <tr className={index % 2 === 0 ? 'bg-kv-logo-gray' : 'bg-slate-gray'}>
-                        <td className='text-center border border-black p-4'>{timeTransformer(item.date)}</td>
-                        <td className='text-center border border-black p-4'>{item.type === 'Buy In' && item.amount}</td>
-                        <td className='text-center border border-black p-4'>{item.type === 'Cash Out' && item.amount}</td>
-                    </tr>
-                    <tr className={index % 2 === 0 ? 'bg-kv-logo-gray' : 'bg-slate-gray'}>
-                        <td colSpan={3} className='border border-black p-4'>{item.note}</td>
-                    </tr>
-                </React.Fragment>
-                ))}
-            </tbody>
-            </table>
-            <div className='mt-2 text-kv-gray justify-center text-center items-center'>Total: <span className={total >= 0 ? 'text-blue-500' : 'text-kv-red'}>${total}</span></div>
+            <div className='text-kv-gray mt-2 text-xl '>Arrival: {selectedVisit.value ? dateTimeTransformer(selectedVisit.value) : ''}</div>
+            <div className='text-kv-gray mt-2 text-xl  '>Departure: {selectedVisit.departure ? dateTimeTransformer(selectedVisit.departure) : ''}</div>
+            <table className='justify-center items-center mt-2 border border-kv-gray'>
+    <thead>
+        <tr>
+            <th className='border border-kv-gray p-4'>Time</th>
+            <th className='border border-kv-gray p-4'>Buy In</th>
+            <th className='border border-kv-gray p-4'>Cash Out</th>
+        </tr>
+    </thead>
+    <tbody>
+        {selectedTransactions.length > 0 && selectedTransactions.map((item, index) => (
+        <React.Fragment key={index}>
+            <tr className={index % 2 === 0 ? 'bg-kv-logo-gray' : 'bg-slate-gray'}>
+                <td className='text-center border-r border-b border-black p-4'>{timeTransformer(item.date)}</td>
+                <td className='text-center border-r border-b border-black p-4'>{item.type === 'Buy In' && item.amount}</td>
+                <td className='text-center border-b border-black p-4'>{item.type === 'Cash Out' && item.amount}</td>
+            </tr>
+            <tr className={index % 2 === 0 ? 'bg-kv-logo-gray' : 'bg-slate-gray'}>
+                <td colSpan={3} className={index === selectedTransactions.length - 1 ? 'border-b border-kv-gray p-4' : 'border-b border-black p-4'}>{item.note}</td>
+            </tr>
+        </React.Fragment>
+        ))}
+    </tbody>
+</table>
+
+<div className='mt-2 text-kv-gray justify-center text-center items-center text-xl font-bold'>Total: <span className={total >= 0 ? 'text-blue-500' : 'text-kv-red'}>${total}</span></div>
 
           </div>
           {/*footer*/}
