@@ -114,7 +114,15 @@ const Roster = (props) => {
             <tbody>
               {poiList &&
                 poiList
-                .sort((a, b) => a.name.localeCompare(b.name))
+                .sort((a, b) => {
+                  // First, sort by active status. 
+                  // If one is active and the other isn't, it should come first.
+                  if (a.active && !b.active) return -1;
+                  if (!a.active && b.active) return 1;
+              
+                  // If both have the same active status, sort alphabetically by name.
+                  return a.name.localeCompare(b.name);
+              })
                 .filter((poi) => {
                   if (selectedCasino === 'All Casinos' && showInactive) {
                     return true;
