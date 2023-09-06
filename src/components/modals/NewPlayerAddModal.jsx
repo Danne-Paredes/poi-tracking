@@ -14,7 +14,10 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
   });
 
   const options = [ 
-    ...poiInfo.map((poi) => {
+    ...poiInfo
+      .filter((poi) => poi.casinos.includes(selectedCasino))
+      .filter((poi) => poi.active)
+      .map((poi) => {
        return { value: poi.name, label: poi.name };
     })];
   const locationOptions = [ 

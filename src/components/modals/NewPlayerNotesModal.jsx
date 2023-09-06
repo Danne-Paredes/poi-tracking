@@ -136,8 +136,8 @@ export const NewPlayerNotesModal = ({ setShowModal, poi }) => {
               value={selectedVisit}
               onChange={handleVisitSelect}
             />
-            <div className='text-kv-gray mt-2 text-xl '>Arrival: {selectedVisit.value ? dateTimeTransformer(selectedVisit.value) : ''}</div>
-            <div className='text-kv-gray mt-2 text-xl  '>Departure: {selectedVisit.departure ? dateTimeTransformer(selectedVisit.departure) : ''}</div>
+            <div className='text-kv-gray mt-2 text-xl font-bold'>Arrival: {selectedVisit.value ? dateTimeTransformer(selectedVisit.value) : ''}</div>
+            <div className='text-kv-gray mt-2 text-xl font-bold '>Departure: {selectedVisit.departure ? dateTimeTransformer(selectedVisit.departure) : ''}</div>
             <table className='justify-center items-center mt-2 border border-kv-gray'>
     <thead>
         <tr>

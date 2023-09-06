@@ -1,8 +1,12 @@
 import { useState } from "react";
 import Select, { components } from "react-select";
 
-const MultiSelect = ({ options, placeholder, onChange }) => {
+const MultiSelect = ({ options, placeholder, onChange, values }) => {
   const allOptions = options ? options.map(option => ({
+    value: option,
+    label: option
+  })) : [];
+  const selectedValues = values ? values.map(option => ({
     value: option,
     label: option
   })) : [];
@@ -20,6 +24,7 @@ const MultiSelect = ({ options, placeholder, onChange }) => {
           onChange(selectedOptions);
         }}
         options={allOptions}
+        value={selectedValues}
       />
     </div>
   );
