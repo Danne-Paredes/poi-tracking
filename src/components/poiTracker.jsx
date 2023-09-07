@@ -1,5 +1,5 @@
 import { NewPlayerAddModal } from "./modals/NewPlayerAddModal";
-import { NewPlayerTransactionModal } from "./modals/NewplayerTransactionModal";
+import { NewPlayerTransactionModal } from "./modals/NewPlayerTransactionModal";
 import { NewPlayerArriveDepartModal } from "./modals/NewPlayerArriveDepartModal";
 import { NewPlayerNotesModal } from "./modals/NewPlayerNotesModal";
 

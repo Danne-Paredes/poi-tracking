@@ -10,8 +10,9 @@ export const NewPlayerNotesModal = ({ setShowModal, poi }) => {
     total: '',
     selectedVisit: {},
     selectedTransactions: [],
+    winLoss:'',
   });
-  const {total, selectedVisit, selectedTransactions} = formState
+  const {total, selectedVisit, selectedTransactions, winLoss} = formState
   const dateTransformer = (date) => {
     const transformedDate = date.split('T')
     return transformedDate[0]
@@ -47,8 +48,14 @@ export const NewPlayerNotesModal = ({ setShowModal, poi }) => {
     
       // Format the total value to include the dollar sign
       if (total < 0) {
+        setFormState((prev)=>({
+          ...prev,
+          winLoss: 'Loss'}))
         return `-$${Math.abs(total)}`;
       } else {
+        setFormState((prev)=>({
+          ...prev,
+          winLoss: 'Win'}))
         return `$${total}`;
       }
     };
@@ -169,7 +176,7 @@ export const NewPlayerNotesModal = ({ setShowModal, poi }) => {
     </tbody>
 </table>
 
-<div className='mt-2 text-kv-gray justify-center text-center items-center text-xl font-bold'>Total: <span className={total >= 0 ? 'text-blue-500' : 'text-kv-red'}>{total}</span></div>
+<div className='mt-2 text-kv-gray justify-center text-center items-center text-xl font-bold'>Total: <span className={winLoss == 'Win' ? 'text-blue-500' : 'text-kv-red'}>{total}</span></div>
 
           </div>
           {/*footer*/}
