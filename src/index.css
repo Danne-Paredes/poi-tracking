@@ -5,6 +5,11 @@
 .btn{
     @apply bg-black hover:bg-kv-red text-kv-gray font-bold py-2 px-4 rounded
 }
+
+.btn.bg-kv-red-force {
+    background-color: #d02424 !important;
+}
+
 .btn-gray{
     @apply bg-kv-gray text-kv-red hover:bg-kv-red hover:text-kv-gray font-bold py-2 px-4 rounded
 }

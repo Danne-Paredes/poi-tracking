@@ -4,10 +4,12 @@ import {db, updateCollection, getDataVals, getPoiData} from '../config/firebase'
 import { doc, updateDoc, getDocs, collection } from 'firebase/firestore';
 import { AiOutlineEdit }  from 'react-icons/ai'
 import { NewPlayerRosterEditModal } from "./modals/NewPlayerRosterEditModal";
+import { NewPlayerNotesEditModal } from "./modals/NewPlayerNotesEditModal";
 
 
 const Roster = (props) => {
     const [openPlayerRosterEditModal,setOpenPlayerRosterEditModal] = useState(false);
+    const [openPlayerNotesEditModal,setOpenPlayerNotesEditModal] = useState(false)
     const [casinoList, setCasinoList] = useState()
     const [dataValsList, setDataValsList] = useState({ casinos: [] })
     const [showInactive, setShowInactive] = useState(false);
@@ -83,9 +85,14 @@ const Roster = (props) => {
         setPoiIndex(index)
         setOpenPlayerRosterEditModal(true)
         console.log(poi)
-        console.log(index)
-        console.log('poiList')
-        console.log(poiList)
+      }
+      const handleOpenPlayerNotesEdit = (poi)=>{
+        const index = poiList.findIndex(obj => obj.id === poi.id);
+    
+        setPoi(poi)
+        setPoiIndex(index)
+        setOpenPlayerRosterEditModal(true)
+        console.log(poi)
       }
 
   return (
@@ -105,8 +112,8 @@ const Roster = (props) => {
           <thead className='bg-dark-leather-2'> 
             <tr>
               <th className='border border-kv-gray p-4'>POI</th>
-              <th className='border border-kv-gray p-4'>Description</th>
-              <th className='border border-kv-gray p-4'>Casinos</th>
+              <th className='border border-kv-gray p-4 hidden xxs:table-cell'>Description</th>
+              <th className='border border-kv-gray p-4 hidden xxs:table-cell'>Casinos</th>
               <th className='border border-kv-gray p-4'>Active Status</th>
               <th className='border border-kv-gray p-4'>Edit</th>
             </tr>
@@ -133,12 +140,14 @@ const Roster = (props) => {
                   } else {
                     return poi.active && poi.casinos.includes(selectedCasino);
                   }
-                })                
+                })
                   .map((poi, index) => (
                     <tr key={poi.id} className={index % 2 === 0 ? 'bg-kv-logo-gray' : 'bg-slate-gray'}>
-                      <td className='text-center border-r border-b border-black p-4'>{poi.name}</td>
-                      <td className='text-center border-r border-b border-black p-4'>{poi.description}</td>
-                      <td className='text-center border-r border-b border-black p-4'>{poi.casinos.join(', ')}</td>
+                      <td className='text-center border-r border-b border-black p-4 hidden xxs:table-cell'>{poi.name}</td>
+                      <td className='text-center border-r border-b border-black p-4 xxs:hidden text-lg'>{poi.name} <br/> <span className='text-xs '>"{poi.description}"</span></td>
+                       {/* Hide these on screen sizes below 640px */}
+                      <td className='text-center border-r border-b border-black p-4 hidden xxs:table-cell'>{poi.description}</td>
+                      <td className='text-center border-r border-b border-black p-4 hidden xxs:table-cell'>{poi.casinos.join(', ')}</td>
                       <td className='text-center border-r border-b border-black p-4'>
                             <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
                                 <label className="relative inline-flex items-center mr-5 cursor-pointer">
@@ -164,6 +173,7 @@ const Roster = (props) => {
         </table>
       </div>
         {openPlayerRosterEditModal && <NewPlayerRosterEditModal setShowModal={setOpenPlayerRosterEditModal} editPoi={handleEditPoi} poiInfo={poi} poiListInfo={poiList} index={poiIndex} casinos={casinoList}/>}
+        {openPlayerNotesEditModal && <NewPlayerNotesEditModal setShowModal={setOpenPlayerNotesEditModal} poi={poi} />}
     </>
   )
 }
