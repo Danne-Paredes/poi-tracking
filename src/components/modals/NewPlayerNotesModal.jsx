@@ -44,8 +44,15 @@ export const NewPlayerNotesModal = ({ setShowModal, poi }) => {
           }
         });
       }
-      return total;
-    };    
+    
+      // Format the total value to include the dollar sign
+      if (total < 0) {
+        return `-$${Math.abs(total)}`;
+      } else {
+        return `$${total}`;
+      }
+    };
+      
 
   useEffect(() => {
     console.log('poi.visits')
@@ -162,7 +169,7 @@ export const NewPlayerNotesModal = ({ setShowModal, poi }) => {
     </tbody>
 </table>
 
-<div className='mt-2 text-kv-gray justify-center text-center items-center text-xl font-bold'>Total: <span className={total >= 0 ? 'text-blue-500' : 'text-kv-red'}>${total}</span></div>
+<div className='mt-2 text-kv-gray justify-center text-center items-center text-xl font-bold'>Total: <span className={total >= 0 ? 'text-blue-500' : 'text-kv-red'}>{total}</span></div>
 
           </div>
           {/*footer*/}
