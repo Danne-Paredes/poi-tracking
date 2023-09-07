@@ -28,7 +28,8 @@ export function PoiCard({
             <div id="btn-menu" className="py-5 grid grid-cols-4 xxxxs:grid-cols-2 xxs:grid-cols-4 sm:grid-cols-4 md:grid-cols-4 gap-4 justify-items-center">
                 <button type="button" className="btn-sm" onClick={()=>openPlayerTransactionModal(index)}><FiDollarSign className="inner-icon"  /></button>
                 <button type="button" className="btn-sm" onClick={()=>openPlayerArriveDepartModal(index)}><BsClock className="inner-icon"   /></button>
-                <button type="button" className="btn-sm" onClick={()=>openPlayerNotesModal(index)}><PiNotepadLight className="inner-icon"   /></button>
+                { poi.visits && <button type="button" className="btn-sm" onClick={()=>openPlayerNotesModal(index)}><PiNotepadLight className="inner-icon"   /></button>}
+                {!poi.visits && <button type="button" className="btn-sm" disabled ></button>}
                 <button type="button" className="btn-sm" onClick={()=>console.log(poi)}><BsFillPersonLinesFill className="inner-icon"/></button>
             </div>
           </div>

@@ -17,7 +17,7 @@
     @apply text-red-500  font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150
 }
 .btn-sm {
-    @apply bg-black hover:bg-kv-red text-kv-gray font-bold w-16 h-16 rounded flex items-center justify-center mr-2 shadow-kv-gray;
+    @apply bg-black hover:bg-kv-red disabled:hover:bg-black text-kv-gray font-bold w-16 h-16 rounded flex items-center justify-center mr-2 shadow-kv-gray;
 }
 
 .inner-icon {
