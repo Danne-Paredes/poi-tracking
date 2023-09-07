@@ -49,6 +49,11 @@ export function Nav({}) {
       console.error(error);
     }
   };
+  
+  const handleNavigate = (route) => () => {
+    navigate(route);
+    setIsDropdownOpen(false);
+  };
 
   return (
     <nav className='pt-3'>
@@ -56,7 +61,7 @@ export function Nav({}) {
         <ul className="flex-1 flex justify-center items-center gap-3 sm:flex hidden">
           <li>
             <button 
-              onClick={()=>navigate('/')} 
+              onClick={handleNavigate('/')} 
               className={`btn ${location.pathname === '/' ? 'bg-kv-red-force' : 'bg-black'}`}>
               Input Engine
             </button>
@@ -64,14 +69,14 @@ export function Nav({}) {
           <li>
             <button 
               className={`btn ${location.pathname === '/lookup' ? 'bg-kv-red-force' : 'bg-black'}`} 
-              onClick={()=>navigate('/lookup')}>
+              onClick={handleNavigate('/lookup')}>
               Individual Lookup
             </button>
           </li>
           <li>
             <button 
               className={`btn ${location.pathname === '/roster' ? 'bg-kv-red-force' : 'bg-black'}`} 
-              onClick={()=>navigate('/roster')}>
+              onClick={handleNavigate('/roster')}>
               Roster
             </button>
           </li>
@@ -84,12 +89,12 @@ export function Nav({}) {
             <GiIronCross className='absolute right-3' size={32} onClick={handleDropdown} />
           </div>
           {isDropdownOpen &&
-            <ul ref={dropdownRef} className="absolute right-0 mt-8 bg-slate-gray border text-kv-gray border-gray-200 rounded shadow-lg z-50">
-              <li onClick={()=>navigate('/')}>Input Engine</li>
-              <li onClick={()=>navigate('/lookup')}>Individual Lookup</li>
-              <li onClick={()=>navigate('/roster')}>Roster</li>
-              <li className='hover:bg-kv-red' onClick={handleSignOut}>Logout</li>
-            </ul>
+            <ul ref={dropdownRef} className="absolute right-0 mt-8 w-64 bg-slate-gray border text-kv-gray border-gray-200 rounded shadow-lg z-50">
+              <li className="text-xl py-2 px-4 hover:bg-kv-gray cursor-pointer" onClick={handleNavigate('/')}>Input Engine</li>
+              <li className="text-xl py-2 px-4 hover:bg-kv-gray cursor-pointer" onClick={handleNavigate('/lookup')}>Individual Lookup</li>
+              <li className="text-xl py-2 px-4 hover:bg-kv-gray cursor-pointer" onClick={handleNavigate('/roster')}>Roster</li>
+              <li className="text-xl py-2 px-4 hover:bg-kv-red cursor-pointer" onClick={handleSignOut}>Logout</li>
+            </ul>          
           }
         </div>
       </div>
