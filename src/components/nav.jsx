@@ -80,7 +80,17 @@ export function Nav({}) {
           </li>
         </ul>
         <div className="sm:hidden block">
-          {/* ... rest of your code */}
+          <div ref={menuIconRef}>
+            <GiIronCross className='absolute right-3' size={32} onClick={handleDropdown} />
+          </div>
+          {isDropdownOpen &&
+            <ul ref={dropdownRef} className="absolute right-0 mt-8 bg-slate-gray border text-kv-gray border-gray-200 rounded shadow-lg z-50">
+              <li onClick={()=>navigate('/')}>Input Engine</li>
+              <li onClick={()=>navigate('/lookup')}>Individual Lookup</li>
+              <li onClick={()=>navigate('/roster')}>Roster</li>
+              <li className='hover:bg-kv-red' onClick={handleSignOut}>Logout</li>
+            </ul>
+          }
         </div>
       </div>
     </nav>
