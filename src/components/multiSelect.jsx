@@ -13,7 +13,8 @@ const MultiSelect = ({ options, placeholder, onChange, values }) => {
 
   return (
     <div className="MultiSelect">
-      <Select
+      {values && 
+        <Select
         defaultValue={[]}
         placeholder={placeholder}
         isMulti
@@ -25,7 +26,20 @@ const MultiSelect = ({ options, placeholder, onChange, values }) => {
         }}
         options={allOptions}
         value={selectedValues}
-      />
+      />}
+      {!values && 
+        <Select
+        defaultValue={[]}
+        placeholder={placeholder}
+        isMulti
+        closeMenuOnSelect={false}
+        hideSelectedOptions={false}
+        onChange={(options) => {
+          const selectedOptions = options ? options.map((opt) => opt.value) : [];
+          onChange(selectedOptions);
+        }}
+        options={allOptions}
+      />}
     </div>
   );
 }
