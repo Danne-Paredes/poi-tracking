@@ -4,6 +4,9 @@ import { NewPlayerArriveDepartModal } from "./modals/NewPlayerArriveDepartModal"
 import { NewPlayerNotesModal } from "./modals/NewPlayerNotesModal";
 
 
+
+
+
 import { PoiCard } from './poiCard';
 import { useState, useEffect } from "react";
 import { updateDoc , getDocs, collection, doc, arrayUnion} from 'firebase/firestore'
@@ -37,6 +40,13 @@ const PoiTracker = () => {
   setSelectedCasino(selectedOption.value);
   sessionStorage.setItem("currentCasino", JSON.stringify(selectedOption.value));
 };
+
+const refetchDataVals = async () => {
+  const data = await getDataVals();
+  const data2 = await getPoiData();
+  setDataValsList(data);
+  setPoiList(data2);
+};
   
   useEffect(() => {
     const fetchDataVals = async () => {
@@ -61,6 +71,8 @@ const PoiTracker = () => {
     console.log('made it to poitracker');
     console.log('poi');
     console.log(poi);
+    console.log('id');
+    console.log(id);
     console.log('currentPoiList');
     console.log(currentPoiList);
     console.log('casinos');
@@ -102,9 +114,7 @@ const PoiTracker = () => {
   
     isNew
       ? (() => {
-          updateCollection('poi', newPoi);
-          getPoiData();
-          //Update currentPoiList withthe id found in the matching poi in poiList
+          updateCollection('poi', newPoi,id);
         })()
       : console.log('Not New');
   
@@ -197,6 +207,7 @@ const PoiTracker = () => {
             transactions: newPoi.transactions,
           }),
         });
+        refetchDataVals()
         handlePoiRemove(newIndex)
         console.log("Collection updated successfully!");
       } catch (error) {

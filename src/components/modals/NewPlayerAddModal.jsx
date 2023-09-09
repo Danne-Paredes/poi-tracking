@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useRef} from 'react'
 import SingleSelect from '../singleSelect';
 import MultiSelect from '../multiSelect';
+import { v4 as uuidv4 } from 'uuid';
 
 export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, selectedCasino }) => {
   const [formState, setFormState] = useState({
@@ -37,12 +38,14 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
     }));
   };
   const handleIsNewChange = (e) => {
+    const newUUID = uuidv4();
+    console.log(newUUID)
     setFormState((prevState) => ({
       ...prevState,
       isNew: !prevState.isNew,
       poi:'',
+      poiId:newUUID,
     }));
-    console.log(isNew);
   };
   
   useEffect(() => {
@@ -147,7 +150,7 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
   };
 
   const handleSubmit = () => {
-    if (!formState.poi || (!formState.poi.name && !formState.poi.poi)) {
+    if (!formState.poi || !formState.poi.name ) {
         window.alert("Please select or enter a POI name.");
         return;
     }
@@ -161,6 +164,9 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
       window.alert(`Name Unavailable\n${selectedPoi.name} is already listed at the following casinos:\n${casinosList}`);
       return;
     }
+ 
+    console.log('formState')
+    console.log(formState)
     addPoi(poi, selectedDateTime, poiId, selectedLocations, isNew);
   };
 
