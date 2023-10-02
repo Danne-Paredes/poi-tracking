@@ -124,6 +124,7 @@ export const NewPlayerArriveDepartModal = ({ setShowModal, addPoi, poi,index, po
         type: type,
     }));
     console.log(`type: ${type}`)
+    console.log(updatedPoi)
 }
 
   const handleSubmit = ()=>{

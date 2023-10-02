@@ -143,7 +143,7 @@ export const NewPlayerTransactionModal = ({ setShowModal, addTransaction, index 
                         onChange={() => handleTypeChange("Buy In")} 
                         type="radio" 
                         value="Buy In" 
-                        name="gender" 
+                        name="type" 
                         defaultChecked
                     /> 
                     Buy In
@@ -154,7 +154,7 @@ export const NewPlayerTransactionModal = ({ setShowModal, addTransaction, index 
                         onChange={() => handleTypeChange("Cash Out")} 
                         type="radio" 
                         value="Cash Out" 
-                        name="gender"
+                        name="type"
                     /> 
                     Cash Out
                 </label>
@@ -164,7 +164,7 @@ export const NewPlayerTransactionModal = ({ setShowModal, addTransaction, index 
                         onChange={() => handleTypeChange("Note")} 
                         type="radio" 
                         value="Note" 
-                        name="gender"
+                        name="type"
                     /> 
                     Note
                 </label>

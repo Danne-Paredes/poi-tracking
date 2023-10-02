@@ -1,8 +1,9 @@
 import React, {useState, useEffect, useRef} from 'react'
+import { AiOutlineEdit }  from 'react-icons/ai'
 import SingleSelect from '../singleSelect';
 import MultiSelect from '../multiSelect';
 
-export const NewPlayerNotesModal = ({ setShowModal, poi }) => {
+export const NewPlayerNotesModal = ({ setShowModal, setOpenEdit, setSelectedVisit, poi }) => {
   
   const modalRef = useRef(null);
 
@@ -75,15 +76,18 @@ export const NewPlayerNotesModal = ({ setShowModal, poi }) => {
       },
       selectedTransactions: sortedTransactions,
     });
+    setSelectedVisit(sortedVisits[0])
 
     const handleEscape = (event) => {
       if (event.key === 'Escape') {
+        setSelectedVisit([]);
         setShowModal(false);
       }
     };
 
     const handleClickOutside = (event) => {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
+        setSelectedVisit([]);
         setShowModal(false);
       }
     };
@@ -117,6 +121,7 @@ export const NewPlayerNotesModal = ({ setShowModal, poi }) => {
     const sortedTransactions = [...selectedVisit.transactions].sort((a, b) => new Date(a.date) - new Date(b.date));
 
     if (selectedVisit) {
+      setSelectedVisit(selectedVisit)
       setFormState(prevState => ({
         ...prevState,
         selectedVisit: {
@@ -138,18 +143,21 @@ export const NewPlayerNotesModal = ({ setShowModal, poi }) => {
         {/*content*/}
         <div className="border-0 rounded-lg mt-0 items-center shadow-lg relative flex flex-col w-full bg-dark-leather-2 outline-none focus:outline-none">
           {/*header*/}
-          <div onClick={()=>console.log(formState)}  className="flex items-start justify-between p-5 border-b border-solid border-slate-200 rounded-t">
+          <div onClick={()=>console.log(selectedVisit)}  className="flex items-start justify-between p-5 border-b border-solid border-slate-200 rounded-t">
             <h3 className="text-3xl font-semibold text-center text-kv-gray" >
               POI Transactions
             </h3>
           </div>
           {/*body*/}
-          <div className="relative p-6 flex-auto">
-          <SingleSelect 
-              options={options} 
-              value={selectedVisit}
-              onChange={handleVisitSelect}
-            />
+            <div className="relative p-6 flex-auto">
+              <div className='flex justify-center items-center w-full'>
+                  <SingleSelect 
+                    options={options} 
+                    value={selectedVisit}
+                    onChange={handleVisitSelect}
+                  />
+                  <button className='flex justify-center items-center bg-kv-logo-gray hover:bg-kv-red rounded-full ml-2 w-7 h-7' onClick={()=>setOpenEdit(true)}><AiOutlineEdit className='w-5 h-5' /></button>
+              </div>
             <div className='text-kv-gray mt-2 text-xl font-bold'>Arrival: {selectedVisit.value ? dateTimeTransformer(selectedVisit.value) : ''}</div>
             <div className='text-kv-gray mt-2 text-xl font-bold '>Departure: {selectedVisit.departure ? dateTimeTransformer(selectedVisit.departure) : ''}</div>
             <table className='justify-center items-center mt-2 border border-kv-gray'>
@@ -184,7 +192,10 @@ export const NewPlayerNotesModal = ({ setShowModal, poi }) => {
             <button
               className="btn-close"
               type="button"
-              onClick={() => setShowModal(false)}
+              onClick={() => {
+                setSelectedVisit([]);
+                setShowModal(false)
+              }}
             >
               Close
             </button>

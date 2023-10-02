@@ -4,7 +4,7 @@ import {db, updateCollection, getDataVals, getPoiData} from '../config/firebase'
 import { doc, updateDoc, getDocs, collection } from 'firebase/firestore';
 import { AiOutlineEdit }  from 'react-icons/ai'
 import { NewPlayerRosterEditModal } from "./modals/NewPlayerRosterEditModal";
-import { NewPlayerNotesEditModal } from "./modals/NewPlayerNotesEditModal";
+import { NewPlayerNotesEditModal } from "./modals/possibly_not_neededNewPlayerNotesEditModal";
 
 
 const Roster = (props) => {

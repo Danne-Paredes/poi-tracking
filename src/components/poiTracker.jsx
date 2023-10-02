@@ -2,6 +2,7 @@ import { NewPlayerAddModal } from "./modals/NewPlayerAddModal";
 import { NewPlayerTransactionModal } from "./modals/NewPlayerTransactionModal";
 import { NewPlayerArriveDepartModal } from "./modals/NewPlayerArriveDepartModal";
 import { NewPlayerNotesModal } from "./modals/NewPlayerNotesModal";
+import { NewPlayerTransactionEditModal } from './modals/NewPlayerTransactionEditModal'
 
 
 
@@ -10,7 +11,7 @@ import { NewPlayerNotesModal } from "./modals/NewPlayerNotesModal";
 import { PoiCard } from './poiCard';
 import { useState, useEffect } from "react";
 import { updateDoc , getDocs, collection, doc, arrayUnion} from 'firebase/firestore'
-import {db, updateCollection, getDataVals, getPoiData} from '../config/firebase'
+import {db, updateCollection, getDataVals, getPoiData, sendDataToFirebase} from '../config/firebase'
 import SingleSelect from '../components/singleSelect'
 import { AiOutlinePlusCircle  } from 'react-icons/ai'
 
@@ -19,9 +20,12 @@ const PoiTracker = () => {
   const [openPlayerTransactionModal,setOpenPlayerTransactionModal] = useState(false)
   const [openPlayerArriveDepartModal,setOpenPlayerArriveDepartModal] = useState(false)
   const [openPlayerNotesModal,setOpenPlayerNotesModal] = useState(false)
+  const [openPlayerTransactionEditModal,setOpenPlayerTransactionEditModal] = useState(false)
+
   const [poiList, setPoiList] = useState([])
   const [poiIndex, setPoiIndex] = useState('')
   const [poi, setPoi] = useState([]);
+  const [selectedVisit, setSelectedVisit] = useState([])
   const [currentPoiList, setCurrentPoiList] = useState(() => {
     const savedPoiList = sessionStorage.getItem('currentPoiList');
     return savedPoiList ? JSON.parse(savedPoiList) : [];
@@ -194,6 +198,8 @@ const refetchDataVals = async () => {
     setOpenPlayerArriveDepartModal(false);
   
     if (newPoi.departure) {
+
+      handleBQUpload(newPoi);
       const collectionName = "poi";
       const collectionRef = collection(db, collectionName);
       const docRef = doc(collectionRef, newPoi.id);
@@ -222,6 +228,41 @@ const refetchDataVals = async () => {
     setOpenPlayerNotesModal(true)
   }
 
+  const handleBQUpload = async (poi) => {
+    console.log('test')
+    const currentDate = new Date();
+    currentDate.setHours(currentDate.getHours() - 7);
+    const adjustedDateTime = currentDate.toISOString().slice(0, 16);
+
+    const totalBuyIn = poi.transactions
+      .filter(transaction => transaction.type === "Buy In")
+      .reduce((total, transaction) => total + transaction.amount, 0);
+
+    const totalCashOut = poi.transactions
+      .filter(transaction => transaction.type === "Cash Out")
+      .reduce((total, transaction) => total + transaction.amount, 0);
+
+    const notes = poi.transactions
+      .filter(transaction => transaction.note.trim() !== "")
+      .map(transaction => `${transaction.date}: ${transaction.note}`)
+      .join('\n');
+
+    const test = 
+      {
+        timestamp: adjustedDateTime,
+        id: poi.id,
+        name: poi.name,
+        casino: selectedCasino,
+        arrival: poi.arrival,
+        depart: poi.departure,
+        buy_in: totalBuyIn,
+        cash_out: totalCashOut,
+        result: totalCashOut-totalBuyIn,
+        notes: notes,
+      }
+    await sendDataToFirebase(test, 'alpha')
+  }
+
   return (
     <>
       <div className='flex justify-center mt-10 items-center'>
@@ -234,8 +275,8 @@ const refetchDataVals = async () => {
         />
       </div>
       {/* <div className='flex justify-center mt-10'>
-            <button className='btn' onClick={()=>console.log(poiList)}>poiList</button>
-            <button className='btn' onClick={()=>console.log(currentPoiList)}>current poiList</button>
+            <button className='btn' onClick={()=>handleBQUpload(currentPoiList[2])}>test bq</button>
+            <button className='btn' onClick={()=>console.log(currentPoiList[2])}>current poiList</button>
             <button className='btn' onClick={()=>console.log(selectedCasino)}>current selectedCasino</button>
             <button className='btn' onClick={()=>{
                                   setSelectedCasino('')
@@ -266,7 +307,8 @@ const refetchDataVals = async () => {
       {openPlayerAddModal && <NewPlayerAddModal setShowModal={setOpenPlayerAddModal} poiInfo={poiList} addPoi={handleAddPoi} casinos={dataValsList.casinos} selectedCasino={selectedCasino} />}
       {openPlayerTransactionModal && <NewPlayerTransactionModal setShowModal={setOpenPlayerTransactionModal} index={poiIndex} addTransaction={handleAddPoiTransaction} />}
       {openPlayerArriveDepartModal && <NewPlayerArriveDepartModal setShowModal={setOpenPlayerArriveDepartModal} index={poiIndex} poi={poi} addPoi={handleAddArriveDepart}  poiList={poiList} />}
-      {openPlayerNotesModal && <NewPlayerNotesModal setShowModal={setOpenPlayerNotesModal} poi={poi} />}
+      {openPlayerNotesModal && <NewPlayerNotesModal setShowModal={setOpenPlayerNotesModal} setSelectedVisit={setSelectedVisit} setOpenEdit={setOpenPlayerTransactionEditModal} poi={poi} />}
+      {openPlayerTransactionEditModal && <NewPlayerTransactionEditModal setShowModal={setOpenPlayerTransactionEditModal} preSelectedVisit={selectedVisit} poi={poi} index={poiIndex} casinos={dataValsList.casinos} />}
     </>
   )
 }

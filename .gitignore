@@ -11,8 +11,14 @@
 # production
 /build
 
+# functions
+/functions
+
 # config
 /src/config
+
+# export
+/export
 
 # misc
 .DS_Store
