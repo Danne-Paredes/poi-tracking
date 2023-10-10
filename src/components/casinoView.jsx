@@ -83,9 +83,29 @@ const CasinoView = () => {
           </thead>
           <tbody>
           {poiList &&
-    poiList
-    .filter((poi) => poi.casinos.includes(selectedCasino))
-    .map((poi, index) => {
+            poiList
+            .filter((poi) => poi.casinos.includes(selectedCasino))
+            .sort((a, b) => {
+                const mostRecentVisitDateA = (a.visits || [])
+                    .reduce((latestDate, visit) => {
+                        const visitDate = new Date(visit.departure);
+                        return !latestDate || visitDate > latestDate ? visitDate : latestDate;
+                    }, null);
+
+                const mostRecentVisitDateB = (b.visits || [])
+                    .reduce((latestDate, visit) => {
+                        const visitDate = new Date(visit.departure);
+                        return !latestDate || visitDate > latestDate ? visitDate : latestDate;
+                    }, null);
+
+                // First sort by most recent visit
+                if (mostRecentVisitDateA > mostRecentVisitDateB) return -1;
+                if (mostRecentVisitDateA < mostRecentVisitDateB) return 1;
+
+                // If visits are equal, sort by name
+                return a.name.localeCompare(b.name);
+            })
+            .map((poi, index) => {
         const monthlyTransactions = (poi.visits || [])
             .filter(visit => visit.casino === selectedCasino )
             .flatMap(visit => visit.transactions || [])
