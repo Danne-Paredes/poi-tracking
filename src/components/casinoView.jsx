@@ -87,6 +87,7 @@ const CasinoView = () => {
     .filter((poi) => poi.casinos.includes(selectedCasino))
     .map((poi, index) => {
         const monthlyTransactions = (poi.visits || [])
+            .filter(visit => visit.casino === selectedCasino )
             .flatMap(visit => visit.transactions || [])
             .filter(transaction => new Date(transaction.date).getMonth() === currentMonth);
             
