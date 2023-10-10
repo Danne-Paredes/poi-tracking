@@ -6,6 +6,7 @@ import PoiTracker from "./components/poiTracker";
 import Login from "./components/login";
 import Roster from "./components/roster";
 import Lookup from './components/lookup';
+import CasinoView from './components/casinoView';
 
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/roster" element={user ? <Roster  /> : <Navigate to="/login" replace />}/>
             <Route path="/lookup" element={user ? <Lookup  /> : <Navigate to="/login" replace />}/>
+            <Route path="/casinoView" element={user ? <CasinoView  /> : <Navigate to="/login" replace />}/>
           </Routes>
       </Router>
     </div>

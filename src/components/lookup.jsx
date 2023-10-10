@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
-import { NewPlayerTransactionEditModal } from './modals/NewPlayerTransactionEditModal'
+import React, { useState, useEffect } from 'react'
+import  EditNotes  from './editNotes'
 
 const Lookup = (props) => {
-  const [openPlayerTransactionEditModal,setOpenPlayerTransactionEditModal] = useState(false)
+//   const [openPlayerTransactionEditModal,setOpenPlayerTransactionEditModal] = useState(false)
 
   const casinos = [
         "Artichoke Joes",
@@ -15,6 +15,9 @@ const Lookup = (props) => {
         "Napa",
         "Palace"
     ]
+
+ console.log(casinos)   
+
   const data = {
                   "name": "Duran",
                   "arrival": "2023-09-12T14:13",
@@ -27,7 +30,7 @@ const Lookup = (props) => {
                           "departure": "2023-09-08T20:09",
                           "transactions": [
                               {
-                                  "amount": 1000,
+                                  "amount": 100000,
                                   "date": "2023-09-08T19:09",
                                   "type": "Buy In",
                                   "note": ""
@@ -100,10 +103,9 @@ const Lookup = (props) => {
                   "id": "69417386-8d1c-496e-8d8f-dfd8e5d12404"
               }
   return (
-    <> 
-      <button className='btn' onClick={()=>setOpenPlayerTransactionEditModal(true)}>Show</button>
-      {openPlayerTransactionEditModal && <NewPlayerTransactionEditModal setShowModal={setOpenPlayerTransactionEditModal} poi={data} casinos={casinos}/>}
-    </>
+    <div className='bg-black justify-center items-center'> 
+        <EditNotes casinos={casinos} data={data} selectedVisit={data.visits[0]}/>
+    </div>
   )
 }
 

@@ -56,7 +56,7 @@ export function Nav({}) {
   };
 
   return (
-    <nav className='pt-3'>
+    <nav className='pt-3 mb-10'>
       <div className="flex justify-between items-center">
         <ul className="flex-1 flex justify-center items-center gap-3 sm:flex hidden">
           <li>
@@ -71,6 +71,13 @@ export function Nav({}) {
               className={`btn ${location.pathname === '/lookup' ? 'bg-kv-red-force' : 'bg-black'}`} 
               onClick={handleNavigate('/lookup')}>
               Individual Lookup
+            </button>
+          </li>
+          <li>
+            <button 
+              className={`btn ${location.pathname === '/casinoView' ? 'bg-kv-red-force' : 'bg-black'}`} 
+              onClick={handleNavigate('/casinoView')}>
+              Casino View
             </button>
           </li>
           <li>
@@ -92,6 +99,7 @@ export function Nav({}) {
             <ul ref={dropdownRef} className="absolute right-0 mt-8 w-64 bg-slate-gray border text-kv-gray border-gray-200 rounded shadow-lg z-50">
               <li className="text-xl py-2 px-4 hover:bg-kv-gray cursor-pointer" onClick={handleNavigate('/')}>Input Engine</li>
               <li className="text-xl py-2 px-4 hover:bg-kv-gray cursor-pointer" onClick={handleNavigate('/lookup')}>Individual Lookup</li>
+              <li className="text-xl py-2 px-4 hover:bg-kv-gray cursor-pointer" onClick={handleNavigate('/casinoView')}>Casino View</li>
               <li className="text-xl py-2 px-4 hover:bg-kv-gray cursor-pointer" onClick={handleNavigate('/roster')}>Roster</li>
               <li className="text-xl py-2 px-4 hover:bg-kv-red cursor-pointer" onClick={handleSignOut}>Logout</li>
             </ul>          
