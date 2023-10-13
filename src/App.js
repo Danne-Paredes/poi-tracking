@@ -35,6 +35,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/roster" element={user ? <Roster  /> : <Navigate to="/login" replace />}/>
             <Route path="/lookup" element={user ? <Lookup  /> : <Navigate to="/login" replace />}/>
+            <Route path="/lookup/:id" element={user ? <Lookup  /> : <Navigate to="/login" replace />}/>
             <Route path="/casinoView" element={user ? <CasinoView  /> : <Navigate to="/login" replace />}/>
           </Routes>
       </Router>

@@ -52,23 +52,41 @@ const refetchDataVals = async () => {
   setPoiList(data2);
 };
   
-  useEffect(() => {
-    const fetchDataVals = async () => {
-      const data = await getDataVals();
-      const data2 = await getPoiData();
-      setDataValsList(data);
-      setPoiList(data2);
+useEffect(() => {
+  const fetchDataVals = async () => {
+    const data = await getDataVals();
+    const data2 = await getPoiData();
+    setDataValsList(data);
+    setPoiList(data2);
 
-      // Update currentPoiList with new visits from poiList
-      const updatedCurrentPoiList = currentPoiList.map(currentPoi => {
-        const matchingPoi = data2.find(poi => poi.id === currentPoi.id);
-        return matchingPoi ? { ...currentPoi, visits: matchingPoi.visits } : currentPoi;
-      });
-      setCurrentPoiList(updatedCurrentPoiList);
-      sessionStorage.setItem('currentPoiList', JSON.stringify(updatedCurrentPoiList));
-    };
-    fetchDataVals();
+    // Update currentPoiList with new visits from poiList and add new visit if transactions are present
+    const updatedCurrentPoiList = currentPoiList.map(currentPoi => {
+      const matchingPoi = data2.find(poi => poi.id === currentPoi.id);
+
+      // 1. If there's a matching POI from data2, use its visits, else use the currentPoi's visits.
+      let visits = matchingPoi ? [...matchingPoi.visits] : [...currentPoi.visits];
+
+      // 2. If transactions are present, add the new visit.
+      if (currentPoi.transactions && currentPoi.transactions.length > 0) {
+        const newVisit = {
+          arrival: currentPoi.arrival,
+          casino: selectedCasino,
+          transactions: currentPoi.transactions
+        };
+        visits.push(newVisit);
+      }
+
+      return { ...currentPoi, visits: visits };
+    });
+
+    setCurrentPoiList(updatedCurrentPoiList);
+    sessionStorage.setItem('currentPoiList', JSON.stringify(updatedCurrentPoiList));
+  };
+
+  fetchDataVals();
   }, []);
+
+
 
 
   const handleAddPoi = (poi, arrival, id, casinos, isNew) => {
@@ -141,7 +159,7 @@ const refetchDataVals = async () => {
     const transactionDetails = { amount: amount, date: date, type: type, note: note };
     const newArray = [...currentPoiList];
     
-    if (type !== 'Note' && amount === 0){
+    if (type === 'Buy In' && amount === 0){
       return
     }
     

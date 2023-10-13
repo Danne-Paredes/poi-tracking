@@ -43,13 +43,6 @@ export const NewPlayerRosterEditModal = ({ setShowModal, editPoi, poiInfo, casin
       }
     };
     
-
-    // const handleClickOutside = (event) => {
-    //   if (modalRef.current && !modalRef.current.contains(event.target)) {
-    //     setShowModal(false);
-    //   }
-    // };
-
     document.addEventListener('keydown', handleEscape);
     // document.addEventListener('mousedown', handleClickOutside);
 

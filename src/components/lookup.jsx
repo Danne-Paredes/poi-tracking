@@ -1,110 +1,104 @@
+import { VisitViewer } from './visitViewer';
 import React, { useState, useEffect } from 'react'
-import  EditNotes  from './editNotes'
+import { getDataVals, getPoiData } from '../config/firebase'
+import { useParams, useLocation } from 'react-router-dom';
+import SingleSelect from './singleSelect';
+import MultiSelect from './multiSelect';
+import { dateTimeTransformer, dateTransformer, timeTransformer } from './functions'
+
 
 const Lookup = (props) => {
-//   const [openPlayerTransactionEditModal,setOpenPlayerTransactionEditModal] = useState(false)
+    const { id } = useParams();
+    const location = useLocation();
+    const poi = location.state?.poi;
 
-  const casinos = [
-        "Artichoke Joes",
-        "Bay 101",
-        "580 Casino",
-        "Cordova",
-        "Lodi",
-        "Lotus",
-        "Manteca",
-        "Napa",
-        "Palace"
-    ]
+    const [dataValsList, setDataValsList] = useState({ casinos: [] })
+    const [poiList, setPoiList] = useState([])
+    const [currentPoi, setCurrentPoi] = useState(poi?poi:{name:''})
+    const [currentPoiList, setCurrentPoiList] = useState(() => {
+        const savedPoiList = sessionStorage.getItem('currentPoiList');
+        return savedPoiList ? JSON.parse(savedPoiList) : [];
+      });
+    const [selectedCasino, setSelectedCasino] = useState('')
+    const [expandedVisitIndex, setExpandedVisitIndex] = useState(null);
 
- console.log(casinos)   
 
-  const data = {
-                  "name": "Duran",
-                  "arrival": "2023-09-12T14:13",
-                  "description": "Goes by Michael",
-                  "casinos": "Lodi",
-                  "visits": [
-                      {
-                          "casino": "Lodi",
-                          "arrival": "2023-09-08T19:09",
-                          "departure": "2023-09-08T20:09",
-                          "transactions": [
-                              {
-                                  "amount": 100000,
-                                  "date": "2023-09-08T19:09",
-                                  "type": "Buy In",
-                                  "note": ""
-                              },
-                              {
-                                  "amount": 750,
-                                  "date": "2023-09-08T19:13",
-                                  "type": "Buy In",
-                                  "note": ""
-                              },
-                              {
-                                  "amount": 2200,
-                                  "date": "2023-09-08T20:09",
-                                  "type": "Cash Out",
-                                  "note": ""
-                              }
-                          ]
-                      },
-                      {
-                          "casino": "Lotus",
-                          "arrival": "2023-09-09T19:10",
-                          "departure": "2023-09-09T12:46",
-                          "transactions": [
-                              {
-                                  "amount": 1000,
-                                  "date": "2023-09-09T12:23",
-                                  "type": "Buy In",
-                                  "note": ""
-                              },
-                              {
-                                  "amount": 1000,
-                                  "date": "2023-09-09T12:33",
-                                  "type": "Buy In",
-                                  "note": "Tried to chop long bank"
-                              },
-                              {
-                                  "amount": 200,
-                                  "date": "2023-09-09T13:33",
-                                  "type": "Cash Out",
-                                  "note": "No luck with dragons"
-                              }
-                          ]
-                      },
-                      {
-                          "casino": "Cordova",
-                          "arrival": "2023-09-10T19:10",
-                          "departure": "2023-09-13T12:46",
-                          "transactions": [
-                              {
-                                  "amount": 1000,
-                                  "date": "2023-09-13T12:23",
-                                  "type": "Buy In",
-                                  "note": ""
-                              },
-                              {
-                                  "amount": 1000,
-                                  "date": "2023-09-13T12:33",
-                                  "type": "Buy In",
-                                  "note": "Tried to chop long bank"
-                              },
-                              {
-                                  "amount": 200,
-                                  "date": "2023-09-13T13:33",
-                                  "type": "Cash Out",
-                                  "note": "No luck with dragons"
-                              }
-                          ]
-                      }
-                  ],
-                  "id": "69417386-8d1c-496e-8d8f-dfd8e5d12404"
-              }
+    const toggleVisibility = (visitIndex) => {
+        if (expandedVisitIndex === visitIndex) {
+          setExpandedVisitIndex(null);  // collapse if the same row is clicked again
+        } else {
+          setExpandedVisitIndex(visitIndex);  // expand selected visit's transactions
+        }
+      };
+
+
+    useEffect(() => {
+        const fetchDataVals = async () => {
+          const data = await getDataVals();
+          const data2 = await getPoiData();
+          setDataValsList(data);
+          setPoiList(data2);
+      
+          // Update currentPoiList with new visits from poiList and add new visit if transactions are present
+          const updatedCurrentPoiList = currentPoiList.map(currentPoi => {
+            const matchingPoi = data2.find(poi => poi.id === currentPoi.id);
+      
+            // 1. If there's a matching POI from data2, use its visits, else use the currentPoi's visits.
+            let visits = matchingPoi ? [...matchingPoi.visits] : [...currentPoi.visits];
+      
+            // 2. If transactions are present, add the new visit.
+            if (currentPoi.transactions && currentPoi.transactions.length > 0) {
+              const newVisit = {
+                arrival: currentPoi.arrival,
+                casino: selectedCasino,
+                transactions: currentPoi.transactions
+              };
+              visits.push(newVisit);
+            }
+      
+            return { ...currentPoi, visits: visits };
+          });
+      
+          setCurrentPoiList(updatedCurrentPoiList);
+          sessionStorage.setItem('currentPoiList', JSON.stringify(updatedCurrentPoiList));
+        };
+        fetchDataVals();
+    }, []);
+
+
   return (
-    <div className='bg-black justify-center items-center'> 
-        <EditNotes casinos={casinos} data={data} selectedVisit={data.visits[0]}/>
+    <div className='justify-center items-center'> 
+        <button onClick={()=>console.log(poiList)}>poiList</button>
+        <SingleSelect
+            value={selectedCasino ? { label: selectedCasino, value: selectedCasino } : null}
+            options={
+                        dataValsList.casinos.map(casino => ({
+                            value: casino,
+                            label: casino,
+                            }))
+                    }
+            onChange={(e) => {
+                        setSelectedCasino(e.value);
+                    }}
+        />
+        <SingleSelect
+            value={currentPoi.name ? { label: currentPoi.name, value: currentPoi.name } : null}
+            options={
+                        poiList
+                            .filter((poi) => selectedCasino ? poi.casinos.includes(selectedCasino) : true)
+                            .map(poi => ({
+                                value: poi.name,
+                                label: poi.name,
+                                }))
+                    }
+            onChange={(e) => {
+                        const matchingPoi = poiList.find((poi) => poi.name === e.value);
+                        setCurrentPoi(matchingPoi);
+                    }}
+        />
+        {  currentPoi.name != '' &&
+             <VisitViewer   currentPoi={currentPoi}  expandedVisitIndex={expandedVisitIndex} toggleVisibility={toggleVisibility} dateTimeTransformer={dateTimeTransformer} timeTransformer={timeTransformer}  />
+        }
     </div>
   )
 }

@@ -1,6 +1,5 @@
 import React,{ useState, useEffect } from 'react'
-import { updateDoc , getDocs, collection, doc, arrayUnion} from 'firebase/firestore'
-import {db, updateCollection, getDataVals, getPoiData, sendDataToFirebase} from '../config/firebase'
+import { getDataVals, getPoiData } from '../config/firebase'
 import SingleSelect from '../components/singleSelect'
 
 const CasinoView = () => {

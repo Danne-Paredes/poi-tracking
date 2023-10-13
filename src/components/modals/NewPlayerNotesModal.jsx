@@ -2,6 +2,7 @@ import React, {useState, useEffect, useRef} from 'react'
 import { AiOutlineEdit }  from 'react-icons/ai'
 import SingleSelect from '../singleSelect';
 import MultiSelect from '../multiSelect';
+import { dateTransformer, timeTransformer, dateTimeTransformer } from '../functions';
 
 export const NewPlayerNotesModal = ({ setShowModal, setOpenEdit, setSelectedVisit, poi }) => {
   
@@ -12,24 +13,13 @@ export const NewPlayerNotesModal = ({ setShowModal, setOpenEdit, setSelectedVisi
     selectedVisit: {},
     selectedTransactions: [],
     winLoss:'',
+    // sortedVisits: [],
   });
   const {total, selectedVisit, selectedTransactions, winLoss} = formState
-  const dateTransformer = (date) => {
-    const transformedDate = date.split('T')
-    return transformedDate[0]
-  }
 
-  const timeTransformer = (date) => {
-    const transformedDate = date.split('T')
-    return transformedDate[1]
-  }
-  const dateTimeTransformer = (date) => {
-    const transformedDate = date.split('T')
-    return `${transformedDate[0]} ${transformedDate[1]}`
-  }
+  const sortedVisits = [...poi.visits].sort((a, b) => new Date(b.arrival) - new Date(a.arrival))
 
-  const sortedVisits = [...poi.visits].sort((a, b) => new Date(b.arrival) - new Date(a.arrival));
-  const options = sortedVisits.map(visit => ({
+  const options = sortedVisits?.map(visit => ({
     value: visit.arrival,
     label: visit.arrival ? dateTimeTransformer(visit.arrival) : '',
     departure: visit.departure
@@ -63,8 +53,8 @@ export const NewPlayerNotesModal = ({ setShowModal, setOpenEdit, setSelectedVisi
       
 
   useEffect(() => {
-    console.log('poi.visits')
-    console.log(poi.visits)
+    console.log('sortedVisits')
+    console.log(sortedVisits)
     const mostRecentVisit = sortedVisits[0];
     const sortedTransactions = [...mostRecentVisit.transactions].sort((a, b) => new Date(a.date) - new Date(b.date));
     setFormState({
@@ -118,6 +108,7 @@ export const NewPlayerNotesModal = ({ setShowModal, setOpenEdit, setSelectedVisi
   const handleVisitSelect = (e) => {
     const selectedArrival = e.value;
     const selectedVisit = sortedVisits.find(visit => visit.arrival === selectedArrival);
+    
     const sortedTransactions = [...selectedVisit.transactions].sort((a, b) => new Date(a.date) - new Date(b.date));
 
     if (selectedVisit) {
@@ -143,7 +134,7 @@ export const NewPlayerNotesModal = ({ setShowModal, setOpenEdit, setSelectedVisi
         {/*content*/}
         <div className="border-0 rounded-lg mt-0 items-center shadow-lg relative flex flex-col w-full bg-dark-leather-2 outline-none focus:outline-none">
           {/*header*/}
-          <div onClick={()=>console.log(selectedVisit)}  className="flex items-start justify-between p-5 border-b border-solid border-slate-200 rounded-t">
+          <div onClick={()=>console.log(poi)}  className="flex items-start justify-between p-5 border-b border-solid border-slate-200 rounded-t">
             <h3 className="text-3xl font-semibold text-center text-kv-gray" >
               POI Transactions
             </h3>
