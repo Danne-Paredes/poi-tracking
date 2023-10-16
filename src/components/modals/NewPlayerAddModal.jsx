@@ -21,6 +21,12 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
       .map((poi) => {
        return { value: poi.name, label: poi.name };
     })];
+  const allOptions = [ 
+    ...poiInfo
+      .filter((poi) => poi.active)
+      .map((poi) => {
+       return { value: poi.name, label: poi.name };
+    })];
   const locationOptions = [ 
     ...casinos.map((casino) => {
        return { value: casino, label: casino };
@@ -207,7 +213,7 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
             <input type="checkbox" checked={isNew} onChange={handleIsNewChange} />
             <br/>
             {!isNew && (
-              <SingleSelect ref={inputRef} id="pois" onKeyDown={handleKeyDown} onChange={handleAddPoi} className="max-w-xs" value={poi.name ? { label: poi.name, value: poi.name } : null} options={options} placeholder='Select a Player'/>
+              <SingleSelect ref={inputRef} id="pois" onKeyDown={handleKeyDown} onChange={handleAddPoi} className="max-w-xs" value={poi.name ? { label: poi.name, value: poi.name } : null} options={selectedCasino? options : allOptions} placeholder='Select a Player'/>
             )}
             {!isNew && (
               <>
