@@ -2,6 +2,7 @@ import React, {useState, useEffect, useRef} from 'react'
 import SingleSelect from '../singleSelect';
 import MultiSelect from '../multiSelect';
 import { v4 as uuidv4 } from 'uuid';
+import { all } from 'axios';
 
 export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, selectedCasino }) => {
   const [formState, setFormState] = useState({
@@ -65,6 +66,7 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
       locations: casinos,
 
     }));
+    console.log(poiInfo)
   }, []);
 
   useEffect(() => {
@@ -213,7 +215,7 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
             <input type="checkbox" checked={isNew} onChange={handleIsNewChange} />
             <br/>
             {!isNew && (
-              <SingleSelect ref={inputRef} id="pois" onKeyDown={handleKeyDown} onChange={handleAddPoi} className="max-w-xs" value={poi.name ? { label: poi.name, value: poi.name } : null} options={selectedCasino ==='Select A Casino'? options : allOptions} placeholder='Select a Player'/>
+              <SingleSelect ref={inputRef} id="pois" onKeyDown={handleKeyDown} onChange={handleAddPoi} className="max-w-xs" value={poi.name ? { label: poi.name, value: poi.name } : null} options={selectedCasino ==='Select A Casino'? allOptions : options} placeholder='Select a Player'/>
             )}
             {!isNew && (
               <>
