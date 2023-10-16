@@ -148,6 +148,18 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
       poi: newPoi,
     }));
   };
+  const handleAddNotes = (event) => {
+    const note = event.target.value;
+    const newPoi = {
+      ...poi,
+      note: note,
+    }
+  
+    setFormState((prevState) => ({
+      ...prevState,
+      poi: newPoi,
+    }));
+  };
 
   const handleSubmit = () => {
     if (!formState.poi || !formState.poi.name ) {
@@ -215,12 +227,20 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
                     onChange={handleAddPoi}
                     required
                     />
-                  <textarea
+                  <input
                     id="description"
                     className='justify-center mx-auto items-center text-center block mb-2'
                     onKeyDown={handleKeyDown}
                     placeholder="Enter Description"
                     onChange={handleAddDescription}
+                    required
+                    />
+                  <textarea
+                    id="notes"
+                    className='justify-center mx-auto items-center text-center block mb-2'
+                    onKeyDown={handleKeyDown}
+                    placeholder="Enter Player Notes"
+                    onChange={handleAddNotes}
                     required
                     />
               </>

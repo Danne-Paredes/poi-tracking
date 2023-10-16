@@ -130,7 +130,9 @@ useEffect(() => {
     const newPoi = {
       name: poi.name,
       casinos: casinos.length ? casinos : selectedCasino,
-      description: poi.description ? poi.description : '', 
+      description: poi.description ? poi.description : '',
+      notes: poi.note ? poi.note : '',
+      visits:[],
       active: true,
     };
   

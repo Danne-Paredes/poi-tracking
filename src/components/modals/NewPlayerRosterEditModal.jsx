@@ -6,12 +6,13 @@ export const NewPlayerRosterEditModal = ({ setShowModal, editPoi, poiInfo, casin
   const [formState, setFormState] = useState({
     poi: '',
     description: '',
+    notes: '',
     poiIndex: '',
     isActive: '',
     selectedLocations: [],
   });
 
-  const { poi, poiList, isActive, selectedLocations, poiIndex, poiId, description, locations } = formState;
+  const { poi, poiList, isActive, selectedLocations, poiIndex, poiId, description, locations, notes } = formState;
   const inputRef = useRef(null);
   const modalRef = useRef(null);
 
@@ -25,6 +26,7 @@ export const NewPlayerRosterEditModal = ({ setShowModal, editPoi, poiInfo, casin
       selectedDateTime: adjustedDateTime,
       poi: poiInfo.name,
       description: poiInfo.description,
+      notes: poiInfo.notes,
       poiList: poiListInfo,
       poiIndex: index,
       poiId: poiInfo.id,
@@ -76,6 +78,17 @@ export const NewPlayerRosterEditModal = ({ setShowModal, editPoi, poiInfo, casin
       description: enteredDescription,
     }));
   };
+
+  const handleEditNotes = (e) => {
+    const enteredNotes = e.target.value;
+    console.log(enteredNotes)
+
+    setFormState((prevState) => ({
+      ...prevState,
+      notes: enteredNotes,
+    }));
+  };
+
   const handleStatusChange = () => {
     setFormState((prevState) => ({
       ...prevState,
@@ -107,6 +120,7 @@ export const NewPlayerRosterEditModal = ({ setShowModal, editPoi, poiInfo, casin
       ...poiInfo,
       name: poi,
       description: description,
+      notes: notes,
       casinos: selectedLocations,
       active: isActive,
     };
@@ -166,13 +180,25 @@ export const NewPlayerRosterEditModal = ({ setShowModal, editPoi, poiInfo, casin
 
     <div className="mb-4">
         <span className='text-kv-gray'>Description:</span>
-        <textarea
+        <input
             id="description"
             className='justify-center mx-auto items-center text-center block mt-2'
             onKeyDown={handleKeyDown}
             placeholder="Enter Description"
             onChange={handleEditDescription}
             value={description}
+            required
+            />
+    </div>
+    <div className="mb-4">
+        <span className='text-kv-gray'>Notes:</span>
+        <textarea
+            id="notes"
+            className='justify-center mx-auto items-center text-center block mt-2'
+            onKeyDown={handleKeyDown}
+            placeholder="Enter Notes"
+            onChange={handleEditNotes}
+            value={notes}
             required
             />
     </div>

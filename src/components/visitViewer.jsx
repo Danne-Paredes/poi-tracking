@@ -31,7 +31,7 @@ export function VisitViewer({
             return <>
                                         <tr key={`visit-${visitIndex}`} className={visitIndex % 2 === 0 ? 'bg-kv-logo-gray' : 'bg-slate-gray'} onClick={() => toggleVisibility(visitIndex)}>
                                             <td className='text-center border-r border-b border-black p-4'>{visit.casino ? visit.casino : null}</td>
-                                            <td className='text-center border-r border-b border-black p-4 w-15'> Arrival: {visit.arrival ? dateTimeTransformer(visit.arrival) : null} <br />Departure: {visit.departure ? dateTimeTransformer(visit.departure) : null}</td>
+                                            <td className='text-center border-r border-b border-black p-4 w-15'> Arrival: <br/>{visit.arrival ? dateTimeTransformer(visit.arrival) : null} <br/>Departure: <br/>{visit.departure ? dateTimeTransformer(visit.departure) : null}</td>
                                             <td className='text-center border-r border-b border-black p-4'>{visitResult}</td>
                                         </tr>
                                         {visitIndex === expandedVisitIndex && <>

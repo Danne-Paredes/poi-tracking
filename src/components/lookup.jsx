@@ -14,7 +14,7 @@ const Lookup = (props) => {
 
     const [dataValsList, setDataValsList] = useState({ casinos: [] })
     const [poiList, setPoiList] = useState([])
-    const [currentPoi, setCurrentPoi] = useState(poi?poi:{name:''})
+    const [currentPoi, setCurrentPoi] = useState(poi?poi:{name:'', casinos:[]})
     const [currentPoiList, setCurrentPoiList] = useState(() => {
         const savedPoiList = sessionStorage.getItem('currentPoiList');
         return savedPoiList ? JSON.parse(savedPoiList) : [];
@@ -44,7 +44,7 @@ const Lookup = (props) => {
             const matchingPoi = data2.find(poi => poi.id === currentPoi.id);
       
             // 1. If there's a matching POI from data2, use its visits, else use the currentPoi's visits.
-            let visits = matchingPoi ? [...matchingPoi.visits] : [...currentPoi.visits];
+            let visits = matchingPoi.visits ? [...matchingPoi.visits] : [...currentPoi.visits];
       
             // 2. If transactions are present, add the new visit.
             if (currentPoi.transactions && currentPoi.transactions.length > 0) {
@@ -66,36 +66,98 @@ const Lookup = (props) => {
     }, []);
 
 
+
   return (
     <div className='justify-center items-center'> 
-        <button onClick={()=>console.log(poiList)}>poiList</button>
-        <SingleSelect
-            value={selectedCasino ? { label: selectedCasino, value: selectedCasino } : null}
-            options={
-                        dataValsList.casinos.map(casino => ({
-                            value: casino,
-                            label: casino,
-                            }))
-                    }
-            onChange={(e) => {
-                        setSelectedCasino(e.value);
-                    }}
-        />
-        <SingleSelect
-            value={currentPoi.name ? { label: currentPoi.name, value: currentPoi.name } : null}
-            options={
-                        poiList
-                            .filter((poi) => selectedCasino ? poi.casinos.includes(selectedCasino) : true)
-                            .map(poi => ({
-                                value: poi.name,
-                                label: poi.name,
-                                }))
-                    }
-            onChange={(e) => {
-                        const matchingPoi = poiList.find((poi) => poi.name === e.value);
-                        setCurrentPoi(matchingPoi);
-                    }}
-        />
+        <div className='flex justify-center items-center'>
+                <table className='justify-center items-center mt-2 border  border-kv-gray'>
+                    <thead className='bg-dark-leather-2' onClick={() => console.log(currentPoi)}>
+                        <tr>
+                            <th>Select POI</th>
+                            <th>Casino Filter</th>
+                        </tr>
+                        <tr>
+                            <th className='p-2'>
+                                <SingleSelect
+                                        value={currentPoi.name ? { label: currentPoi.name, value: currentPoi.name } : null}
+                                        options={
+                                                    poiList
+                                                        .filter((poi) => selectedCasino ? poi.casinos.includes(selectedCasino) : true)
+                                                        .map(poi => ({
+                                                            value: poi.name,
+                                                            label: poi.name,
+                                                            }))
+                                                }
+                                        onChange={(e) => {
+                                                    const matchingPoi = poiList.find((poi) => poi.name === e.value);
+                                                    setCurrentPoi(matchingPoi);
+                                                }}
+                                    />
+                            </th>
+                            <th className='p-2'>
+                                <SingleSelect
+                                    value={selectedCasino ? { label: selectedCasino, value: selectedCasino } : null}
+                                    options={
+                                                dataValsList.casinos.map(casino => ({
+                                                    value: casino,
+                                                    label: casino,
+                                                    }))
+                                            }
+                                    onChange={(e) => {
+                                                setSelectedCasino(e.value);
+                                            }}
+                                />
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+        </div>
+        <div className='flex justify-center items-center'>
+                <table className='justify-center items-center mt-2 border  border-kv-gray'>
+                    <thead className='bg-dark-leather-2'>
+                        <tr>
+                            <th className='border border-kv-gray p-4 '>
+                                Description
+                            </th>
+                            <th className='border border-kv-gray p-4'>
+                                Average Buy In
+                            </th>
+                            <th className='border border-kv-gray p-4'>
+                                Active Casinos
+                            </th>
+                        </tr>
+                        <tr>
+                            <th className='border border-kv-gray p-4 italic'>
+                               {currentPoi.description}
+                            </th>
+                            <th className='border border-kv-gray p-4'>
+                                {currentPoi.visits && 
+                                    (() => {
+                                        let totalBuyInPerVisit = 0;
+                                        const visitBuyInSums = [];
+
+                                        currentPoi.visits.forEach(visit => {
+                                            const buyInTransactions = visit.transactions.filter(transaction => transaction.type === "Buy In");
+                                            if (buyInTransactions.length > 0) {
+                                                const sumBuyInForVisit = buyInTransactions.reduce((sum, trans) => sum + trans.amount, 0);
+                                                visitBuyInSums.push(sumBuyInForVisit);
+                                            }
+                                        });
+
+                                        const overallAverage = visitBuyInSums.reduce((a, b) => a + b, 0) / visitBuyInSums.length;
+                                        return `$${Math.round(overallAverage)}`
+                                    })()
+                                }
+                            </th>
+                            <th className='border border-kv-gray p-4 max-w-xs'>
+                                {currentPoi.casinos && currentPoi.casinos.join(', ')}
+                            </th>
+                        </tr>
+                        <tr><th colSpan={3}>Player Notes</th></tr>
+                        <tr><th colSpan={3}><textarea name="" id="" cols="40" rows="3" className='text-black' value={currentPoi.notes || ''} readOnly /></th></tr>
+                    </thead>
+                </table>
+        </div>
         {  currentPoi.name != '' &&
              <VisitViewer   currentPoi={currentPoi}  expandedVisitIndex={expandedVisitIndex} toggleVisibility={toggleVisibility} dateTimeTransformer={dateTimeTransformer} timeTransformer={timeTransformer}  />
         }

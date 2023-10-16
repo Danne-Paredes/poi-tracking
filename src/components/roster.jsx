@@ -64,11 +64,11 @@ const Roster = (props) => {
         console.log('made it to poitracker');
         console.log('poiList Before changes');
         console.log(poiList);
-        const {name, active, casinos ,id, description} = poiInfo
+        const {name, active, casinos ,id, description, notes} = poiInfo
     
         try {
           const poiRef = doc(db, 'poi', id);
-          await updateDoc(poiRef, { active: active, name: name, description: description, casinos:casinos });
+          await updateDoc(poiRef, { active: active, name: name, description: description, casinos:casinos, notes: notes });
           console.log('Document updated successfully!');
           fetchDataVals();
         } catch (error) {

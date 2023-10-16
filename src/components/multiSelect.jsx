@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Select, { components } from "react-select";
 
-const MultiSelect = ({ options, placeholder, onChange, values }) => {
+const MultiSelect = ({ options, placeholder, onChange, values, className }) => {
   const allOptions = options ? options.map(option => ({
     value: option,
     label: option
@@ -26,6 +26,7 @@ const MultiSelect = ({ options, placeholder, onChange, values }) => {
         }}
         options={allOptions}
         value={selectedValues}
+        className={className}
       />}
       {!values && 
         <Select
@@ -39,6 +40,7 @@ const MultiSelect = ({ options, placeholder, onChange, values }) => {
           onChange(selectedOptions);
         }}
         options={allOptions}
+        className={className}
       />}
     </div>
   );
