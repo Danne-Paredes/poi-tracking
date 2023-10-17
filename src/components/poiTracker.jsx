@@ -160,6 +160,8 @@ useEffect(() => {
   const handleAddPoiTransaction = (amount, date, type, note, index) => {
     const transactionDetails = { amount: amount, date: date, type: type, note: note };
     const newArray = [...currentPoiList];
+    console.log('type')
+    console.log(type)
     
     if (type === 'Buy In' && amount === 0){
       return
@@ -180,16 +182,17 @@ useEffect(() => {
     }
   
     // Update visits
-    if (newArray[index].visits) {
+    if (newArray[index] && Array.isArray(newArray[index].visits) && newArray[index].visits.length > 0) {
       const lastVisit = newArray[index].visits[newArray[index].visits.length - 1];
-      if (lastVisit.departure) {
+      if (lastVisit && lastVisit.departure) {
         newArray[index].visits.push(newVisit);
-      } else {
+      } else if (lastVisit) {
         lastVisit.transactions = newArray[index].transactions;
       }
     } else {
       newArray[index].visits = [newVisit];
     }
+    
   
     setCurrentPoiList(newArray);
     sessionStorage.setItem('currentPoiList', JSON.stringify(newArray));
@@ -218,7 +221,11 @@ useEffect(() => {
     setOpenPlayerArriveDepartModal(false);
   
     if (newPoi.departure) {
-
+      if (selectedCasino === 'Select A Casino'){
+          window.alert('Please select a casino')
+          setOpenPlayerTransactionModal(false)
+          return
+        }
       handleBQUpload(newPoi);
       const collectionName = "poi";
       const collectionRef = collection(db, collectionName);
@@ -249,7 +256,6 @@ useEffect(() => {
   }
 
   const handleBQUpload = async (poi) => {
-    console.log('test')
     const currentDate = new Date();
     currentDate.setHours(currentDate.getHours() - 7);
     const adjustedDateTime = currentDate.toISOString().slice(0, 16);

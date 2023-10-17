@@ -33,6 +33,9 @@ const Lookup = (props) => {
 
 
     useEffect(() => {
+        console.log('currentPoi')
+        console.log(currentPoi)
+
         const fetchDataVals = async () => {
           const data = await getDataVals();
           const data2 = await getPoiData();
@@ -63,6 +66,7 @@ const Lookup = (props) => {
           sessionStorage.setItem('currentPoiList', JSON.stringify(updatedCurrentPoiList));
         };
         fetchDataVals();
+        
     }, []);
 
 
