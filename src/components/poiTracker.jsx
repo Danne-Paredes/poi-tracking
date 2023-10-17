@@ -28,6 +28,7 @@ const PoiTracker = () => {
   const [selectedVisit, setSelectedVisit] = useState([])
   const [currentPoiList, setCurrentPoiList] = useState(() => {
     const savedPoiList = sessionStorage.getItem('currentPoiList');
+    // return []
     return savedPoiList ? JSON.parse(savedPoiList) : [];
   });
   const [dataValsList, setDataValsList] = useState({ casinos: [] })
@@ -65,7 +66,7 @@ useEffect(() => {
 
       // 1. If there's a matching POI from data2, use its visits, else use the currentPoi's visits.
       let visits = matchingPoi ? [...matchingPoi.visits] : [...currentPoi.visits];
-
+      
       // 2. If transactions are present, add the new visit.
       if (currentPoi.transactions && currentPoi.transactions.length > 0) {
         const newVisit = {
@@ -129,7 +130,7 @@ useEffect(() => {
   
     const newPoi = {
       name: poi.name,
-      casinos: casinos.length ? casinos : selectedCasino,
+      casinos: casinos.length ? casinos : [selectedCasino],
       description: poi.description ? poi.description : '',
       notes: poi.note ? poi.note : '',
       visits:[],

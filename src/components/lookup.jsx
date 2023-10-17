@@ -11,6 +11,7 @@ const Lookup = (props) => {
     const { id } = useParams();
     const location = useLocation();
     const poi = location.state?.poi;
+    const [isLoading, setIsLoading] = useState(true);
 
     const [dataValsList, setDataValsList] = useState({ casinos: [] })
     const [poiList, setPoiList] = useState([])
@@ -21,6 +22,7 @@ const Lookup = (props) => {
       });
     const [selectedCasino, setSelectedCasino] = useState('')
     const [expandedVisitIndex, setExpandedVisitIndex] = useState(null);
+    const [activeCasinos, setActiveCasinos] = useState([])
 
 
     const toggleVisibility = (visitIndex) => {
@@ -33,8 +35,7 @@ const Lookup = (props) => {
 
 
     useEffect(() => {
-        console.log('currentPoi')
-        console.log(currentPoi)
+        
 
         const fetchDataVals = async () => {
           const data = await getDataVals();
@@ -45,10 +46,19 @@ const Lookup = (props) => {
           // Update currentPoiList with new visits from poiList and add new visit if transactions are present
           const updatedCurrentPoiList = currentPoiList.map(currentPoi => {
             const matchingPoi = data2.find(poi => poi.id === currentPoi.id);
+
+
+            console.log('matchingPoi')
+            console.log(matchingPoi)
       
             // 1. If there's a matching POI from data2, use its visits, else use the currentPoi's visits.
             let visits = matchingPoi.visits ? [...matchingPoi.visits] : [...currentPoi.visits];
-      
+            let casinos = matchingPoi.casinos ? [...matchingPoi.casinos] : [...currentPoi.casinos];
+
+            console.log('casinos')
+            console.log(casinos)
+            
+            casinos && setActiveCasinos(casinos)
             // 2. If transactions are present, add the new visit.
             if (currentPoi.transactions && currentPoi.transactions.length > 0) {
               const newVisit = {
@@ -61,11 +71,13 @@ const Lookup = (props) => {
       
             return { ...currentPoi, visits: visits };
           });
+          
       
           setCurrentPoiList(updatedCurrentPoiList);
           sessionStorage.setItem('currentPoiList', JSON.stringify(updatedCurrentPoiList));
         };
         fetchDataVals();
+        setIsLoading(false);
         
     }, []);
 
@@ -154,7 +166,7 @@ const Lookup = (props) => {
                                 }
                             </th>
                             <th className='border border-kv-gray p-4 max-w-xs'>
-                                {currentPoi.casinos && currentPoi.casinos.join(', ')}
+                                {isLoading ? <p>Loading...</p> : Array.isArray(activeCasinos) && activeCasinos.join(', ')}
                             </th>
                         </tr>
                         <tr><th colSpan={3}>Player Notes</th></tr>

@@ -125,6 +125,7 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
         poiId: selectedPoi.id,
         poi: selectedPoi,
         poiDescription: selectedPoi.description? selectedPoi.description : '',
+        poiNotes: selectedPoi.notes? selectedPoi.notes : '',
       }));
     } else {
       setFormState((prevState) => ({
@@ -133,6 +134,8 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
       }));
     }
   };
+
+
   const handleLocationChange = (selectedLocations) => {
     const newPoi = {
       ...poi,
