@@ -46,7 +46,7 @@ const CasinoView = () => {
 
   const totalResults = filteredVisits.reduce((sum, visit) => {
     const results = visit.transactions.reduce((sum, transaction) => {
-      return sum + (transaction.type === 'Buy In' ? -transaction.amount : transaction.amount);
+      return sum + (transaction.type === 'Cash Out' ? -transaction.amount : transaction.amount);
     }, 0);
     return sum + results;
   }, 0);
@@ -70,7 +70,7 @@ const CasinoView = () => {
             { selectedCasino && 
               (<tr>
                 <th className='border border-kv-gray p-4'># of Visits: {numberOfVisits}</th>
-                <th className='border border-kv-gray p-4'colSpan={3}>Total Buy-In: <span>${totalBuyIn}</span><br/>Total Results: <span className={totalResults > 0 ? 'text-blue-500' : 'text-kv-red'}>{totalResults < 0 ? `-$${Math.abs(totalResults)}` : `$${totalResults}`}</span> </th>
+                <th className='border border-kv-gray p-4'colSpan={3}>Total Buy-In: <span>${totalBuyIn.toLocaleString()}</span><br/>Total Results: <span className={totalResults > 0 ? 'text-blue-500' : 'text-kv-red'}>{totalResults < 0 ? `-$${Math.abs(totalResults).toLocaleString()}` : `$${totalResults.toLocaleString()}`}</span> </th>
               </tr>)
             }
             <tr>
@@ -133,8 +133,8 @@ const CasinoView = () => {
                     <span className='text-xs '>"{poi.description}"</span>
                 </td>
                 <td className='text-center border-r border-b border-black p-4'>{mostRecentVisitDate && mostRecentVisitDate.toLocaleDateString()}</td>
-                <td className= ' text-center border-r border-b border-black p-4' >{buyInsThisMonth < 0 ? `-$${Math.abs(buyInsThisMonth)}` : `$${buyInsThisMonth}`}</td>
-                <td className={(results > 0  ? 'text-blue-500' : 'text-kv-red') + (results === 0 ? 'text-black' : '') + ' text-center border-b border-black p-4'}>{results < 0 ? `-$${Math.abs(results)}` : `$${results}`}</td>
+                <td className= ' text-center border-r border-b border-black p-4' >{buyInsThisMonth < 0 ? `-$${Math.abs(buyInsThisMonth).toLocaleString()}` : `$${buyInsThisMonth.toLocaleString()}`}</td>
+                <td className={(results > 0  ? 'text-blue-500' : 'text-kv-red') + (results === 0 ? 'text-black' : '') + ' text-center border-b border-black p-4'}>{results < 0 ? `-$${Math.abs(results).toLocaleString()}` : `$${results.toLocaleString()}`}</td>
             </tr>
         );
     })

@@ -27,12 +27,21 @@ export function VisitViewer({
           const cashOutsThisVisit = visit.transactions.filter(transaction => transaction.type === "Cash Out").reduce((sum, transaction) => sum + transaction.amount, 0);
           const visitResult = cashOutsThisVisit - buyInsThisVisit;
 
+          let textColor;
+            if (visitResult > 0) {
+                textColor = 'text-blue-500';
+            } else if (visitResult < 0) {
+                textColor = 'text-kv-red';
+            } else {
+                textColor = 'text-black';
+            }
+
           if (visitIndex === expandedVisitIndex || expandedVisitIndex === null) {
             return <>
                                         <tr key={`visit-${visitIndex}`} className={visitIndex % 2 === 0 ? 'bg-kv-logo-gray' : 'bg-slate-gray'} onClick={() => toggleVisibility(visitIndex)}>
                                             <td className='text-center border-r border-b border-black p-4'>{visit.casino ? visit.casino : null}</td>
                                             <td className='text-center border-r border-b border-black p-4 w-15'> Arrival: <br/>{visit.arrival ? dateTimeTransformer(visit.arrival) : null} <br/>Departure: <br/>{visit.departure ? dateTimeTransformer(visit.departure) : null}</td>
-                                            <td className='text-center border-r border-b border-black p-4'>{visitResult}</td>
+                                            <td  className={`${textColor} text-center border-r border-b border-black p-4`}>{visitResult < 0 ? `-$${Math.abs(visitResult).toLocaleString()}` : `$${visitResult.toLocaleString()}`}</td>
                                         </tr>
                                         {visitIndex === expandedVisitIndex && <>
                                                 <tr className='bg-dark-leather-2 text-kv-gray'>

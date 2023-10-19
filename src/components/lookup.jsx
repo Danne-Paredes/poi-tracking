@@ -161,7 +161,7 @@ const Lookup = (props) => {
                                         });
 
                                         const overallAverage = visitBuyInSums.reduce((a, b) => a + b, 0) / visitBuyInSums.length;
-                                        return `$${Math.round(overallAverage)}`
+                                        return `$${Math.round(overallAverage).toLocaleString()}`
                                     })()
                                 }
                             </th>
