@@ -81,6 +81,10 @@ const Lookup = (props) => {
         
     }, []);
 
+    useEffect(() => {
+      setActiveCasinos(currentPoi.casinos)
+    }, [currentPoi])
+    
 
 
   return (
