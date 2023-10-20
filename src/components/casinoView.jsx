@@ -23,6 +23,7 @@ const CasinoView = () => {
         return { value: casino, label: casino };
     })];
 
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const currentDate = new Date();
   const currentMonth = currentDate.getMonth();
   const currentYear = currentDate.getFullYear();
@@ -51,6 +52,8 @@ const CasinoView = () => {
     return sum + results;
   }, 0);
 
+  
+
   return (
     <div className='flex justify-center items-center'>
       <table className='justify-center items-center mt-2 border  border-kv-gray'>
@@ -69,21 +72,25 @@ const CasinoView = () => {
             </tr>
             { selectedCasino && 
               (<tr>
-                <th className='border border-kv-gray p-4'># of Visits: {numberOfVisits}</th>
-                <th className='border border-kv-gray p-4'colSpan={3}>Total Buy-In: <span>${totalBuyIn.toLocaleString()}</span><br/>Total Results: <span className={totalResults > 0 ? 'text-blue-500' : 'text-kv-red'}>{totalResults < 0 ? `-$${Math.abs(totalResults).toLocaleString()}` : `$${totalResults.toLocaleString()}`}</span> </th>
+                <th className='border border-kv-gray p-4'>{monthNames[currentMonth]} Visits: {numberOfVisits}</th>
+                <th className='border border-kv-gray p-4'colSpan={3}>{monthNames[currentMonth]} Buy-In: <span className='font-bold'>${totalBuyIn.toLocaleString()}</span><br/>{monthNames[currentMonth]} Results: <span className={`font-bold ${totalResults > 0 ? 'text-blue-500' : 'text-kv-red'}`}>{totalResults < 0 ? `-$${Math.abs(totalResults).toLocaleString()}` : `$${totalResults.toLocaleString()}`}</span> </th>
               </tr>)
             }
             <tr>
               <th className='border border-kv-gray p-4' onClick={()=>console.log(poiList)}>POI</th>
-              <th className='border border-kv-gray p-4'>Last Visit</th>
-              <th className='border border-kv-gray p-4'>Buy-In</th>
-              <th className='border border-kv-gray p-4'>Results</th>
+              <th className='sm:hidden border border-kv-gray p-4'>Details</th>
+              <th className='hidden sm:table-cell border border-kv-gray p-4'>Last Visit</th>
+              <th className='hidden sm:table-cell border border-kv-gray p-4'>Buy-In</th>
+              <th className='hidden sm:table-cell border border-kv-gray p-4'>Results</th>
             </tr>
           </thead>
           <tbody>
           {poiList &&
             poiList
-            .filter((poi) => poi.casinos.includes(selectedCasino))
+            .filter((poi) => {
+                return poi.casinos.includes(selectedCasino) &&
+                       (poi.visits || []).some(visit => visit.casino === selectedCasino);
+            })
             .sort((a, b) => {
                 const mostRecentVisitDateA = (a.visits || [])
                     .reduce((latestDate, visit) => {
@@ -127,15 +134,32 @@ const CasinoView = () => {
         const results = cashOutsThisMonth - buyInsThisMonth ;
 
         return (
-            <tr key={poi.id} className={index % 2 === 0 ? 'bg-kv-logo-gray' : 'bg-slate-gray'}>
-                <td className='text-center border-r border-b border-black p-4  text-lg'>
+          <>
+            <tr key={`sm-${poi.id}`} className={`hidden sm:table-row ${index % 2 === 0 ? 'bg-kv-logo-gray' : 'bg-slate-gray'}`}>
+                <td className='text-center border-r border-b border-black p-4  text-lg w-8'>
                     {poi.name} <br/>
-                    <span className='text-xs '>"{poi.description}"</span>
+                    <span className='text-xs italic'>"{poi.description}"</span>
                 </td>
-                <td className='text-center border-r border-b border-black p-4'>{mostRecentVisitDate && mostRecentVisitDate.toLocaleDateString()}</td>
-                <td className= ' text-center border-r border-b border-black p-4' >{buyInsThisMonth < 0 ? `-$${Math.abs(buyInsThisMonth).toLocaleString()}` : `$${buyInsThisMonth.toLocaleString()}`}</td>
-                <td className={(results > 0  ? 'text-blue-500' : 'text-kv-red') + (results === 0 ? 'text-black' : '') + ' text-center border-b border-black p-4'}>{results < 0 ? `-$${Math.abs(results).toLocaleString()}` : `$${results.toLocaleString()}`}</td>
+                <td className='text-center border-r border-b border-black font-bold p-4'>{mostRecentVisitDate && mostRecentVisitDate.toLocaleDateString()}</td>
+                <td className= ' text-center border-r border-b border-black font-bold p-4' >{buyInsThisMonth < 0 ? `-$${Math.abs(buyInsThisMonth).toLocaleString()}` : `$${buyInsThisMonth.toLocaleString()}`}</td>
+                <td className={(results > 0  ? 'text-blue-500' : 'text-kv-red') + (results === 0 ? 'text-black' : '') + ' text-center border-b border-black font-bold p-4'}>{results < 0 ? `-$${Math.abs(results).toLocaleString()}` : `$${results.toLocaleString()}`}</td>
             </tr>
+
+            <tr key={`xs-${poi.id}`} className={`sm:hidden ${index % 2 === 0 ? 'bg-kv-logo-gray' : 'bg-slate-gray'}`}>
+              <td className='text-center border-r border-b border-black p-4  text-lg w-8'>
+                  {poi.name} <br/>
+                  <span className='text-xs italic'>"{poi.description}"</span>
+              </td>
+              <td colSpan={3} className='text-center border-r border-b border-black p-4'>
+                Last Visit: {mostRecentVisitDate && mostRecentVisitDate.toLocaleDateString()}
+                <br/>
+                <br/>
+                Buy In: {buyInsThisMonth < 0 ? `-$${Math.abs(buyInsThisMonth).toLocaleString()}` : `$${buyInsThisMonth.toLocaleString()}`}
+                <br/>
+                Result: <span className={(results > 0  ? 'text-blue-500' : 'text-kv-red') + (results === 0 ? 'text-black' : '') + ' text-center'}>{results < 0 ? `-$${Math.abs(results).toLocaleString()}` : `$${results.toLocaleString()}`}</span>
+              </td>
+            </tr>
+          </>
         );
     })
 }

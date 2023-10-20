@@ -311,7 +311,7 @@ useEffect(() => {
             }}>reset selectedCasino poiList</button>
       </div> */}
 
-      {currentPoiList.length === 0  && (
+      {poiList.length !== 0 && currentPoiList.length === 0  && (
                     <div className='flex justify-center mt-10'>
                       <button
                         type="button"

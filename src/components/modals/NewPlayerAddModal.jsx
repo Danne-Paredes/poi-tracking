@@ -21,13 +21,15 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
       .filter((poi) => poi.active)
       .map((poi) => {
        return { value: poi.name, label: poi.name };
-    })];
+    }).sort((a, b) => a.label.localeCompare(b.label))
+  ];
   const allOptions = [ 
     ...poiInfo
       .filter((poi) => poi.active)
       .map((poi) => {
        return { value: poi.name, label: poi.name };
-    })];
+    }).sort((a, b) => a.label.localeCompare(b.label))
+  ];
   const locationOptions = [ 
     ...casinos.map((casino) => {
        return { value: casino, label: casino };
@@ -103,6 +105,8 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
 
   const handleAddPoi = (e) => {
     const enteredPoi = e.value;
+    console.log('formState.poiList')
+    console.log(formState.poiList)
     const selectedPoi =  formState.poiList.find((poi) => poi.name === enteredPoi);
 
     if (isNew) {
@@ -119,6 +123,8 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
       return
     }
 
+    console.log('Matched POI from list:', selectedPoi);
+
     if (selectedPoi) {
       setFormState((prevState) => ({
         ...prevState,
@@ -130,10 +136,10 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
     } else {
       setFormState((prevState) => ({
         ...prevState,
-        poi: selectedPoi,
+        poi: selectedPoi, // This line seems odd, since selectedPoi is undefined if this block runs.
       }));
     }
-  };
+};
 
 
   const handleLocationChange = (selectedLocations) => {
@@ -218,7 +224,16 @@ export const NewPlayerAddModal = ({ setShowModal, addPoi, poiInfo, casinos, sele
             <input type="checkbox" checked={isNew} onChange={handleIsNewChange} />
             <br/>
             {!isNew && (
-              <SingleSelect ref={inputRef} id="pois" onKeyDown={handleKeyDown} onChange={handleAddPoi} className="max-w-xs" value={poi.name ? { label: poi.name, value: poi.name } : null} options={selectedCasino ==='Select A Casino'? allOptions : options} placeholder='Select a Player'/>
+                <SingleSelect 
+                    ref={inputRef} 
+                    id="pois" 
+                    onKeyDown={handleKeyDown} 
+                    onChange={handleAddPoi} 
+                    className="max-w-xs mx-auto" 
+                    value={poi && poi.name ? { label: poi.name, value: poi.name } : null} 
+                    options={selectedCasino === 'Select A Casino' ? allOptions : options} 
+                    placeholder='Select a Player'
+                />
             )}
             {!isNew && (
               <>

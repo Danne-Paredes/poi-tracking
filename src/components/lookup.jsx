@@ -106,7 +106,7 @@ const Lookup = (props) => {
                                                         .map(poi => ({
                                                             value: poi.name,
                                                             label: poi.name,
-                                                            }))
+                                                            })).sort((a, b) => a.label.localeCompare(b.label))
                                                 }
                                         onChange={(e) => {
                                                     const matchingPoi = poiList.find((poi) => poi.name === e.value);
