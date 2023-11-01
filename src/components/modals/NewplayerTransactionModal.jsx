@@ -2,19 +2,25 @@ import React, {useState, useEffect, useRef} from 'react'
 import SingleSelect from '../singleSelect';
 import MultiSelect from '../multiSelect';
 
-export const NewPlayerTransactionModal = ({ setShowModal, addTransaction, index }) => {
+export const NewPlayerTransactionModal = ({ setShowModal, addTransaction, index, games}) => {
   const [formState, setFormState] = useState({
     transactionAmount: 0,
     selectedDateTime: '',
+    selectedGame:'',
     type: 'Buy In',
     note: '',
     transactionDetails: [],
   });
 
+  const options = [ 
+    ...games.map((game) => {
+       return { value: game, label: game };
+    })];
+
   const inputRef = useRef(null);
   const modalRef = useRef(null);
 
-  const { transactionAmount, selectedDateTime, type, note, transactionDetails } = formState;
+  const { transactionAmount, selectedDateTime, type, note, transactionDetails, selectedGame } = formState;
 
   const handleDateTimeChange = (event) => {
     const inputDate = event.target.value;
@@ -25,8 +31,9 @@ export const NewPlayerTransactionModal = ({ setShowModal, addTransaction, index 
   };
   
   useEffect(() => {
-    console.log('index')
-    console.log(index)
+    console.log('games')
+    console.log(games)
+    
     const currentDate = new Date();
     currentDate.setHours(currentDate.getHours() - 7);
     const adjustedDateTime = currentDate.toISOString().slice(0, 16);
@@ -37,6 +44,18 @@ export const NewPlayerTransactionModal = ({ setShowModal, addTransaction, index 
   }, []);
 
   useEffect(()=>{
+    type === 'Cash Out' ? setFormState((prevState) => ({
+      ...prevState,
+      transactionDetails: {
+        date:selectedDateTime,
+        type:type,
+        game: selectedGame,
+        amount:transactionAmount,
+        note:note,
+        index:index
+      },
+    })) :
+
     setFormState((prevState) => ({
       ...prevState,
       transactionDetails: {
@@ -169,7 +188,20 @@ export const NewPlayerTransactionModal = ({ setShowModal, addTransaction, index 
                     Note
                 </label>
             </div>
-
+            {type === 'Cash Out' && 
+              <div className='w-full flex justify-center'><SingleSelect
+                className =  'mb-2 w-28'
+                value={selectedGame ? { label: selectedGame, value: selectedGame } : null}
+                options={options}
+                onChange={(e) =>{
+                  const newGame = e.value
+                  setFormState((prev)=>({
+                    ...prev,
+                    selectedGame:newGame
+                   }))}
+                }
+              /></div>
+            }
             { type !== "Note" && <div className='flex justify-center mx-auto items-center text-center block mb-2'>
                 <input onKeyDown={handleKeyDown} ref={inputRef} type='number' placeholder='Amount' onChange={handleAmountChange}/>
             </div>}

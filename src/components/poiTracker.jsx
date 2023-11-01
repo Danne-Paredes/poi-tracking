@@ -15,7 +15,7 @@ import {db, updateCollection, getDataVals, getPoiData, sendDataToFirebase} from 
 import SingleSelect from '../components/singleSelect'
 import { AiOutlinePlusCircle  } from 'react-icons/ai'
 
-const PoiTracker = () => {
+const PoiTracker = ({user}) => {
   const [openPlayerAddModal,setOpenPlayerAddModal] = useState(false)
   const [openPlayerTransactionModal,setOpenPlayerTransactionModal] = useState(false)
   const [openPlayerArriveDepartModal,setOpenPlayerArriveDepartModal] = useState(false)
@@ -34,7 +34,8 @@ const PoiTracker = () => {
   const [dataValsList, setDataValsList] = useState({ casinos: [] })
   const [selectedCasino, setSelectedCasino] = useState(() => {
     const savedCasino = sessionStorage.getItem('currentCasino');
-    return savedCasino ? JSON.parse(savedCasino) : 'Select A Casino';
+    const defaultCasino = user.location? user.location : 'Select A Casino'
+    return savedCasino ? JSON.parse(savedCasino) : defaultCasino;
   }); // Initialize as an empty array
   const options = [ 
                  ...dataValsList.casinos.map((casino) => {
@@ -44,7 +45,7 @@ const PoiTracker = () => {
   const handleCasinoChange = (selectedOption) => {
   setSelectedCasino(selectedOption.value);
   sessionStorage.setItem("currentCasino", JSON.stringify(selectedOption.value));
-};
+  };
 
 const refetchDataVals = async () => {
   const data = await getDataVals();
@@ -52,8 +53,19 @@ const refetchDataVals = async () => {
   setDataValsList(data);
   setPoiList(data2);
 };
+
+useEffect(() => {
+  if (user && user.location) {
+    setSelectedCasino(prevCasino => {
+      // Only update if the previous value is 'Select A Casino'
+      return user.location !== "Corp - Knighted Ventures" && prevCasino === 'Select A Casino' ? user.location : prevCasino;
+    });
+  }
+}, [user.location]);
   
 useEffect(() => {
+  console.log('user')
+  console.log(user)
   const fetchDataVals = async () => {
     const data = await getDataVals();
     const data2 = await getPoiData();
@@ -91,15 +103,6 @@ useEffect(() => {
 
 
   const handleAddPoi = (poi, arrival, id, casinos, isNew) => {
-    console.log('made it to poitracker');
-    console.log('poi');
-    console.log(poi);
-    console.log('id');
-    console.log(id);
-    console.log('currentPoiList');
-    console.log(currentPoiList);
-    console.log('casinos');
-    console.log(casinos);
     const poiLowerCase = poi.name.toLowerCase();
   
     // Check if the POI name already exists (case-insensitive)
@@ -235,6 +238,7 @@ useEffect(() => {
       try {
         await updateDoc(docRef, {
           visits: arrayUnion({
+            user: user.email,
             casino:selectedCasino,
             arrival: newPoi.arrival,
             departure: newPoi.departure,
@@ -276,6 +280,7 @@ useEffect(() => {
 
     const test = 
       {
+        email:user.email,
         timestamp: adjustedDateTime,
         id: poi.id,
         name: poi.name,
@@ -294,7 +299,7 @@ useEffect(() => {
     <>
       <div className='flex justify-center mt-10 items-center'>
       <SingleSelect
-          className="max-w-xs snap-center"
+          className="max-w-xs min-w-4 snap-center"
           onChange={handleCasinoChange}
           value={selectedCasino ? { label: selectedCasino, value: selectedCasino } : null}
           options={options}
@@ -332,7 +337,7 @@ useEffect(() => {
 
       {/* {openPlayerAddModal && <PlayerAddModal  poiInfo={poiList} addPoi={handleAddPoi} casinos={dataValsList.casinos} selectedCasino={selectedCasino} isOpen={()=>setOpenPlayerAddModal()} />} */}
       {openPlayerAddModal && <NewPlayerAddModal setShowModal={setOpenPlayerAddModal} poiInfo={poiList} addPoi={handleAddPoi} casinos={dataValsList.casinos} selectedCasino={selectedCasino} />}
-      {openPlayerTransactionModal && <NewPlayerTransactionModal setShowModal={setOpenPlayerTransactionModal} index={poiIndex} addTransaction={handleAddPoiTransaction} />}
+      {openPlayerTransactionModal && <NewPlayerTransactionModal setShowModal={setOpenPlayerTransactionModal} index={poiIndex} addTransaction={handleAddPoiTransaction} games={dataValsList.games} />}
       {openPlayerArriveDepartModal && <NewPlayerArriveDepartModal setShowModal={setOpenPlayerArriveDepartModal} index={poiIndex} poi={poi} addPoi={handleAddArriveDepart}  poiList={poiList} />}
       {openPlayerNotesModal && <NewPlayerNotesModal setShowModal={setOpenPlayerNotesModal} setSelectedVisit={setSelectedVisit} setOpenEdit={setOpenPlayerTransactionEditModal} poi={poi} />}
       {openPlayerTransactionEditModal && <NewPlayerTransactionEditModal setShowModal={setOpenPlayerTransactionEditModal} preSelectedVisit={selectedVisit} poi={poi} index={poiIndex} casinos={dataValsList.casinos} />}

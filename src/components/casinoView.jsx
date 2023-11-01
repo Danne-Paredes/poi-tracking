@@ -5,7 +5,10 @@ import SingleSelect from '../components/singleSelect'
 const CasinoView = () => {
   const [dataValsList, setDataValsList] = useState({ casinos: [] })
   const [poiList, setPoiList] = useState([])
-  const [selectedCasino, setSelectedCasino] = useState('')
+  const [selectedCasino, setSelectedCasino] = useState(() => {
+    const savedCasino = sessionStorage.getItem('currentCasino');
+    return savedCasino ? JSON.parse(savedCasino) : 'Select A Casino';
+  }); // Initialize as an empty array
 
   const fetchDataVals = async () => {
     const data = await getDataVals();
@@ -65,7 +68,8 @@ const CasinoView = () => {
                   placeholder={"Select A Casino"}
                   value={selectedCasino ? { label: selectedCasino, value: selectedCasino } : null}
                   onChange={(e)=>{
-                    setSelectedCasino(e.value)
+                    setSelectedCasino(e.value);
+                    sessionStorage.setItem("currentCasino", JSON.stringify(e.value));
                   }}
                 />
               </th>
@@ -87,56 +91,67 @@ const CasinoView = () => {
           <tbody>
           {poiList &&
             poiList
-            .filter((poi) => {
-                return poi.casinos.includes(selectedCasino) &&
-                       (poi.visits || []).some(visit => visit.casino === selectedCasino);
+            // .filter((poi) => {
+            //     return poi.casinos.includes(selectedCasino) &&
+            //            (poi.visits || []).some(visit => visit.casino === selectedCasino);
+            // })
+            // .sort((a, b) => {
+            //     const mostRecentVisitDateA = (a.visits || [])
+            //         .reduce((latestDate, visit) => {
+            //             const visitDate = new Date(visit.departure);
+            //             return !latestDate || visitDate > latestDate ? visitDate : latestDate;
+            //         }, null);
+
+            //     const mostRecentVisitDateB = (b.visits || [])
+            //         .reduce((latestDate, visit) => {
+            //             const visitDate = new Date(visit.departure);
+            //             return !latestDate || visitDate > latestDate ? visitDate : latestDate;
+            //         }, null);
+
+            //     // First sort by most recent visit
+            //     if (mostRecentVisitDateA > mostRecentVisitDateB) return -1;
+            //     if (mostRecentVisitDateA < mostRecentVisitDateB) return 1;
+
+            //     // If visits are equal, sort by name
+            //     return a.name.localeCompare(b.name);
+            // })
+            .filter(poi => {
+              return poi.casinos.includes(selectedCasino) &&
+                (poi.visits || []).some(visit => {
+                  return visit.casino === selectedCasino &&
+                         new Date(visit.departure).getMonth() === currentMonth &&
+                         new Date(visit.departure).getFullYear() === currentYear;
+                });
             })
             .sort((a, b) => {
-                const mostRecentVisitDateA = (a.visits || [])
-                    .reduce((latestDate, visit) => {
-                        const visitDate = new Date(visit.departure);
-                        return !latestDate || visitDate > latestDate ? visitDate : latestDate;
-                    }, null);
-
-                const mostRecentVisitDateB = (b.visits || [])
-                    .reduce((latestDate, visit) => {
-                        const visitDate = new Date(visit.departure);
-                        return !latestDate || visitDate > latestDate ? visitDate : latestDate;
-                    }, null);
-
-                // First sort by most recent visit
-                if (mostRecentVisitDateA > mostRecentVisitDateB) return -1;
-                if (mostRecentVisitDateA < mostRecentVisitDateB) return 1;
-
-                // If visits are equal, sort by name
-                return a.name.localeCompare(b.name);
+              return a.name.localeCompare(b.name);
             })
             .map((poi, index) => {
-        const monthlyTransactions = (poi.visits || [])
-            .filter(visit => visit.casino === selectedCasino )
-            .flatMap(visit => visit.transactions || [])
-            .filter(transaction => new Date(transaction.date).getMonth() === currentMonth);
+            const monthlyTransactions = (poi.visits || [])
+              .filter(visit => visit.casino === selectedCasino )
+              .flatMap(visit => visit.transactions || [])
+              .filter(transaction => new Date(transaction.date).getMonth() === currentMonth);
             
-        const buyInsThisMonth = monthlyTransactions
-            .filter(transaction => transaction.type === "Buy In")
-            .reduce((sum, transaction) => sum + transaction.amount, 0);
-            
-        const cashOutsThisMonth = monthlyTransactions
-            .filter(transaction => transaction.type === "Cash Out")
-            .reduce((sum, transaction) => sum + transaction.amount, 0);
+            const buyInsThisMonth = monthlyTransactions
+                .filter(transaction => transaction.type === "Buy In")
+                .reduce((sum, transaction) => sum + transaction.amount, 0);
+                
+            const cashOutsThisMonth = monthlyTransactions
+                .filter(transaction => transaction.type === "Cash Out")
+                .reduce((sum, transaction) => sum + transaction.amount, 0);
 
-        const mostRecentVisitDate = (poi.visits || [])
-        .reduce((latestDate, visit) => {
-            const visitDate = new Date(visit.departure);
-            return !latestDate || visitDate > latestDate ? visitDate : latestDate;
-        }, null);
+            const mostRecentVisitDate = (poi.visits || [])
+            .reduce((latestDate, visit) => {
+                const visitDate = new Date(visit.departure);
+                return !latestDate || visitDate > latestDate ? visitDate : latestDate;
+            }, null);
 
         const results = cashOutsThisMonth - buyInsThisMonth ;
 
         return (
           <>
             <tr key={`sm-${poi.id}`} className={`hidden sm:table-row ${index % 2 === 0 ? 'bg-kv-logo-gray' : 'bg-slate-gray'}`}>
-                <td className='text-center border-r border-b border-black p-4  text-lg w-8'>
+                <td className='text-center border-r border-b border-black p-4  text-lg w-1/2'>
                     {poi.name} <br/>
                     <span className='text-xs italic'>"{poi.description}"</span>
                 </td>

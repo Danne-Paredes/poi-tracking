@@ -5,6 +5,8 @@ import { useParams, useLocation } from 'react-router-dom';
 import SingleSelect from './singleSelect';
 import MultiSelect from './multiSelect';
 import { dateTimeTransformer, dateTransformer, timeTransformer } from './functions'
+import 'react-date-range/dist/styles.css'; // main css file
+import 'react-date-range/dist/theme/default.css'; // theme css file
 
 
 const Lookup = (props) => {
@@ -20,7 +22,10 @@ const Lookup = (props) => {
         const savedPoiList = sessionStorage.getItem('currentPoiList');
         return savedPoiList ? JSON.parse(savedPoiList) : [];
       });
-    const [selectedCasino, setSelectedCasino] = useState('')
+    const [selectedCasino, setSelectedCasino] = useState(() => {
+        const savedCasino = sessionStorage.getItem('currentCasino');
+        return savedCasino ? JSON.parse(savedCasino) : 'Select A Casino';
+      }); // Initialize as an empty array
     const [expandedVisitIndex, setExpandedVisitIndex] = useState(null);
     const [activeCasinos, setActiveCasinos] = useState([])
 
@@ -89,6 +94,7 @@ const Lookup = (props) => {
 
   return (
     <div className='justify-center items-center'> 
+        <div className="overflow-y-auto h-screen">
         <div className='flex justify-center items-center'>
                 <table className='justify-center items-center mt-2 border  border-kv-gray'>
                     <thead className='bg-dark-leather-2' onClick={() => console.log(currentPoi)}>
@@ -125,6 +131,7 @@ const Lookup = (props) => {
                                             }
                                     onChange={(e) => {
                                                 setSelectedCasino(e.value);
+                                                sessionStorage.setItem("currentCasino", JSON.stringify(e.value));
                                             }}
                                 />
                             </th>
@@ -181,7 +188,7 @@ const Lookup = (props) => {
         {  currentPoi.name != '' &&
              <VisitViewer   currentPoi={currentPoi}  expandedVisitIndex={expandedVisitIndex} toggleVisibility={toggleVisibility} dateTimeTransformer={dateTimeTransformer} timeTransformer={timeTransformer}  />
         }
-    </div>
+    </div></div>
   )
 }
 

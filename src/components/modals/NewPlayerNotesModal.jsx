@@ -42,12 +42,12 @@ export const NewPlayerNotesModal = ({ setShowModal, setOpenEdit, setSelectedVisi
         setFormState((prev)=>({
           ...prev,
           winLoss: 'Loss'}))
-        return `-$${Math.abs(total)}`;
+        return `-$${Math.abs(total).toLocaleString()}`;
       } else {
         setFormState((prev)=>({
           ...prev,
           winLoss: 'Win'}))
-        return `$${total}`;
+        return `$${total.toLocaleString()}`;
       }
     };
       
@@ -164,8 +164,8 @@ export const NewPlayerNotesModal = ({ setShowModal, setOpenEdit, setSelectedVisi
         <React.Fragment key={index}>
             <tr className={index % 2 === 0 ? 'bg-kv-logo-gray' : 'bg-slate-gray'}>
                 <td className='text-center border-r border-b border-black p-4'>{timeTransformer(item.date)}</td>
-                <td className='text-center border-r border-b border-black p-4'>{item.type === 'Buy In' && item.amount}</td>
-                <td className='text-center border-b border-black p-4'>{item.type === 'Cash Out' && item.amount}</td>
+                <td className='text-center border-r border-b border-black p-4'>{item.type === 'Buy In' && item.amount.toLocaleString()}</td>
+                <td className='text-center border-b border-black p-4'>{item.type === 'Cash Out' && item.amount.toLocaleString()}</td>
             </tr>
             <tr className={index % 2 === 0 ? 'bg-kv-logo-gray' : 'bg-slate-gray'}>
                 <td colSpan={3} className={index === selectedTransactions.length - 1 ? 'border-b border-kv-gray p-4' : 'border-b border-black p-4'}>{item.note}</td>
