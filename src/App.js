@@ -14,25 +14,23 @@ function App() {
   const [aclUser, setACLUser] = useState(() => {
     const savedACLUser = sessionStorage.getItem('currentACLUser');
     // return []
-    return savedACLUser ? JSON.parse(savedACLUser) : [];
+    return savedACLUser ? JSON.parse(savedACLUser) : null;
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-      const fetchDataVals = async (user) => {
-          const data = await getACL();
-          const currentUser = data.find((currentUser) => currentUser.email === user.email);
-
-          if (!currentUser) {
-              // If the user is not found in ACL, log them out and navigate them to login
-              auth.signOut();
-              setUser(null);
-              setACLUser(null);
-          } else {
-              currentUser.location !== "Corp - Knighted Ventures" && sessionStorage.setItem("currentACLUser", JSON.stringify(currentUser));
-              setACLUser(currentUser);
-          }
-      };
+    const fetchDataVals = async (user) => {
+      const data = await getACL();
+      const currentUser = data.find((currentUser) => currentUser.email === user.email);
+      
+      if (currentUser && currentUser.location !== "Corp - Knighted Ventures") {
+          sessionStorage.setItem("currentACLUser", JSON.stringify(currentUser));
+          setACLUser(currentUser);
+      } else {
+          setACLUser(null);
+      }
+    }
+  
 
       const unsubscribe = auth.onAuthStateChanged((user) => {
           setUser(user);
@@ -47,7 +45,7 @@ function App() {
   }, []);
 
   function ProtectedRoute({ component: Component, user, aclUser, ...props }) {
-      if (user && aclUser) {
+      if (user && aclUser !== null) {
           return <Component {...props} user={aclUser} />;
       }
       return <Navigate to="/login" replace />;
@@ -60,7 +58,7 @@ function App() {
   return (
     <div className="bg-[url('./images/darkdenim3.png')] w-full bg-repeat min-h-screen">
         <Router>
-            {user && aclUser && <Nav />}
+            {user && aclUser !== null && <Nav />}
             <Routes>
               <Route path="/" element={<ProtectedRoute component={PoiTracker} user={user} aclUser={aclUser} />} />
               <Route path="/login" element={<Login />} />
