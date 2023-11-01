@@ -46,6 +46,14 @@ function App() {
       };
   }, []);
 
+  function ProtectedRoute({ component: Component, user, aclUser, ...props }) {
+      if (user && aclUser) {
+          return <Component {...props} user={aclUser} />;
+      }
+      return <Navigate to="/login" replace />;
+  }
+
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -54,12 +62,12 @@ function App() {
         <Router>
             {user && aclUser && <Nav />}
             <Routes>
-                <Route path="/" element={user && aclUser ? <PoiTracker user={aclUser} /> : <Navigate to="/login" replace />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/roster" element={user && aclUser ? <Roster /> : <Navigate to="/login" replace />} />
-                <Route path="/lookup" element={user && aclUser ? <Lookup /> : <Navigate to="/login" replace />} />
-                <Route path="/lookup/:id" element={user && aclUser ? <Lookup /> : <Navigate to="/login" replace />} />
-                <Route path="/casinoView" element={user && aclUser ? <CasinoView /> : <Navigate to="/login" replace />} />
+              <Route path="/" element={<ProtectedRoute component={PoiTracker} user={user} aclUser={aclUser} />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/roster" element={<ProtectedRoute component={Roster} user={user} aclUser={aclUser} />} />
+              <Route path="/lookup" element={<ProtectedRoute component={Lookup} user={user} aclUser={aclUser} />} />
+              <Route path="/lookup/:id" element={<ProtectedRoute component={Lookup} user={user} aclUser={aclUser} />} />
+              <Route path="/casinoView" element={<ProtectedRoute component={CasinoView} user={user} aclUser={aclUser} />} />
             </Routes>
         </Router>
     </div>
