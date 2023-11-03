@@ -8,7 +8,7 @@ export function VisitViewer({
 }) {
   return <div className='flex justify-center items-center'>
                 <table className='justify-center items-center mt-2 border  border-kv-gray'>
-                    <thead className='bg-dark-leather-2' onClick={() => console.log(currentPoi)}>
+                    <thead className=' bg-dark-leather-2' onClick={() => console.log(currentPoi)}>
                         <tr>
                             <th className='border border-kv-gray p-4 '>
                                 Casino

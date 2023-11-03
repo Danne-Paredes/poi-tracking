@@ -5,8 +5,8 @@ import { useParams, useLocation } from 'react-router-dom';
 import SingleSelect from './singleSelect';
 import MultiSelect from './multiSelect';
 import { dateTimeTransformer, dateTransformer, timeTransformer } from './functions'
-import 'react-date-range/dist/styles.css'; // main css file
-import 'react-date-range/dist/theme/default.css'; // theme css file
+import '@hassanmojab/react-modern-calendar-datepicker/lib/DatePicker.css';
+import DatePicker from '@hassanmojab/react-modern-calendar-datepicker';
 
 
 const Lookup = (props) => {
@@ -14,10 +14,21 @@ const Lookup = (props) => {
     const location = useLocation();
     const poi = location.state?.poi;
     const [isLoading, setIsLoading] = useState(true);
+    const [selectedDayRange, setSelectedDayRange] = useState({
+        from: null,
+        to: null
+      });
+
+    const [visitDateRange, setVisitDateRange] = useState({
+        from: null,
+        to: null
+      });
 
     const [dataValsList, setDataValsList] = useState({ casinos: [] })
     const [poiList, setPoiList] = useState([])
     const [currentPoi, setCurrentPoi] = useState(poi?poi:{name:'', casinos:[]})
+    const [filteredPoi, setFilteredPoi] = useState(null)
+
     const [currentPoiList, setCurrentPoiList] = useState(() => {
         const savedPoiList = sessionStorage.getItem('currentPoiList');
         return savedPoiList ? JSON.parse(savedPoiList) : [];
@@ -52,18 +63,13 @@ const Lookup = (props) => {
           const updatedCurrentPoiList = currentPoiList.map(currentPoi => {
             const matchingPoi = data2.find(poi => poi.id === currentPoi.id);
 
-
-            console.log('matchingPoi')
-            console.log(matchingPoi)
       
             // 1. If there's a matching POI from data2, use its visits, else use the currentPoi's visits.
             let visits = matchingPoi.visits ? [...matchingPoi.visits] : [...currentPoi.visits];
             let casinos = matchingPoi.casinos ? [...matchingPoi.casinos] : [...currentPoi.casinos];
 
-            console.log('casinos')
-            console.log(casinos)
             
-            casinos && setActiveCasinos(casinos)
+            id && casinos && setActiveCasinos(casinos);
             // 2. If transactions are present, add the new visit.
             if (currentPoi.transactions && currentPoi.transactions.length > 0) {
               const newVisit = {
@@ -90,17 +96,101 @@ const Lookup = (props) => {
       setActiveCasinos(currentPoi.casinos)
     }, [currentPoi])
     
+    useEffect(() => {
+        if (currentPoi && selectedDayRange.from && selectedDayRange.to) {
+          // Convert selectedDayRange to Date objects for comparison
+          const startDate = new Date(selectedDayRange.from.year, selectedDayRange.from.month - 1, selectedDayRange.from.day);
+          const endDate = new Date(selectedDayRange.to.year, selectedDayRange.to.month - 1, selectedDayRange.to.day);
+      
+          // Filter visits within the date range
+          const filteredVisits = currentPoi.visits.filter(visit => {
+            const arrivalDate = new Date(visit.arrival);
+            const departureDate = new Date(visit.departure);
+            return arrivalDate >= startDate && departureDate <= endDate;
+          });
+      
+          // Update filteredPoi with a copy of currentPoi with the filtered visits
+          setFilteredPoi({
+            ...currentPoi,
+            visits: filteredVisits
+          });
+        }
+      }, [selectedDayRange, currentPoi, setFilteredPoi]);
+    
+    // render regular HTML input element
+  const renderCustomInput = ({ ref }) => (
+        <textarea
+        readOnly
+        className={`w-[120px] text-black text-center mr-2`}
+        ref={ref} // necessary
+        placeholder="Select to filter"
+        value={selectedDayRange.from !== null  && selectedDayRange.to !== null ? `${selectedDayRange.from.month}/${selectedDayRange.from.day}/${selectedDayRange.from.year} -\n${selectedDayRange.to.month}/${selectedDayRange.to.day}/${selectedDayRange.to.year}` : ''}
+        />
+    )
+
+    const updateVisitDateRange = (visits) => {
+        let earliest = new Date(visits[0].arrival);
+        let latest = new Date(visits[0].departure);
+      
+        visits.forEach(visit => {
+          const arrivalDate = new Date(visit.arrival);
+          const departureDate = new Date(visit.departure);
+          
+          if (arrivalDate < earliest) {
+            earliest = arrivalDate;
+          }
+          if (departureDate > latest) {
+            latest = departureDate;
+          }
+        });
+      
+        setVisitDateRange({
+          from: {
+            day: earliest.getDate(),
+            month: earliest.getMonth() + 1, // getMonth() is zero-based, so add 1
+            year: earliest.getFullYear()
+          },
+          to: {
+            day: latest.getDate(),
+            month: latest.getMonth() + 1, // getMonth() is zero-based, so add 1
+            year: latest.getFullYear()
+          }
+        });
+        setSelectedDayRange({
+          from: {
+            day: earliest.getDate(),
+            month: earliest.getMonth() + 1, // getMonth() is zero-based, so add 1
+            year: earliest.getFullYear()
+          },
+          to: {
+            day: latest.getDate(),
+            month: latest.getMonth() + 1, // getMonth() is zero-based, so add 1
+            year: latest.getFullYear()
+          }
+        });
+      };
+      
+      // Call this function whenever you need to update the date range, for example in a useEffect or after data is loaded
+      useEffect(() => {
+        if (currentPoi && currentPoi.visits && currentPoi.visits.length > 0) {
+          updateVisitDateRange(currentPoi.visits);
+          
+        }
+      }, [currentPoi]);
+      
 
 
   return (
     <div className='justify-center items-center'> 
         <div className="overflow-y-auto h-screen">
         <div className='flex justify-center items-center'>
-                <table className='justify-center items-center mt-2 border  border-kv-gray'>
+            <div className=' inline-block align-middle mb-6'>
+                <table className='justify-center items-center mt-2 border border-kv-gray'>
                     <thead className='bg-dark-leather-2' onClick={() => console.log(currentPoi)}>
                         <tr>
                             <th>Select POI</th>
                             <th>Casino Filter</th>
+                            <th>Date Range</th>
                         </tr>
                         <tr>
                             <th className='p-2'>
@@ -135,9 +225,33 @@ const Lookup = (props) => {
                                             }}
                                 />
                             </th>
+                            <th>
+                                <DatePicker
+                                    value={selectedDayRange}
+                                    className={'mr-2'}
+                                    onChange={setSelectedDayRange}
+                                    inputPlaceholder="Select a day"
+                                    renderInput={renderCustomInput} 
+                                    minimumDate={visitDateRange.from}
+                                    maximumDate={visitDateRange.to}
+                                    shouldHighlightWeekends
+                                />
+                            </th>
                         </tr>
                     </thead>
                 </table>
+                </div>
+                {selectedDayRange.to !== visitDateRange.to && selectedDayRange.from !== visitDateRange.from  && <button 
+                    className='btn-xs mt-8 ml-1'
+                    onClick={ ()=>
+                        {
+                            setSelectedDayRange({
+                            from: visitDateRange.from,
+                            to: visitDateRange.to})
+                            setFilteredPoi(null)
+                        }
+                    }
+                    >Reset</button>}
         </div>
         <div className='flex justify-center items-center'>
                 <table className='justify-center items-center mt-2 border  border-kv-gray'>
@@ -186,7 +300,7 @@ const Lookup = (props) => {
                 </table>
         </div>
         {  currentPoi.name != '' &&
-             <VisitViewer   currentPoi={currentPoi}  expandedVisitIndex={expandedVisitIndex} toggleVisibility={toggleVisibility} dateTimeTransformer={dateTimeTransformer} timeTransformer={timeTransformer}  />
+             <VisitViewer   currentPoi={filteredPoi === null? currentPoi : filteredPoi}  expandedVisitIndex={expandedVisitIndex} toggleVisibility={toggleVisibility} dateTimeTransformer={dateTimeTransformer} timeTransformer={timeTransformer}  />
         }
     </div></div>
   )
