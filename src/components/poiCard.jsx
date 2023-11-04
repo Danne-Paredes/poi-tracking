@@ -10,6 +10,7 @@ import { AiOutlinePlusCircle, AiOutlineMinusCircle } from 'react-icons/ai'
 
 
 
+
 export function PoiCard({
   openPlayerAddModal,
   openPlayerTransactionModal,

@@ -3,6 +3,7 @@ import SingleSelect from '../components/singleSelect'
 import {db, updateCollection, getDataVals, getPoiData} from '../config/firebase'
 import { doc, updateDoc, getDocs, collection } from 'firebase/firestore';
 import { AiOutlineEdit }  from 'react-icons/ai'
+import { ImCancelCircle } from 'react-icons/im'
 import { NewPlayerRosterEditModal } from "./modals/NewPlayerRosterEditModal";
 
 
@@ -14,17 +15,43 @@ const Roster = (props) => {
     const [dataValsList, setDataValsList] = useState({ casinos: [] })
     const [showInactive, setShowInactive] = useState(false);
     const [poiList, setPoiList] = useState([])
+    const [filteredPoiList, setFilteredPoiList] = useState([])
     const [poiIndex, setPoiIndex] = useState('');
     const [poi, setPoi] = useState([]);
+    const [filteredPoi, setFilteredPoi] = useState('')
     const [selectedCasino, setSelectedCasino] = useState(() => {
         const savedCasino = sessionStorage.getItem('currentCasino');
-        return savedCasino ? JSON.parse(savedCasino) : 'Select A Casino';
+        return savedCasino ? JSON.parse(savedCasino) : 'All Casinos';
       }); // Initialize as an empty array
     
     const options = [ 
+      { value: 'All Casinos', label: 'All Casinos' },
     ...dataValsList.casinos.map((casino) => {
         return { value: casino, label: casino };
     })];
+
+    const poiOptions = poiList
+  .sort((a, b) => {
+    // First, sort by active status.
+    if (a.active && !b.active) return -1;
+    if (!a.active && b.active) return 1;
+
+    // If both have the same active status, sort alphabetically by name.
+    return a.name.localeCompare(b.name);
+  })
+  .filter((poi) => {
+    if (selectedCasino === 'All Casinos' && showInactive) {
+      return true;
+    } else if (selectedCasino === 'All Casinos' && !showInactive) {
+      return poi.active;
+    } else if (showInactive) {
+      return poi.casinos.includes(selectedCasino);
+    } else {
+      return poi.active && poi.casinos.includes(selectedCasino);
+    }
+  })
+  .map(poi => ({ value: poi.name, label: poi.name })); // Corrected line: removed unnecessary curly braces and return
+
 
     const tbodyRef = useRef(null);
 
@@ -44,16 +71,38 @@ const Roster = (props) => {
         fetchDataVals();
       }, []);
 
+    useEffect(() => {
+      if (filteredPoi) {
+        const lowerCaseFilteredPoi = filteredPoi.toLowerCase(); // assuming filteredPoi is a string
+        const newFilteredPoiList = poiList.filter(poi => 
+          poi.name.toLowerCase().includes(lowerCaseFilteredPoi)
+        );
+        setFilteredPoiList(newFilteredPoiList);
+      } else {
+        setFilteredPoiList(poiList); // No filter applied
+      }
+    }, [filteredPoi, poiList]); // Re-run when either filteredPoi or poiList changes
+      
+
     const handleCasinoChange = (selectedOption) => {
     setSelectedCasino(selectedOption.value);
     sessionStorage.setItem("currentCasino", JSON.stringify(selectedOption.value));
     };
+    const handlePoiChange = (selectedOption) => {
+    setFilteredPoi(selectedOption.value);
+    };
 
-    const handleStatusChange = async (poiId, active) => {
+    const handleStatusChange = async (poiId, active, casinos) => {
         try {
           const poiRef = doc(db, 'poi', poiId);
-          await updateDoc(poiRef, { active: !active });
-          console.log('Document updated successfully!');
+          if (casinos.length === 1) {
+            await updateDoc(poiRef, { active: !active });
+            console.log('Document updated successfully!');
+          } else {
+            const updatedCasinos = casinos.filter(casino => casino !== selectedCasino);
+            await updateDoc(poiRef, { casinos: updatedCasinos });
+            console.log('Document updated successfully!');
+          }
           fetchDataVals();
         } catch (error) {
           console.error('Error updating document:', error);
@@ -98,6 +147,14 @@ const Roster = (props) => {
   return (
     <>
         <div className='flex justify-center mt-10 items-center'>
+            {filteredPoi && <button onClick={()=>setFilteredPoi(null)} className='bg-kv-gray mr-1 rounded-full'><ImCancelCircle/></button>}
+            <SingleSelect
+                className="max-w-xs snap-center mr-2"
+                onChange={handlePoiChange}
+                value={filteredPoi ? { label: filteredPoi, value: filteredPoi } : null}
+                options={poiOptions}
+                placeholder='Filter by POI'
+                />
             <SingleSelect
                 className="max-w-xs snap-center"
                 onChange={handleCasinoChange}
@@ -119,8 +176,8 @@ const Roster = (props) => {
             </tr>
           </thead>
             <tbody>
-              {poiList &&
-                poiList
+              {filteredPoiList &&
+                filteredPoiList
                 .sort((a, b) => {
                   // First, sort by active status. 
                   // If one is active and the other isn't, it should come first.
@@ -156,7 +213,7 @@ const Roster = (props) => {
                                     name={`toggle-${poi.id}`} 
                                     id={`toggle-${poi.id}`} 
                                     checked={poi.active}
-                                    onChange={() => handleStatusChange(poi.id, poi.active)} className="sr-only peer"/>
+                                    onChange={() => handleStatusChange(poi.id, poi.active,poi.casinos)} className="sr-only peer"/>
                                 <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-red-300 dark:peer-focus:ring-red-800 dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-kv-red"></div>
                                 </label>
                             </div>
