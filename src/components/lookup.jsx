@@ -129,20 +129,27 @@ const Lookup = (props) => {
     )
 
     const updateVisitDateRange = (visits) => {
-        let earliest = new Date(visits[0].arrival);
-        let latest = new Date(visits[0].departure);
+      let earliest = new Date(); // Initialize with current date, assuming visits are in the past
+      let latest = new Date(0); // Initialize with the earliest time possible
       
-        visits.forEach(visit => {
-          const arrivalDate = new Date(visit.arrival);
+      visits.forEach(visit => {
+        const arrivalDate = new Date(visit.arrival);
+        
+        if (arrivalDate < earliest) {
+          earliest = arrivalDate;
+        }
+      
+        if (visit.departure) { // If departure exists, use it for comparison
           const departureDate = new Date(visit.departure);
-          
-          if (arrivalDate < earliest) {
-            earliest = arrivalDate;
-          }
           if (departureDate > latest) {
             latest = departureDate;
           }
-        });
+        } else { // If no departure, use the largest arrival date so far
+          if (arrivalDate > latest) {
+            latest = arrivalDate;
+          }
+        }
+      });
       
         setVisitDateRange({
           from: {

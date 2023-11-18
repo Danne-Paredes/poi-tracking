@@ -1,14 +1,19 @@
 import React,{ useState, useEffect } from 'react'
 import { getDataVals, getPoiData } from '../config/firebase'
 import SingleSelect from '../components/singleSelect'
+import { monthTransformer, yearTransformer, getMonthFromString } from './functions'
 
 const CasinoView = () => {
   const [dataValsList, setDataValsList] = useState({ casinos: [] })
   const [poiList, setPoiList] = useState([])
+  const [currentMonth, setCurrentMonth] = useState('')
+  const [currentYear, setCurrentYear] = useState('')
   const [selectedCasino, setSelectedCasino] = useState(() => {
     const savedCasino = sessionStorage.getItem('currentCasino');
     return savedCasino ? JSON.parse(savedCasino) : 'Select A Casino';
   }); // Initialize as an empty array
+  const [selectedMonthYear, setSelectedMonthYear] = useState(''); // Initialize as an empty array
+
 
   const fetchDataVals = async () => {
     const data = await getDataVals();
@@ -19,17 +24,47 @@ const CasinoView = () => {
 
   useEffect(() => {
     fetchDataVals();
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const currentDate = new Date();
+    setCurrentMonth(currentDate.getMonth());
+    setCurrentYear(currentDate.getFullYear());
   }, []);
+  useEffect(() => {
+    setSelectedMonthYear(uniqueMonthYears[0]);
+  }, [poiList]);
 
   const casinoOptions = [ 
     ...dataValsList.casinos.map((casino) => {
         return { value: casino, label: casino };
     })];
 
-  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  const currentDate = new Date();
-  const currentMonth = currentDate.getMonth();
-  const currentYear = currentDate.getFullYear();
+    // Helper function to get a month-year string from a date string
+  const toMonthYearString = (dateString) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const months = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+
+    // getMonth() returns 0-11, use it to get the month name
+    const monthName = months[date.getMonth()];
+  return `${monthName} ${year}`;
+  };
+
+  // Map through the poiList to get all departure and arrival dates, convert to month-year strings
+  const allDates = poiList.flatMap(poi =>
+    poi.visits.flatMap(visit => [toMonthYearString(visit.departure), toMonthYearString(visit.arrival)])
+  );
+
+  // Get unique month-year strings
+  const uniqueMonthYears = Array.from(new Set(allDates));
+
+  // Create options list
+  const monthYearOptions = uniqueMonthYears.map(monthYear => {
+    return { value: monthYear, label: monthYear };
+  });
+
 
   const filteredVisits = poiList
   .flatMap(poi => poi?.visits)
@@ -76,8 +111,15 @@ const CasinoView = () => {
             </tr>
             { selectedCasino && 
               (<tr>
-                <th className='border border-kv-gray p-4'>{monthNames[currentMonth]} Visits: {numberOfVisits}</th>
-                <th className='border border-kv-gray p-4'colSpan={3}>{monthNames[currentMonth]} Buy-In: <span className='font-bold'>${totalBuyIn.toLocaleString()}</span><br/>{monthNames[currentMonth]} Results: <span className={`font-bold ${totalResults > 0 ? 'text-blue-500' : 'text-kv-red'}`}>{totalResults < 0 ? `-$${Math.abs(totalResults).toLocaleString()}` : `$${totalResults.toLocaleString()}`}</span> </th>
+                <th className='border border-kv-gray p-4'>
+                  <SingleSelect
+                    options={monthYearOptions}
+                    value={selectedMonthYear ? { label: selectedMonthYear, value: selectedMonthYear } : null}
+                    onChange={(e)=>{
+                      setSelectedMonthYear(e.value);
+                    }}/>
+                 </th>
+                <th className='border border-kv-gray p-4'colSpan={3}>Buy-In: <span className='font-bold'>${totalBuyIn.toLocaleString()}</span><br/>Results: <span className={`font-bold ${totalResults > 0 ? 'text-blue-500' : 'text-kv-red'}`}>{totalResults < 0 ? `-$${Math.abs(totalResults).toLocaleString()}` : `$${totalResults.toLocaleString()}`}</span><br/>Visits: {numberOfVisits} </th>
               </tr>)
             }
             <tr>
@@ -91,35 +133,11 @@ const CasinoView = () => {
           <tbody>
           {poiList &&
             poiList
-            // .filter((poi) => {
-            //     return poi.casinos.includes(selectedCasino) &&
-            //            (poi.visits || []).some(visit => visit.casino === selectedCasino);
-            // })
-            // .sort((a, b) => {
-            //     const mostRecentVisitDateA = (a.visits || [])
-            //         .reduce((latestDate, visit) => {
-            //             const visitDate = new Date(visit.departure);
-            //             return !latestDate || visitDate > latestDate ? visitDate : latestDate;
-            //         }, null);
-
-            //     const mostRecentVisitDateB = (b.visits || [])
-            //         .reduce((latestDate, visit) => {
-            //             const visitDate = new Date(visit.departure);
-            //             return !latestDate || visitDate > latestDate ? visitDate : latestDate;
-            //         }, null);
-
-            //     // First sort by most recent visit
-            //     if (mostRecentVisitDateA > mostRecentVisitDateB) return -1;
-            //     if (mostRecentVisitDateA < mostRecentVisitDateB) return 1;
-
-            //     // If visits are equal, sort by name
-            //     return a.name.localeCompare(b.name);
-            // })
             .filter(poi => {
               return poi.casinos.includes(selectedCasino) &&
                 (poi.visits || []).some(visit => {
                   return visit.casino === selectedCasino &&
-                         new Date(visit.departure).getMonth() === currentMonth &&
+                         new Date(visit.departure).getMonth() === currentMonth -1 &&
                          new Date(visit.departure).getFullYear() === currentYear;
                 });
             })

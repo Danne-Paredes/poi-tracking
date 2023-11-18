@@ -7,7 +7,7 @@ export function VisitViewer({
   timeTransformer
 }) {
   return <div className='flex justify-center items-center'>
-                <table className='justify-center items-center mt-2 border  border-kv-gray'>
+                <table className='justify-center items-center mt-2 border  border-kv-gray mb-10'>
                     <thead className=' bg-dark-leather-2' onClick={() => console.log(currentPoi)}>
                         <tr>
                             <th className='border border-kv-gray p-4 '>

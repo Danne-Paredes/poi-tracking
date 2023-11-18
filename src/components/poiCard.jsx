@@ -18,7 +18,8 @@ export function PoiCard({
   openPlayerNotesModal,
   poi,
   handlePoiRemove,
-  index
+  index,
+  testModal
 }) {
   const navigate = useNavigate();
 
@@ -40,7 +41,7 @@ export function PoiCard({
       <div className="flex justify-center mt-5 mx-auto xxs:max-w-screen-md">
         <div className="flex-cols xxs:flex">
           <div className="player-card ml-2 mr-2">
-            <h3 className={`text-center text-xl font-medium ${hasCashOut && visitResult < -4999 ? `text-kv-red` : `text-gray-400`}`} onClick={()=>console.log(visitResult)}>{poi.name}</h3>
+            <h3 className={`text-center text-xl font-medium ${hasCashOut && visitResult < -4999 ? `text-kv-red` : `text-gray-400`}`} onClick={()=>console.log(poi)}>{poi.name}</h3>
             <div className={`text-center text-xs font-semibold ${hasCashOut && visitResult < -4999 ? `text-kv-red` : `text-gray-400`}`}>
               <p>{poi.description}</p>
               <p>Arrival: {timeTransformer(poi.arrival)}</p>
@@ -48,6 +49,7 @@ export function PoiCard({
               {hasCashOut && <p>Result: {visitResult < 0 ? `-$${Math.abs(visitResult).toLocaleString()}` : `$${visitResult.toLocaleString()}`}</p>}
             </div>
             <div id="btn-menu" className="py-5 grid grid-cols-4 xxxxs:grid-cols-2 xxs:grid-cols-4 sm:grid-cols-4 md:grid-cols-4 gap-4 justify-items-center">
+                {/* <button type="button" className={`${hasCashOut && visitResult < -4999 ? 'btn-sm-red' : 'btn-sm'}`} onClick={()=>testModal(true)}><FiDollarSign className="inner-icon"  /></button> */}
                 <button type="button" className={`${hasCashOut && visitResult < -4999 ? 'btn-sm-red' : 'btn-sm'}`} onClick={()=>openPlayerTransactionModal(index)}><FiDollarSign className="inner-icon"  /></button>
                 <button type="button" className={`${hasCashOut && visitResult < -4999 ? 'btn-sm-red' : 'btn-sm'}`} onClick={()=>openPlayerArriveDepartModal(index)}><BsClock className="inner-icon"   /></button>
                 { poi.visits && poi.visits.length !== 0 ? 
