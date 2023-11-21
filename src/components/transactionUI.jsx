@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react'
 import SingleSelect from './singleSelect';
 
-const TransactionUI = ({ games, details, madeEdit, handleFormUpdate }) => {
+const TransactionUI = ({ games, details, handleFormUpdate }) => {
 
     const options = [ 
         ...games.map((game) => {

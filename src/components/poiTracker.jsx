@@ -3,6 +3,7 @@ import { NewPlayerTransactionModal } from "./modals/NewPlayerTransactionModal";
 import { NewPlayerArriveDepartModal } from "./modals/NewPlayerArriveDepartModal";
 import { NewPlayerNotesModal } from "./modals/NewPlayerNotesModal";
 import { TestModal } from './modals/TestModal'
+import { v4 as uuidv4 } from 'uuid';
 
 
 
@@ -238,6 +239,7 @@ useEffect(() => {
       try {
         await updateDoc(docRef, {
           visits: arrayUnion({
+            id: uuidv4(),
             user: user.email,
             casino:selectedCasino,
             arrival: newPoi.arrival,
@@ -338,7 +340,7 @@ useEffect(() => {
       {openPlayerAddModal && <NewPlayerAddModal setShowModal={setOpenPlayerAddModal} poiInfo={poiList} addPoi={handleAddPoi} casinos={dataValsList.casinos} selectedCasino={selectedCasino} />}
       {openPlayerTransactionModal && <NewPlayerTransactionModal setShowModal={setOpenPlayerTransactionModal} index={poiIndex} addTransaction={handleAddPoiTransaction} games={dataValsList.games} />}
       {openPlayerArriveDepartModal && <NewPlayerArriveDepartModal setShowModal={setOpenPlayerArriveDepartModal} index={poiIndex} poi={poi} addPoi={handleAddArriveDepart}  poiList={poiList} />}
-      {openPlayerNotesModal && <NewPlayerNotesModal setShowModal={setOpenPlayerNotesModal} setSelectedVisit={setSelectedVisit} setOpenEdit={setOpenTestModal} poi={poi} currentPoiList={currentPoiList} games={dataValsList.games} />}
+      {openPlayerNotesModal && <NewPlayerNotesModal setShowModal={setOpenPlayerNotesModal} setSelectedVisit={setSelectedVisit} setOpenEdit={setOpenTestModal} poi={poi} currentPoiList={currentPoiList} games={dataValsList.games} setCurrentPoiList={setCurrentPoiList}/>}
       {openTestModal && <TestModal setShowModal={setOpenTestModal} preSelectedVisit={selectedVisit} poi={poi} index={poiIndex} casinos={dataValsList.casinos} games={dataValsList.games} />}
     </>
   )

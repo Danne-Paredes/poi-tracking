@@ -1,13 +1,14 @@
 import React, {useState, useEffect, useRef} from 'react'
 import { NewPlayerTransactionEditModal } from './NewPlayerTransactionEditModal';
 import { AiOutlineEdit, AiOutlinePlusCircle, AiOutlineMinusCircle }  from 'react-icons/ai'
+import { updatePoiVisits } from '../../config/firebase';
 import SingleSelect from '../singleSelect';
 import MultiSelect from '../multiSelect';
 import NotesTable from '../NotesTable';
 import { dateTransformer, timeTransformer, dateTimeTransformer, useLongPress } from '../functions';
 import TransactionUI from '../transactionUI';
 
-export const NewPlayerNotesModal = ({ setShowModal, setOpenEdit, setSelectedVisit, poi, currentPoiList, games }) => {
+export const NewPlayerNotesModal = ({ setShowModal, setOpenEdit, setSelectedVisit, poi, currentPoiList, games, setCurrentPOI }) => {
   
   const modalRef = useRef(null);
 
@@ -37,6 +38,7 @@ export const NewPlayerNotesModal = ({ setShowModal, setOpenEdit, setSelectedVisi
     },
     winLoss:'',
     curIndex: null,
+    editsMade: false,
   });
   const {total, selectedVisit, winLoss, editsMade, curIndex} = formState
 
@@ -56,11 +58,17 @@ export const NewPlayerNotesModal = ({ setShowModal, setOpenEdit, setSelectedVisi
 
 
   const handleEdit = (value, formType)=>{
+
     console.log(currentTransaction)
-    !currentTransaction.edited && setCurrentTransaction((prevState) => ({
+    !edited && setCurrentTransaction((prevState) => ({
         ...prevState,
         edited: true
     }));
+    !editsMade && setFormState((prevState) => ({
+        ...prevState,
+        editsMade: true
+    }));
+
     setCurrentTransaction((prevState) => ({
         ...prevState,
         [formType]: value,
@@ -153,6 +161,7 @@ export const NewPlayerNotesModal = ({ setShowModal, setOpenEdit, setSelectedVisi
   useEffect(() => {
     setVisibilityStates(selectedVisit.transactions.map(() => false));
   }, [selectedVisit.transactions]);
+
   // Toggle function for each transaction
   const toggleVisibility = (index) => {
     setVisibilityStates(states =>
@@ -182,24 +191,51 @@ export const NewPlayerNotesModal = ({ setShowModal, setOpenEdit, setSelectedVisi
 
   const handleVisitSelect = (e) => {
     const selectedArrival = e.value;
-    const selectedVisit = sortedVisits.find(visit => visit.arrival === selectedArrival);
+    const newSelectedVisit = sortedVisits.find(visit => visit.arrival === selectedArrival);
+    const newSortedTransactions = [...newSelectedVisit.transactions].sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    
-    const sortedTransactions = [...selectedVisit.transactions].sort((a, b) => new Date(a.date) - new Date(b.date));
-
-    if (selectedVisit) {
-      setSelectedVisit(selectedVisit)
+    if (newSelectedVisit) {
+      setSelectedVisit(newSelectedVisit)
       setFormState(prevState => ({
         ...prevState,
         selectedVisit: {
-          value: selectedVisit.arrival,
-          label: dateTimeTransformer(selectedVisit.arrival),
-          departure: selectedVisit.departure,
-          transactions: sortedTransactions
+          value: newSelectedVisit.arrival,
+          label: dateTimeTransformer(newSelectedVisit.arrival),
+          departure: newSelectedVisit.departure,
+          transactions: newSortedTransactions
         },
       }));
     }
   };
+
+  const handleVisitRemoval = () => {
+    console.log('before')
+    console.log(sortedVisits)
+
+    if (window.confirm('Are you sure you want to remove this visit?')) {
+      const newVisits = [...sortedVisits];
+      const visitIndex = newVisits.findIndex(visit => visit.arrival === selectedVisit.value)
+
+      newVisits.splice(visitIndex,1)
+      const newSortedTransactions = [...newVisits[0].transactions].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+
+
+      setSortedVisits(newVisits)
+      console.log(newVisits[0])
+      setFormState(prevState => ({
+        ...prevState,
+        selectedVisit: {
+          value: newVisits[0].arrival,
+          label: dateTimeTransformer(newVisits[0].arrival),
+          departure: newVisits[0].departure,
+          transactions: newSortedTransactions
+        },
+        editsMade:true
+      }))
+    }
+    
+  }
 
   const removeTransactionAtIndex = (indexToRemove) => {
     setFormState((prevState) => {
@@ -223,6 +259,8 @@ export const NewPlayerNotesModal = ({ setShowModal, setOpenEdit, setSelectedVisi
 
             // Update sortedVisits state
             setSortedVisits(newSortedVisits);
+
+
         }
 
         // Return the updated form state
@@ -231,64 +269,76 @@ export const NewPlayerNotesModal = ({ setShowModal, setOpenEdit, setSelectedVisi
             selectedVisit: {
                 ...prevState.selectedVisit,
                 transactions: newTransactions
-            }
+            },
+            editsMade:true
         };
     });
 };
 
 
   const handleTransactionEdit = () => {
-    const transactionDetails = { amount: amount, date: date, type: type, note: note };
+    const transactionDetails = type === 'Cash Out' ? { amount: amount, date: date, type: type, note: note, game:game} : { amount: amount, date: date, type: type, note: note };
     const newArray = [...currentPoiList];
     const newArrayIndex = newArray.findIndex((item) => item.id === poi.id);
-    const visitIndex = newArray[newArrayIndex].visits.findIndex(visit => visit.arrival === selectedVisit.value);
+    const newVisits = newArray[newArrayIndex].visits
+    const visitIndex = newVisits.findIndex(visit => visit.arrival === selectedVisit.value);
 
+    const updatedVisit = newVisits[visitIndex]
+
+    console.log(curIndex)
     if (curIndex != null) {
         // Replace the transaction at the specific index
-        newArray[newArrayIndex].visits[visitIndex].transactions[curIndex] = transactionDetails;
+        updatedVisit.transactions[curIndex] = transactionDetails;
     } else {
         // Add a new transaction
-        newArray[newArrayIndex].visits[visitIndex].transactions.push(transactionDetails);
+        updatedVisit.transactions.push(transactionDetails);
     }
+    // newArray[newArrayIndex].visits = newVisits
+    newArray[newArrayIndex].visits[visitIndex] = updatedVisit
+
+    console.log(updatedVisit)
+    console.log(newVisits.filter((visit)=>visit.departure))
+    setSortedVisits(newVisits.sort((a, b) => new Date(b.arrival) - new Date(a.arrival)))
+
+    const sortedTransactions = [...updatedVisit.transactions].sort((a, b) => new Date(a.date) - new Date(b.date));
+    // const newSelectedVisit = newVisits.find(visit => visit.arrival === selectedVisit.value);
+    setSelectedVisit(updatedVisit)
+      setFormState(prevState => ({
+        ...prevState,
+        selectedVisit: {
+          ...prevState.selectedVisit,
+          value: updatedVisit.arrival,
+          label: dateTimeTransformer(updatedVisit.arrival),
+          departure: updatedVisit.departure,
+          transactions: sortedTransactions,
+        }}))
+
+    sessionStorage.setItem('currentPoiList', JSON.stringify(newArray));
+
+    setEditMode(false)
+
+
     console.log(transactionDetails)
     console.log(formState)
     console.log(newArray)
-
-
-    
-    // // Update transactions
-    // if (newArray[newArrayIndex].arrival === selectedVisit.value && curIndex === null) {
-    //   newArray[newArrayIndex].transactions.push(transactionDetails);
-    // 
-
-    console.log(newArray[newArrayIndex])
-  
-    // // Create new visit
-    // const newVisit = {
-    //   arrival: newArray[newArrayIndex].arrival,
-    //   casino: newArray[newArrayIndex].casino,
-    //   transactions: newArray[newArrayIndex].transactions,
-    // }
-
-    // console.log(newVisit)
-  // 
-    // // Update visits
-    // if (newArray[newArrayIndex] && Array.isArray(newArray[newArrayIndex].visits) && newArray[newArrayIndex].visits.length > 0) {
-    //   const lastVisit = newArray[newArrayIndex].visits[newArray[newArrayIndex].visits.length - 1];
-    //   if (lastVisit && lastVisit.departure) {
-    //     newArray[newArrayIndex].visits.push(newVisit);
-    //   } else if (lastVisit) {
-    //     lastVisit.transactions = newArray[newArrayIndex].transactions;
-    //   }
-    // } else {
-    //   newArray[newArrayIndex].visits = [newVisit];
-    // }
-    
-  
-    // setCurrentPoiList(newArray);
-    // sessionStorage.setItem('currentPoiList', JSON.stringify(newArray));
-    // setOpenPlayerTransactionEditModal(false)
   };
+
+  const handleSubmit = () => {
+
+    const newArray = [...currentPoiList];
+    const newArrayIndex = newArray.findIndex((item) => item.id === poi.id);
+    newArray[newArrayIndex].visits = sortedVisits
+
+    sessionStorage.setItem('currentPoiList', JSON.stringify(newArray));
+    updatePoiVisits(poi.id,sortedVisits.filter((visit)=>visit.departure) )
+
+    setFormState((prev)=>({
+      ...prev,
+      editsMade:false,
+    }))
+    // setShowModal(false)
+    
+  }
 
 
   return (
@@ -299,7 +349,7 @@ export const NewPlayerNotesModal = ({ setShowModal, setOpenEdit, setSelectedVisi
         {/*content*/}
         <div className="border-0 rounded-lg mt-0 items-center shadow-lg relative flex flex-col w-full bg-dark-leather-2 outline-none focus:outline-none">
           {/*header*/}
-          <div onClick={()=>console.log(formState)}  className="flex items-start justify-between p-5 border-b border-solid border-slate-200 rounded-t">
+          <div onClick={()=>console.log(sortedVisits)}  className="flex items-start justify-between p-5 border-b border-solid border-slate-200 rounded-t">
             <h3 className="text-3xl font-semibold text-center text-kv-gray" >
               POI Visits
             </h3>
@@ -318,7 +368,7 @@ export const NewPlayerNotesModal = ({ setShowModal, setOpenEdit, setSelectedVisi
                     value={selectedVisit}
                     onChange={handleVisitSelect}
                   />
-                  <button className='flex justify-center items-center bg-kv-logo-gray hover:bg-kv-red rounded-full ml-2 w-7 h-7' onClick={()=>setOpenEdit(true)}><AiOutlineEdit className='w-5 h-5' /></button>
+                  {selectedVisit.value !== sortedVisits[0].arrival && <button className='flex justify-center items-center bg-kv-red hover:bg-kv-logo-gray rounded-full ml-2 w-7 h-7' onClick={()=>handleVisitRemoval()}> <AiOutlineMinusCircle className='w-5 h-5' /></button>}
                 </div>
                 <div className='text-kv-gray mt-2 text-xl font-bold'>Arrival: {selectedVisit.value ? dateTimeTransformer(selectedVisit.value) : ''}</div>
                 <div className='text-kv-gray mt-2 text-xl font-bold '>Departure: {selectedVisit.departure ? dateTimeTransformer(selectedVisit.departure) : ''}</div>
@@ -352,6 +402,7 @@ export const NewPlayerNotesModal = ({ setShowModal, setOpenEdit, setSelectedVisi
                                 setFormState((prev)=>({
                                   ...prev,
                                     curIndex: null,
+                                    editsMade:false,
                                 }))
                                 setEditMode(false)
                               }}
@@ -385,8 +436,8 @@ export const NewPlayerNotesModal = ({ setShowModal, setOpenEdit, setSelectedVisi
                             </button>
                             <button
                               type="button"
-                              className={currentTransaction.edited  ? 'btn-gray' : 'hidden'}
-                              // onClick={handleSubmit}
+                              className={editsMade  ? 'btn-gray' : 'hidden'}
+                              onClick={handleSubmit}
                             >
                               Save Changes
                             </button>

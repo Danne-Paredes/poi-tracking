@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { AiOutlineEdit, AiOutlinePlusCircle, AiOutlineMinusCircle }  from 'react-icons/ai'
 
 const NotesTable = ({
@@ -15,14 +15,19 @@ const NotesTable = ({
         }) => {
 
 
-            const defaultItem = {
-
-                transactionAmount: 0,
-                selectedGame:'',
-                type: 'Buy In',
-                note: '',
-                edited: false,
-            }
+            const [ defaultItem, setDefaultItem ] = useState(()=>{
+                const currentDate = new Date();
+                currentDate.setHours(currentDate.getHours() - 7);
+                const adjustedDateTime = currentDate.toISOString().slice(0, 16);
+                const newDefault = {
+                    transactionAmount: 0,
+                    selectedGame:'',
+                    date: adjustedDateTime,
+                    type: 'Buy In',
+                    note: '',
+                    edited: false,}
+                return newDefault
+            })
 
     return (
         <table className='justify-center items-center mt-2 border border-kv-gray'>
@@ -42,12 +47,13 @@ const NotesTable = ({
                             <td className='text-center border-b border-black p-4'>{item.type === 'Cash Out' && `$${item.amount.toLocaleString()}`}</td>
                         </tr>
                         <tr className={index % 2 === 0 ? 'bg-kv-logo-gray' : 'bg-slate-gray'} {...longPressEventHandlers(index)}>
-                            <td colSpan={3} className={index === selectedVisit.transactions.length - 1 ? 'border-b border-kv-gray p-4' : 'border-b border-black p-4'}>{item.note}</td>
+                            <td colSpan={3} className={index === selectedVisit.transactions.length - 1 ? 'border-b border-kv-gray p-4' : 'border-b border-black p-4'}>{item.game ? `${item.game}: ${item.note}`:item.note}</td>
                         </tr>
                         <tr className={visibilityStates[index] ? 'items-center justify-center mb-2 border-none' : 'hidden'}>
 
                             <td>
                                 <button className={selectedVisit.value !== poi.arrival ? 'btn-xs-red mx-auto ml-2' : 'hidden'} onClick={() => {
+                                    editedTransaction(defaultItem, null)
                                     setEditMode(true)
                                     }}><AiOutlinePlusCircle />
                                 </button>
@@ -62,6 +68,7 @@ const NotesTable = ({
                                     sessionStorage.setItem('currentIndex', JSON.stringify(index));
                                     // setOpenPlayerTransactionEditModal(true);
                                     console.log(item)
+                                    console.log(index)
                                     editedTransaction(item,index)
                                     setEditMode(true)
                                     }}><AiOutlineEdit />
