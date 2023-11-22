@@ -1,17 +1,17 @@
 import React, {useState, useEffect, useRef} from 'react'
 import { NewPlayerTransactionEditModal } from './NewPlayerTransactionEditModal';
 import { AiOutlineEdit, AiOutlinePlusCircle, AiOutlineMinusCircle }  from 'react-icons/ai'
-import { updatePoiVisits } from '../../config/firebase';
+import { updatePoiVisits, updateCollection } from '../../config/firebase';
 import SingleSelect from '../singleSelect';
 import MultiSelect from '../multiSelect';
 import NotesTable from '../NotesTable';
-import { dateTransformer, timeTransformer, dateTimeTransformer, useLongPress } from '../functions';
+import { dateTransformer, timeTransformer, dateTimeTransformer, useLongPress, findDifferences } from '../functions';
 import TransactionUI from '../transactionUI';
 
-export const NewPlayerNotesModal = ({ setShowModal, setOpenEdit, setSelectedVisit, poi, currentPoiList, games, setCurrentPOI }) => {
+export const NewPlayerNotesModal = ({ setShowModal, setSelectedVisit, poi, currentPoiList, games, ogPoi, user }) => {
   
   const modalRef = useRef(null);
-
+  const orignalPOI = poi.visits
   const [openPlayerTransactionEditModal,setOpenPlayerTransactionEditModal] = useState(false)
   const [ editMode, setEditMode ] = useState(false)
   const [visibilityStates, setVisibilityStates] = useState(null);
@@ -39,8 +39,17 @@ export const NewPlayerNotesModal = ({ setShowModal, setOpenEdit, setSelectedVisi
     winLoss:'',
     curIndex: null,
     editsMade: false,
+    originalVisits:null,
+    edits: {
+        date: '', // or null, or the current date, as appropriate
+        user: '', // or the default user, as appropriate
+        poiName:poi.name,
+        poiId:poi.id,
+        editedVisits: []
+    }
+
   });
-  const {total, selectedVisit, winLoss, editsMade, curIndex} = formState
+  const {total, selectedVisit, winLoss, editsMade, curIndex,originalVisits, edits} = formState
 
 
   const editedTransaction = (transaction,index) => {
@@ -124,6 +133,7 @@ export const NewPlayerNotesModal = ({ setShowModal, setOpenEdit, setSelectedVisi
         departure: mostRecentVisit.departure,
         transactions: sortedTransactions
       },
+      originalVisits: sortedVisits
     });
     setSelectedVisit(sortedVisits[0])
 
@@ -146,10 +156,10 @@ export const NewPlayerNotesModal = ({ setShowModal, setOpenEdit, setSelectedVisi
     document.addEventListener('keydown', handleEscape);
     document.addEventListener('mousedown', handleClickOutside);  
 
-    setFormState((prevState) => ({
-      ...prevState,
-      total: calculatedTotal(),
-    }));
+    // setFormState((prevState) => ({
+    //   ...prevState,
+    //   total: calculatedTotal(),
+    // }));
 
     return () => {
       document.removeEventListener('keydown', handleEscape);
@@ -186,6 +196,7 @@ export const NewPlayerNotesModal = ({ setShowModal, setOpenEdit, setSelectedVisi
       ...prevState,
       date: adjustedDateTime,
     }))
+
   },[])
   
 
@@ -209,71 +220,102 @@ export const NewPlayerNotesModal = ({ setShowModal, setOpenEdit, setSelectedVisi
   };
 
   const handleVisitRemoval = () => {
-    console.log('before')
-    console.log(sortedVisits)
-
     if (window.confirm('Are you sure you want to remove this visit?')) {
-      const newVisits = [...sortedVisits];
-      const visitIndex = newVisits.findIndex(visit => visit.arrival === selectedVisit.value)
+        const newVisits = [...sortedVisits];
+        const visitIndex = newVisits.findIndex(visit => visit.arrival === selectedVisit.value);
 
-      newVisits.splice(visitIndex,1)
-      const newSortedTransactions = [...newVisits[0].transactions].sort((a, b) => new Date(a.date) - new Date(b.date));
+        // Store the visit being removed for recording in edits
+        const removedVisit = { ...newVisits[visitIndex] };
 
+        newVisits.splice(visitIndex, 1);
 
+        setSortedVisits(newVisits);
 
-      setSortedVisits(newVisits)
-      console.log(newVisits[0])
-      setFormState(prevState => ({
-        ...prevState,
-        selectedVisit: {
-          value: newVisits[0].arrival,
-          label: dateTimeTransformer(newVisits[0].arrival),
-          departure: newVisits[0].departure,
-          transactions: newSortedTransactions
-        },
-        editsMade:true
-      }))
+        setFormState(prevState => {
+            const editDetails = {
+                visitArrival: removedVisit.arrival,
+                original: removedVisit,
+                updated: null, // since the visit is removed
+                changes: [{ type: 'visit deleted'}] // No individual transaction changes since the entire visit is removed
+            };
+
+            // Add this edit to the existing edits
+            const existingEdits = prevState.edits?.editedVisits || [];
+            const updatedEditedVisits = [...existingEdits, editDetails];
+
+            return {
+                ...prevState,
+                selectedVisit: newVisits.length > 0 ? {
+                    value: newVisits[0].arrival,
+                    label: dateTimeTransformer(newVisits[0].arrival),
+                    departure: newVisits[0].departure,
+                    transactions: [...newVisits[0].transactions].sort((a, b) => new Date(a.date) - new Date(b.date))
+                } : null, // Handle case where all visits are removed
+                edits: {
+                    ...prevState.edits,
+                    editedVisits: updatedEditedVisits
+                },
+                editsMade: true
+            };
+        });
     }
-    
-  }
+};
+
 
   const removeTransactionAtIndex = (indexToRemove) => {
     setFormState((prevState) => {
-        // Clone the transactions array from the current state
-        const newTransactions = [...prevState.selectedVisit.transactions];
+        const originalVisit = sortedVisits.find(visit => visit.arrival === prevState.selectedVisit.value);
+        const removedTransaction = { ...prevState.selectedVisit.transactions[indexToRemove] };
 
         // Remove the transaction at the specified index
+        const newTransactions = [...prevState.selectedVisit.transactions];
         newTransactions.splice(indexToRemove, 1);
 
-        // Find the index of the visit in the sortedVisits array
-        const visitIndex = sortedVisits.findIndex((visit) => visit.arrival === selectedVisit.value);
+        // Find and update the visit in the sortedVisits array
+        const visitIndex = sortedVisits.findIndex((visit) => visit.arrival === prevState.selectedVisit.value);
+        const newSortedVisits = [...sortedVisits];
         if (visitIndex !== -1) {
-            // Clone the sortedVisits array
-            const newSortedVisits = [...sortedVisits];
-
-            // Update the transactions of the specific visit
-            newSortedVisits[visitIndex] = {
-                ...newSortedVisits[visitIndex],
-                transactions: newTransactions
-            };
-
-            // Update sortedVisits state
+            newSortedVisits[visitIndex].transactions = newTransactions;
             setSortedVisits(newSortedVisits);
-
-
         }
 
-        // Return the updated form state
+        // Record the removal in edits
+        const editDetails = {
+            visitArrival: originalVisit.arrival,
+            original: originalVisit,
+            updated: newSortedVisits[visitIndex],
+            changes: [{ type: 'deleted', original: removedTransaction, updated: null }]
+        };
+
+        const existingEdits = prevState.edits?.editedVisits || [];
+        const existingEditIndex = existingEdits.findIndex(edit => edit.visitArrival === originalVisit.arrival);
+        
+        let updatedEditedVisits;
+        if (existingEditIndex !== -1) {
+            updatedEditedVisits = [...existingEdits];
+            updatedEditedVisits[existingEditIndex] = {
+                ...updatedEditedVisits[existingEditIndex],
+                changes: [...updatedEditedVisits[existingEditIndex].changes, ...editDetails.changes]
+            };
+        } else {
+            updatedEditedVisits = [...existingEdits, editDetails];
+        }
+
         return {
             ...prevState,
             selectedVisit: {
                 ...prevState.selectedVisit,
                 transactions: newTransactions
             },
-            editsMade:true
+            edits: {
+                ...prevState.edits,
+                editedVisits: updatedEditedVisits
+            },
+            editsMade: true
         };
     });
 };
+
 
 
   const handleTransactionEdit = () => {
@@ -283,51 +325,88 @@ export const NewPlayerNotesModal = ({ setShowModal, setOpenEdit, setSelectedVisi
     const newVisits = newArray[newArrayIndex].visits
     const visitIndex = newVisits.findIndex(visit => visit.arrival === selectedVisit.value);
 
-    const updatedVisit = newVisits[visitIndex]
+    const currentDate = new Date();
+    currentDate.setHours(currentDate.getHours() - 7);
+    const adjustedDateTime = currentDate.toISOString().slice(0, 16);
 
-    console.log(curIndex)
+    const originalVisit = newVisits[visitIndex];
+    const updatedVisit = { ...originalVisit, transactions: [...originalVisit.transactions] };
+
     if (curIndex != null) {
-        // Replace the transaction at the specific index
         updatedVisit.transactions[curIndex] = transactionDetails;
     } else {
-        // Add a new transaction
         updatedVisit.transactions.push(transactionDetails);
     }
-    // newArray[newArrayIndex].visits = newVisits
-    newArray[newArrayIndex].visits[visitIndex] = updatedVisit
+    newVisits[visitIndex] = updatedVisit
+    const editDetails = findDifferences(originalVisit, updatedVisit, curIndex, transactionDetails);
 
-    console.log(updatedVisit)
-    console.log(newVisits.filter((visit)=>visit.departure))
-    setSortedVisits(newVisits.sort((a, b) => new Date(b.arrival) - new Date(a.arrival)))
-
+    setSortedVisits(newVisits.sort((a, b) => new Date(b.arrival) - new Date(a.arrival)));
     const sortedTransactions = [...updatedVisit.transactions].sort((a, b) => new Date(a.date) - new Date(b.date));
-    // const newSelectedVisit = newVisits.find(visit => visit.arrival === selectedVisit.value);
-    setSelectedVisit(updatedVisit)
-      setFormState(prevState => ({
-        ...prevState,
+
+    setFormState(prevState => {
+        // Check if there are already edits for the same visit
+        const existingEdits = prevState.edits?.editedVisits || [];
+        const existingEditIndex = existingEdits.findIndex(edit => edit.visitArrival === updatedVisit.arrival);
+
+        let updatedEditedVisits;
+        if (existingEditIndex !== -1) {
+            // Merge new changes with existing ones for the same visit
+            updatedEditedVisits = [...existingEdits];
+            updatedEditedVisits[existingEditIndex] = {
+                ...updatedEditedVisits[existingEditIndex],
+                // Merge or replace the changes as per your application's logic
+                changes: [...updatedEditedVisits[existingEditIndex].changes, ...editDetails.changes]
+            };
+        } else {
+            // Add the new edit to the list of edits
+            updatedEditedVisits = [...existingEdits, editDetails];
+        }
+
+        console.log('updatedEditedVisits')
+        console.log(updatedEditedVisits)
+
+        return {
+            ...prevState,
+            edits: {
+                date: adjustedDateTime,
+                user: user,
+                poi:poi.id,
+                editedVisits: updatedEditedVisits
+            },
         selectedVisit: {
-          ...prevState.selectedVisit,
-          value: updatedVisit.arrival,
-          label: dateTimeTransformer(updatedVisit.arrival),
-          departure: updatedVisit.departure,
-          transactions: sortedTransactions,
-        }}))
+            ...prevState.selectedVisit,
+            value: updatedVisit.arrival,
+            label: dateTimeTransformer(updatedVisit.arrival),
+            departure: updatedVisit.departure,
+            transactions: sortedTransactions,
+        }
+  }});
 
     sessionStorage.setItem('currentPoiList', JSON.stringify(newArray));
-
-    setEditMode(false)
-
-
-    console.log(transactionDetails)
-    console.log(formState)
-    console.log(newArray)
-  };
+    setEditMode(false);
+};
 
   const handleSubmit = () => {
+
+    const currentDate = new Date();
+    currentDate.setHours(currentDate.getHours() - 7);
+    const adjustedDateTime = currentDate.toISOString().slice(0, 16);
 
     const newArray = [...currentPoiList];
     const newArrayIndex = newArray.findIndex((item) => item.id === poi.id);
     newArray[newArrayIndex].visits = sortedVisits
+
+//    const edits = {
+//     original: originalVisits,
+//     updated: sortedVisits,
+//     changes: findDifferences(originalVisits, sortedVisits),
+//     date: adjustedDateTime,
+//     user: user
+// };
+
+    console.log(edits)
+
+    updateCollection('edits',edits)
 
     sessionStorage.setItem('currentPoiList', JSON.stringify(newArray));
     updatePoiVisits(poi.id,sortedVisits.filter((visit)=>visit.departure) )
@@ -349,7 +428,8 @@ export const NewPlayerNotesModal = ({ setShowModal, setOpenEdit, setSelectedVisi
         {/*content*/}
         <div className="border-0 rounded-lg mt-0 items-center shadow-lg relative flex flex-col w-full bg-dark-leather-2 outline-none focus:outline-none">
           {/*header*/}
-          <div onClick={()=>console.log(sortedVisits)}  className="flex items-start justify-between p-5 border-b border-solid border-slate-200 rounded-t">
+
+          <div onClick={()=>console.log(edits)}  className="flex items-start justify-between p-5 border-b border-solid border-slate-200 rounded-t">
             <h3 className="text-3xl font-semibold text-center text-kv-gray" >
               POI Visits
             </h3>

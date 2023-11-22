@@ -2,7 +2,6 @@ import { NewPlayerAddModal } from "./modals/NewPlayerAddModal";
 import { NewPlayerTransactionModal } from "./modals/NewPlayerTransactionModal";
 import { NewPlayerArriveDepartModal } from "./modals/NewPlayerArriveDepartModal";
 import { NewPlayerNotesModal } from "./modals/NewPlayerNotesModal";
-import { TestModal } from './modals/TestModal'
 import { v4 as uuidv4 } from 'uuid';
 
 
@@ -21,11 +20,12 @@ const PoiTracker = ({user}) => {
   const [openPlayerTransactionModal,setOpenPlayerTransactionModal] = useState(false)
   const [openPlayerArriveDepartModal,setOpenPlayerArriveDepartModal] = useState(false)
   const [openPlayerNotesModal,setOpenPlayerNotesModal] = useState(false)
-  const [openTestModal,setOpenTestModal] = useState(false)
+
 
   const [poiList, setPoiList] = useState([])
   const [poiIndex, setPoiIndex] = useState('')
   const [poi, setPoi] = useState([]);
+  const [ogPoi, setOgPoi] = useState([]);
   const [selectedVisit, setSelectedVisit] = useState([])
   const [currentPoiList, setCurrentPoiList] = useState(() => {
     const savedPoiList = sessionStorage.getItem('currentPoiList');
@@ -259,6 +259,7 @@ useEffect(() => {
 
   const handleNotesOpen = (index)=>{
     setPoi(currentPoiList[index])
+    setOgPoi(currentPoiList[index])
     setOpenPlayerNotesModal(true)
   }
 
@@ -332,7 +333,7 @@ useEffect(() => {
       <div className='grid grid-cols-1 sm:grid-cols-2 gap-10 justify-center mt-10'>
           {
             currentPoiList && currentPoiList.map((singlePoi, index) => (
-              <PoiCard key={index} poi={singlePoi} handlePoiRemove={handlePoiRemove} testModal={setOpenTestModal} index={index} openPlayerAddModal={handleOpenPlayerAddModal} openPlayerTransactionModal={handleTransactionOpen} openPlayerArriveDepartModal={handleArriveDepart} openPlayerNotesModal={handleNotesOpen} />
+              <PoiCard key={index} poi={singlePoi} handlePoiRemove={handlePoiRemove} index={index} openPlayerAddModal={handleOpenPlayerAddModal} openPlayerTransactionModal={handleTransactionOpen} openPlayerArriveDepartModal={handleArriveDepart} openPlayerNotesModal={handleNotesOpen} />
             ))
           }
       </div>
@@ -340,8 +341,7 @@ useEffect(() => {
       {openPlayerAddModal && <NewPlayerAddModal setShowModal={setOpenPlayerAddModal} poiInfo={poiList} addPoi={handleAddPoi} casinos={dataValsList.casinos} selectedCasino={selectedCasino} />}
       {openPlayerTransactionModal && <NewPlayerTransactionModal setShowModal={setOpenPlayerTransactionModal} index={poiIndex} addTransaction={handleAddPoiTransaction} games={dataValsList.games} />}
       {openPlayerArriveDepartModal && <NewPlayerArriveDepartModal setShowModal={setOpenPlayerArriveDepartModal} index={poiIndex} poi={poi} addPoi={handleAddArriveDepart}  poiList={poiList} />}
-      {openPlayerNotesModal && <NewPlayerNotesModal setShowModal={setOpenPlayerNotesModal} setSelectedVisit={setSelectedVisit} setOpenEdit={setOpenTestModal} poi={poi} currentPoiList={currentPoiList} games={dataValsList.games} setCurrentPoiList={setCurrentPoiList}/>}
-      {openTestModal && <TestModal setShowModal={setOpenTestModal} preSelectedVisit={selectedVisit} poi={poi} index={poiIndex} casinos={dataValsList.casinos} games={dataValsList.games} />}
+      {openPlayerNotesModal && <NewPlayerNotesModal setShowModal={setOpenPlayerNotesModal} setSelectedVisit={setSelectedVisit} poi={poi} currentPoiList={currentPoiList} ogPoi={ogPoi} games={dataValsList.games} setCurrentPoiList={setCurrentPoiList} user={user}/>}
     </>
   )
 }

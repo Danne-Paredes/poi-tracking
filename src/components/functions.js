@@ -43,3 +43,37 @@ export const useLongPress = (onLongPress, ms = 100) => {
         onMouseLeave: stop,
     });
 };
+
+export const findDifferences = (originalVisit, updatedVisit, curIndex, transactionDetails) => {
+    let transactionChanges = [];
+
+    // If curIndex is not null, we are modifying or deleting a transaction
+    if (curIndex != null) {
+        const originalTransaction = originalVisit.transactions[curIndex];
+
+        // Check if the transaction was modified
+        const isModified = Object.keys(transactionDetails).some(key => transactionDetails[key] !== originalTransaction[key]);
+        if (isModified) {
+            transactionChanges.push({ type: 'modified', original: originalTransaction, updated: transactionDetails });
+        }
+        // If the transaction was not modified, it implies it might be deleted, but that's handled in a different logic block
+    } else {
+        // If curIndex is null, we are adding a new transaction
+        transactionChanges.push({ type: 'added', original: null, updated: transactionDetails });
+    }
+
+    // Check for deleted transactions
+    originalVisit.transactions.forEach((orgTrans, index) => {
+        if (!updatedVisit.transactions.find(updTrans => updTrans === orgTrans) && index !== curIndex) {
+            transactionChanges.push({ type: 'deleted', original: orgTrans, updated: null });
+        }
+    });
+
+    return {
+        visitArrival: updatedVisit.arrival,
+        original: originalVisit,
+        updated: updatedVisit,
+        changes: transactionChanges
+    };
+};
+

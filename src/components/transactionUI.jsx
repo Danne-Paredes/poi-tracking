@@ -65,12 +65,9 @@ const TransactionUI = ({ games, details, handleFormUpdate }) => {
             }
             { details && details.type !== "Note" && <div className='flex justify-center mx-auto items-center text-center block mb-2'>
                 <input type='number' value={details && details.amount} placeholder='Amount' onChange={(e) => handleFormUpdate(parseInt(e.target.value), 'amount')}/>
-                {/* <input onKeyDown={handleKeyDown} ref={inputRef} type='number' value={transactionAmount} placeholder='Amount' onChange={(e) => handleFormUpdate(e, 'transactionAmount')}/> */}
             </div>}
             <div className='flex justify-center mx-auto items-center text-center block mb-2'>
-                {/* <textarea  placeholder='Notes' value={note} onChange={(e) => console.log(e)}></textarea> */}
                 <textarea  placeholder='Notes' value={details && details.note} onChange={(e) => handleFormUpdate(e.target.value, 'note')}></textarea>
-                {/* <textarea onKeyDown={handleKeyDown} placeholder='Notes' value={note} onChange={(e) => handleFormUpdate(e, 'note')}></textarea> */}
             </div>
         </div>
 

@@ -19,7 +19,6 @@ export function PoiCard({
   poi,
   handlePoiRemove,
   index,
-  testModal
 }) {
   const navigate = useNavigate();
 
@@ -49,7 +48,6 @@ export function PoiCard({
               {hasCashOut && <p>Result: {visitResult < 0 ? `-$${Math.abs(visitResult).toLocaleString()}` : `$${visitResult.toLocaleString()}`}</p>}
             </div>
             <div id="btn-menu" className="py-5 grid grid-cols-4 xxxxs:grid-cols-2 xxs:grid-cols-4 sm:grid-cols-4 md:grid-cols-4 gap-4 justify-items-center">
-                {/* <button type="button" className={`${hasCashOut && visitResult < -4999 ? 'btn-sm-red' : 'btn-sm'}`} onClick={()=>testModal(true)}><FiDollarSign className="inner-icon"  /></button> */}
                 <button type="button" className={`${hasCashOut && visitResult < -4999 ? 'btn-sm-red' : 'btn-sm'}`} onClick={()=>openPlayerTransactionModal(index)}><FiDollarSign className="inner-icon"  /></button>
                 <button type="button" className={`${hasCashOut && visitResult < -4999 ? 'btn-sm-red' : 'btn-sm'}`} onClick={()=>openPlayerArriveDepartModal(index)}><BsClock className="inner-icon"   /></button>
                 { poi.visits && poi.visits.length !== 0 ? 

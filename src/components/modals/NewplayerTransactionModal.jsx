@@ -2,7 +2,7 @@ import React, {useState, useEffect, useRef} from 'react'
 import SingleSelect from '../singleSelect';
 import MultiSelect from '../multiSelect';
 
-export const NewPlayerTransactionModal = ({ setShowModal, addTransaction, index, games}) => {
+export const NewPlayerTransactionModal = ({ setShowModal,  addTransaction, index, games}) => {
   const [formState, setFormState] = useState({
     transactionAmount: 0,
     selectedDateTime: '',
