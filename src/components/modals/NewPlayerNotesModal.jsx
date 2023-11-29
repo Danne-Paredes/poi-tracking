@@ -435,7 +435,7 @@ export const NewPlayerNotesModal = ({ setShowModal, setSelectedVisit, poi, curre
             </h3>
           </div>
           {/*body*/}
-            <div className="relative p-6 flex-auto">
+          <div className="relative p-6 flex-auto">
            
             {editMode ?
                 <TransactionUI handleFormUpdate={handleEdit} games={games} details={currentTransaction} />
@@ -456,14 +456,14 @@ export const NewPlayerNotesModal = ({ setShowModal, setSelectedVisit, poi, curre
                 <div className='mt-2 text-kv-gray justify-center text-center items-center text-xl font-bold'>Total: <span className={winLoss == 'Win' ? 'text-blue-500' : 'text-kv-red'}>{total}</span></div>
               </>
             }
-{/* <div className={selectedVisit.transactions.length > -1 ? 'flex justify-center items-center mt-2' :'hidden'}>
-  <button className='btn-xs-red mx-auto ml-2' onClick={()=>
-                    {
-                      sessionStorage.setItem('currentIndex', JSON.stringify(null));
-                      setOpenPlayerTransactionEditModal(true)
-                    }
-                  }><AiOutlinePlusCircle/></button>
-</div> */}
+            <div className={selectedVisit.transactions.length === 0 ? 'flex justify-center items-center mt-2' :'hidden'}>
+              <button className='btn-xs-red mx-auto ml-2' onClick={()=>
+                                {
+                                  sessionStorage.setItem('currentIndex', JSON.stringify(null));
+                                  setOpenPlayerTransactionEditModal(true)
+                                }
+                              }><AiOutlinePlusCircle/></button>
+            </div>
 
 
 

@@ -25,7 +25,7 @@ const SingleSelect = React.forwardRef(({ options, placeholder, onChange, classNa
     <div className="SingleSelect">
       <Select
         ref={ref}
-        className={className}
+        className={className + ' min-w-max'}
         onKeyDown={onKeyDown}
         styles={customStyles}
         placeholder={placeholder}

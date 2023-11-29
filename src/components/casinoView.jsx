@@ -29,16 +29,33 @@ const CasinoView = () => {
     setCurrentMonth(currentDate.getMonth());
     setCurrentYear(currentDate.getFullYear());
   }, []);
+
   useEffect(() => {
     setSelectedMonthYear(uniqueMonthYears[0]);
   }, [poiList]);
 
-  const casinoOptions = [ 
-    ...dataValsList.casinos.map((casino) => {
-        return { value: casino, label: casino };
-    })];
+  const handleMonthYearSelect = (e) =>{
+    // Helper function to convert month name to month number
+    const getMonthNumber = (monthName) => {
+      const months = ["January", "February", "March", "April", "May", "June",
+                      "July", "August", "September", "October", "November", "December"];
+      return months.indexOf(monthName);
+    };
 
-    // Helper function to get a month-year string from a date string
+    // Parse the month and year from e.value
+    const [monthName, year] = e.value.split(' ');
+    const monthNumber = getMonthNumber(monthName);
+
+    // Create a new Date object
+    const selectedDate = new Date(year, monthNumber);
+
+    // Set currentMonth and currentYear
+    setSelectedMonthYear(e.value)
+    setCurrentMonth(selectedDate.getMonth());
+    setCurrentYear(selectedDate.getFullYear());
+  }
+
+  // Helper function to get a month-year string from a date string
   const toMonthYearString = (dateString) => {
     const date = new Date(dateString);
     const year = date.getFullYear();
@@ -52,16 +69,28 @@ const CasinoView = () => {
   return `${monthName} ${year}`;
   };
 
+  // Convert "Month Year" string to a Date object
+  const monthYearToDate = (monthYear) => {
+    const [month, year] = monthYear.split(' ');
+    const monthIndex = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"].indexOf(month);
+    return new Date(year, monthIndex);
+  };
+
   // Map through the poiList to get all departure and arrival dates, convert to month-year strings
   const allDates = poiList.flatMap(poi =>
-    poi.visits.flatMap(visit => [toMonthYearString(visit.departure), toMonthYearString(visit.arrival)])
+    poi.visits
+    .filter(visit => visit.casino === selectedCasino)
+    .flatMap(visit => [toMonthYearString(visit.departure), toMonthYearString(visit.arrival)])
   );
 
   // Get unique month-year strings
   const uniqueMonthYears = Array.from(new Set(allDates));
 
+  // Sort by date in descending order
+  const sortedMonthYears = uniqueMonthYears.sort((a, b) => monthYearToDate(b) - monthYearToDate(a));
+
   // Create options list
-  const monthYearOptions = uniqueMonthYears.map(monthYear => {
+  const monthYearOptions = sortedMonthYears.map(monthYear => {
     return { value: monthYear, label: monthYear };
   });
 
@@ -94,17 +123,19 @@ const CasinoView = () => {
 
   return (
     <div className='flex justify-center items-center'>
-      <table className='justify-center items-center mt-2 border  border-kv-gray'>
+      <table className='justify-center items-center mt-2 border  border-kv-gray mx-2 mb-5'>
           <thead className='bg-dark-leather-2'> 
             <tr>
               <th colSpan={4} className='border border-kv-gray p-4'>
                 <SingleSelect
-                  options={casinoOptions}
+                  options={[...dataValsList.casinos.map((casino) => {
+        return { value: casino, label: casino }
+    })]}
                   placeholder={"Select A Casino"}
                   value={selectedCasino ? { label: selectedCasino, value: selectedCasino } : null}
                   onChange={(e)=>{
                     setSelectedCasino(e.value);
-                    sessionStorage.setItem("currentCasino", JSON.stringify(e.value));
+                    sessionStorage.setItem("currentCasino", JSON.stringify(e.value)); 
                   }}
                 />
               </th>
@@ -116,7 +147,7 @@ const CasinoView = () => {
                     options={monthYearOptions}
                     value={selectedMonthYear ? { label: selectedMonthYear, value: selectedMonthYear } : null}
                     onChange={(e)=>{
-                      setSelectedMonthYear(e.value);
+                      handleMonthYearSelect(e)
                     }}/>
                  </th>
                 <th className='border border-kv-gray p-4'colSpan={3}>Buy-In: <span className='font-bold'>${totalBuyIn.toLocaleString()}</span><br/>Results: <span className={`font-bold ${totalResults > 0 ? 'text-blue-500' : 'text-kv-red'}`}>{totalResults < 0 ? `-$${Math.abs(totalResults).toLocaleString()}` : `$${totalResults.toLocaleString()}`}</span><br/>Visits: {numberOfVisits} </th>
@@ -137,7 +168,7 @@ const CasinoView = () => {
               return poi.casinos.includes(selectedCasino) &&
                 (poi.visits || []).some(visit => {
                   return visit.casino === selectedCasino &&
-                         new Date(visit.departure).getMonth() === currentMonth -1 &&
+                         new Date(visit.departure).getMonth() === currentMonth  &&
                          new Date(visit.departure).getFullYear() === currentYear;
                 });
             })

@@ -7,6 +7,8 @@ import MultiSelect from './multiSelect';
 import { dateTimeTransformer, dateTransformer, timeTransformer } from './functions'
 import '@hassanmojab/react-modern-calendar-datepicker/lib/DatePicker.css';
 import DatePicker from '@hassanmojab/react-modern-calendar-datepicker';
+import LookupSelector from './lookupSelector';
+import LookupDescription from './lookupDescription';
 
 
 const Lookup = (props) => {
@@ -20,9 +22,25 @@ const Lookup = (props) => {
       });
 
     const [visitDateRange, setVisitDateRange] = useState({
-        from: null,
+      from: null,
         to: null
       });
+    //   const currentDate = new Date();
+      
+    //   return {
+    //     from: {
+    //       day: 1,
+    //       month: 1, // January
+    //       year: currentDate.getFullYear() // Current year
+    //     },
+    //     to: {
+    //       day: currentDate.getDate(), // Current day
+    //       month: currentDate.getMonth() + 1, // getMonth() is zero-based, so add 1
+    //       year: currentDate.getFullYear() // Current year
+    //     }
+    //   };
+    // });
+      
 
     const [dataValsList, setDataValsList] = useState({ casinos: [] })
     const [poiList, setPoiList] = useState([])
@@ -48,6 +66,22 @@ const Lookup = (props) => {
           setExpandedVisitIndex(visitIndex);  // expand selected visit's transactions
         }
       };
+    
+      const casinoOptions = dataValsList.casinos.map(casino => ({
+        value: casino,
+        label: casino
+      }))
+
+      const poiOptions = poiList.filter(poi => selectedCasino ? poi.casinos.includes(selectedCasino) : true).map(poi => ({
+        value: poi.name,
+        label: poi.name
+      })).sort((a, b) => a.label.localeCompare(b.label))
+
+
+      const handlePoiChange = (e) =>{
+          const matchingPoi = poiList.find(poi => poi.name === e.value);
+          setCurrentPoi(matchingPoi);
+      }
 
 
     useEffect(() => {
@@ -190,122 +224,24 @@ const Lookup = (props) => {
   return (
     <div className='justify-center items-center'> 
         <div className="overflow-y-auto h-screen">
-        <div className='flex justify-center items-center'>
-            <div className=' inline-block align-middle mb-6'>
-                <table className='justify-center items-center mt-2 border border-kv-gray'>
-                    <thead className='bg-dark-leather-2' onClick={() => console.log(currentPoi)}>
-                        <tr>
-                            <th>Select POI</th>
-                            <th>Casino Filter</th>
-                            <th>Date Range</th>
-                        </tr>
-                        <tr>
-                            <th className='p-2'>
-                                <SingleSelect
-                                        value={currentPoi.name ? { label: currentPoi.name, value: currentPoi.name } : null}
-                                        options={
-                                                    poiList
-                                                        .filter((poi) => selectedCasino ? poi.casinos.includes(selectedCasino) : true)
-                                                        .map(poi => ({
-                                                            value: poi.name,
-                                                            label: poi.name,
-                                                            })).sort((a, b) => a.label.localeCompare(b.label))
-                                                }
-                                        onChange={(e) => {
-                                                    const matchingPoi = poiList.find((poi) => poi.name === e.value);
-                                                    setCurrentPoi(matchingPoi);
-                                                }}
-                                    />
-                            </th>
-                            <th className='p-2'>
-                                <SingleSelect
-                                    value={selectedCasino ? { label: selectedCasino, value: selectedCasino } : null}
-                                    options={
-                                                dataValsList.casinos.map(casino => ({
-                                                    value: casino,
-                                                    label: casino,
-                                                    }))
-                                            }
-                                    onChange={(e) => {
-                                                setSelectedCasino(e.value);
-                                                sessionStorage.setItem("currentCasino", JSON.stringify(e.value));
-                                            }}
-                                />
-                            </th>
-                            <th>
-                                <DatePicker
-                                    value={selectedDayRange}
-                                    className={'mr-2'}
-                                    onChange={setSelectedDayRange}
-                                    inputPlaceholder="Select a day"
-                                    renderInput={renderCustomInput} 
-                                    minimumDate={visitDateRange.from}
-                                    maximumDate={visitDateRange.to}
-                                    shouldHighlightWeekends
-                                />
-                            </th>
-                        </tr>
-                    </thead>
-                </table>
-                </div>
-                {selectedDayRange.to !== visitDateRange.to && selectedDayRange.from !== visitDateRange.from  && <button 
-                    className='btn-xs mt-8 ml-1'
-                    onClick={ ()=>
-                        {
-                            setSelectedDayRange({
-                            from: visitDateRange.from,
-                            to: visitDateRange.to})
-                            setFilteredPoi(null)
-                        }
-                    }
-                    >Reset</button>}
-        </div>
-        <div className='flex justify-center items-center'>
-                <table className='justify-center items-center mt-2 border  border-kv-gray'>
-                    <thead className='bg-dark-leather-2'>
-                        <tr>
-                            <th className='border border-kv-gray p-4 '>
-                                Description
-                            </th>
-                            <th className='border border-kv-gray p-4'>
-                                Average Buy In
-                            </th>
-                            <th className='border border-kv-gray p-4'>
-                                Active Casinos
-                            </th>
-                        </tr>
-                        <tr>
-                            <th className='border border-kv-gray p-4 italic'>
-                               {currentPoi.description}
-                            </th>
-                            <th className='border border-kv-gray p-4'>
-                                {currentPoi.visits && 
-                                    (() => {
-                                        let totalBuyInPerVisit = 0;
-                                        const visitBuyInSums = [];
-
-                                        currentPoi.visits.forEach(visit => {
-                                            const buyInTransactions = visit.transactions.filter(transaction => transaction.type === "Buy In");
-                                            if (buyInTransactions.length > 0) {
-                                                const sumBuyInForVisit = buyInTransactions.reduce((sum, trans) => sum + trans.amount, 0);
-                                                visitBuyInSums.push(sumBuyInForVisit);
-                                            }
-                                        });
-
-                                        const overallAverage = visitBuyInSums.reduce((a, b) => a + b, 0) / visitBuyInSums.length;
-                                        return `$${Math.round(overallAverage).toLocaleString()}`
-                                    })()
-                                }
-                            </th>
-                            <th className='border border-kv-gray p-4 max-w-xs'>
-                                {isLoading ? <p>Loading...</p> : Array.isArray(activeCasinos) && activeCasinos.join(', ')}
-                            </th>
-                        </tr>
-                        <tr><th colSpan={3}>Player Notes</th></tr>
-                        <tr><th colSpan={3}><textarea name="" id="" cols="40" rows="3" className='text-black' value={currentPoi.notes || ''} readOnly /></th></tr>
-                    </thead>
-                </table>
-        </div>
+        <LookupSelector 
+          currentPoi={currentPoi} 
+          selectedCasino={selectedCasino} 
+          setSelectedCasino={setSelectedCasino} 
+          selectedDayRange={selectedDayRange} 
+          setSelectedDayRange={setSelectedDayRange} 
+          renderCustomInput={renderCustomInput} 
+          setFilteredPoi={setFilteredPoi} 
+          visitDateRange={visitDateRange} 
+          casinoOptions={casinoOptions} 
+          poiOptions={poiOptions} 
+          handlePoiChange={handlePoiChange} 
+        />
+        <LookupDescription   
+          currentPoi={currentPoi} 
+          isLoading={isLoading} 
+          activeCasinos={activeCasinos}  
+          />
         {  currentPoi.name != '' &&
              <VisitViewer   currentPoi={filteredPoi === null? currentPoi : filteredPoi}  expandedVisitIndex={expandedVisitIndex} toggleVisibility={toggleVisibility} dateTimeTransformer={dateTimeTransformer} timeTransformer={timeTransformer}  />
         }
@@ -313,4 +249,5 @@ const Lookup = (props) => {
   )
 }
 
-export default Lookup
+
+    export default Lookup
