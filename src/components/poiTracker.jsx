@@ -265,8 +265,11 @@ useEffect(() => {
 
   const handleBQUpload = async (poi) => {
     const currentDate = new Date();
-    currentDate.setHours(currentDate.getHours() - 7);
-    const adjustedDateTime = currentDate.toISOString().slice(0, 16);
+    const timezoneOffsetInMinutes = currentDate.getTimezoneOffset();
+    const adjustedDate = new Date(currentDate.getTime() - timezoneOffsetInMinutes * 60000);
+
+    const adjustedDateTime = adjustedDate.toISOString().slice(0, 16);
+
 
     const totalBuyIn = poi.transactions
       .filter(transaction => transaction.type === "Buy In")

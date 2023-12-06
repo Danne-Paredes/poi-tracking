@@ -260,8 +260,11 @@ export const NewPlayerNotesModal = ({ setShowModal, setSelectedVisit, poi, curre
 
   useEffect(() => {
     const currentDate = new Date();
-    currentDate.setHours(currentDate.getHours() - 7);
-    const adjustedDateTime = currentDate.toISOString().slice(0, 16);
+    const timezoneOffsetInMinutes = currentDate.getTimezoneOffset();
+    const adjustedDate = new Date(currentDate.getTime() - timezoneOffsetInMinutes * 60000);
+
+    const adjustedDateTime = adjustedDate.toISOString().slice(0, 16);
+
     setCurrentTransaction((prevState) => ({
       ...prevState,
       date: adjustedDateTime,
@@ -399,8 +402,11 @@ export const NewPlayerNotesModal = ({ setShowModal, setSelectedVisit, poi, curre
     const visitIndex = newVisits.findIndex(visit => visit.arrival === selectedVisit.value);
 
     const currentDate = new Date();
-    currentDate.setHours(currentDate.getHours() - 7);
-    const adjustedDateTime = currentDate.toISOString().slice(0, 16);
+    const timezoneOffsetInMinutes = currentDate.getTimezoneOffset();
+    const adjustedDate = new Date(currentDate.getTime() - timezoneOffsetInMinutes * 60000);
+
+    const adjustedDateTime = adjustedDate.toISOString().slice(0, 16);
+
 
     const originalVisit = newVisits[visitIndex];
     const updatedVisit = { ...originalVisit, transactions: [...originalVisit.transactions] };
@@ -462,8 +468,11 @@ export const NewPlayerNotesModal = ({ setShowModal, setSelectedVisit, poi, curre
   const handleSubmit = () => {
 
     const currentDate = new Date();
-    currentDate.setHours(currentDate.getHours() - 7);
-    const adjustedDateTime = currentDate.toISOString().slice(0, 16);
+    const timezoneOffsetInMinutes = currentDate.getTimezoneOffset();
+    const adjustedDate = new Date(currentDate.getTime() - timezoneOffsetInMinutes * 60000);
+
+    const adjustedDateTime = adjustedDate.toISOString().slice(0, 16);
+
 
     const newArray = [...currentPoiList];
     const newArrayIndex = newArray.findIndex((item) => item.id === poi.id);
