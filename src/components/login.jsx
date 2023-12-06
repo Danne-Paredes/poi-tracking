@@ -28,7 +28,7 @@ const Login = (props) => {
   }
 
   return (
-      <div className='mx-auto bg-black px-5 max-w-md'>
+      <div className='mx-auto bg-black px-5 max-w-md pb-2'>
         <img priority='false' className='mx-auto p-5' src={logo} alt="KV Logo" />
         <p className='text-kv-logo-gray primary text-center'>Please login with your Knighted Account</p>
         <GoogleButton onClick={signInWithGoogle} className='mx-auto my-4'/>

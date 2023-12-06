@@ -7,6 +7,7 @@ import MultiSelect from '../multiSelect';
 import NotesTable from '../NotesTable';
 import { dateTransformer, timeTransformer, dateTimeTransformer, useLongPress, findDifferences } from '../functions';
 import TransactionUI from '../transactionUI';
+import ArriveDepartUI from '../arriveDepartUI';
 
 export const NewPlayerNotesModal = ({ setShowModal, setSelectedVisit, poi, currentPoiList, games, ogPoi, user }) => {
   
@@ -14,6 +15,7 @@ export const NewPlayerNotesModal = ({ setShowModal, setSelectedVisit, poi, curre
   const orignalPOI = poi.visits
   const [openPlayerTransactionEditModal,setOpenPlayerTransactionEditModal] = useState(false)
   const [ editMode, setEditMode ] = useState(false)
+  const [ editArriveDepartMode, setEditArriveDepartMode ] = useState(false)
   const [visibilityStates, setVisibilityStates] = useState(null);
   const handleLongPress = (index) => {
     // Define the action to be performed on long press
@@ -46,10 +48,12 @@ export const NewPlayerNotesModal = ({ setShowModal, setSelectedVisit, poi, curre
         poiName:poi.name,
         poiId:poi.id,
         editedVisits: []
-    }
+    },
+    updatedArrival: null,
+    updatedDeparture: null,
 
   });
-  const {total, selectedVisit, winLoss, editsMade, curIndex,originalVisits, edits} = formState
+  const {total, selectedVisit, winLoss, editsMade, curIndex,originalVisits, edits, updatedArrival, updatedDeparture} = formState
 
 
   const editedTransaction = (transaction,index) => {
@@ -83,6 +87,72 @@ export const NewPlayerNotesModal = ({ setShowModal, setSelectedVisit, poi, curre
         [formType]: value,
     }));
   }
+
+
+  const handleArriveDepartEdit = (formType, value)=>{
+    setFormState((prevState) => ({
+        ...prevState,
+        [formType]: value,
+        editsMade: true
+    }));
+  }
+
+  const handleArriveDepartUpdate = () => {
+    const newVisits = [...sortedVisits];
+    const visitIndex = newVisits.findIndex(visit => visit.arrival === selectedVisit.value);
+    const originalVisit = { ...newVisits[visitIndex] }; // Save original visit for comparison
+
+    let updatedVisit = newVisits[visitIndex];
+
+    // Prepare an array to store the changes
+    const changes = [];
+
+    if (updatedArrival) {
+        updatedVisit = {...updatedVisit, arrival: updatedArrival};
+        changes.push({ type: 'edited', field: 'arrival', original: originalVisit.arrival, updated: updatedArrival });
+    }
+    if (updatedDeparture) {
+        updatedVisit = {...updatedVisit, departure: updatedDeparture};
+        changes.push({ type: 'edited', field: 'departure', original: originalVisit.departure, updated: updatedDeparture });
+    }
+
+    newVisits[visitIndex] = updatedVisit;
+
+    setFormState(prevState => {
+        const existingEdits = prevState.edits?.editedVisits || [];
+        const existingEditIndex = existingEdits.findIndex(edit => edit.visitArrival === originalVisit.arrival);
+        
+        let updatedEditedVisits;
+        if (existingEditIndex !== -1) {
+            updatedEditedVisits = [...existingEdits];
+            updatedEditedVisits[existingEditIndex] = {
+                ...updatedEditedVisits[existingEditIndex],
+                changes: [...updatedEditedVisits[existingEditIndex].changes, ...changes]
+            };
+        } else {
+            const editDetails = {
+                visitArrival: originalVisit.arrival,
+                original: originalVisit,
+                updated: updatedVisit,
+                changes: changes
+            };
+            updatedEditedVisits = [...existingEdits, editDetails];
+        }
+
+        return {
+            ...prevState,
+            edits: {
+                ...prevState.edits,
+                editedVisits: updatedEditedVisits
+            },
+            editsMade: true
+        };
+    });
+
+    setSortedVisits(newVisits);
+};
+
+
 
 
   const options = sortedVisits?.map(visit => ({
@@ -261,6 +331,9 @@ export const NewPlayerNotesModal = ({ setShowModal, setSelectedVisit, poi, curre
     }
 };
 
+  const handleEditArriveDepart = () =>{
+    setEditArriveDepartMode(true)
+  }
 
   const removeTransactionAtIndex = (indexToRemove) => {
     setFormState((prevState) => {
@@ -396,20 +469,43 @@ export const NewPlayerNotesModal = ({ setShowModal, setSelectedVisit, poi, curre
     const newArrayIndex = newArray.findIndex((item) => item.id === poi.id);
     newArray[newArrayIndex].visits = sortedVisits
 
-//    const edits = {
-//     original: originalVisits,
-//     updated: sortedVisits,
-//     changes: findDifferences(originalVisits, sortedVisits),
-//     date: adjustedDateTime,
-//     user: user
-// };
+
 
     console.log(edits)
 
     updateCollection('edits',edits)
 
+    if (updatedArrival && updatedDeparture) {
+      const updatedData = {
+        arrival: updatedArrival,
+        departure: updatedDeparture,
+        visits: sortedVisits.filter((visit)=>visit.departure)
+      };
+      updatePoiVisits(poi.id,updatedData);
+
+    } else if (updatedArrival && !updatedDeparture) {
+      const updatedData = {
+        arrival: updatedArrival,
+        visits: sortedVisits.filter((visit)=>visit.departure)
+      };
+      updatePoiVisits(poi.id,updatedData);
+
+    }else if (!updatedArrival && updatedDeparture) {
+      const updatedData = {
+        departure: updatedDeparture,
+        visits: sortedVisits.filter((visit)=>visit.departure)
+      };
+      updatePoiVisits(poi.id,updatedData);
+
+    } else {
+      const updatedData = {
+        visits: sortedVisits.filter((visit)=>visit.departure)
+      };
+      updatePoiVisits(poi.id,updatedData);
+    }
+    
+
     sessionStorage.setItem('currentPoiList', JSON.stringify(newArray));
-    updatePoiVisits(poi.id,sortedVisits.filter((visit)=>visit.departure) )
 
     setFormState((prev)=>({
       ...prev,
@@ -429,25 +525,27 @@ export const NewPlayerNotesModal = ({ setShowModal, setSelectedVisit, poi, curre
         <div className="border-0 rounded-lg mt-0 items-center shadow-lg relative flex flex-col w-full bg-dark-leather-2 outline-none focus:outline-none">
           {/*header*/}
 
-          <div onClick={()=>console.log(edits)}  className="flex items-start justify-between p-5 border-b border-solid border-slate-200 rounded-t">
+          <div onClick={()=>console.log(formState)}  className="flex items-start justify-between p-5 border-b border-solid border-slate-200 rounded-t">
             <h3 className="text-3xl font-semibold text-center text-kv-gray" >
-              POI Visits
+              {!editMode && !editArriveDepartMode &&  `POI Visits`}
+              {editMode &&  `Update Transaction`}
+              {editArriveDepartMode &&  `Update Arrival / Departure Time`}
             </h3>
           </div>
           {/*body*/}
           <div className="relative p-6 flex-auto">
            
-            {editMode ?
-                <TransactionUI handleFormUpdate={handleEdit} games={games} details={currentTransaction} />
+            {editMode &&  <TransactionUI handleFormUpdate={handleEdit} games={games} details={currentTransaction} /> } 
+            {editArriveDepartMode &&  <ArriveDepartUI handleFormUpdate={handleArriveDepartEdit} games={games} details={selectedVisit} /> } 
               
-                :
-              <> 
+            {!editMode && !editArriveDepartMode &&  <> 
                 <div className='flex justify-center items-center w-full'>
                   <SingleSelect 
                     options={options} 
                     value={selectedVisit}
                     onChange={handleVisitSelect}
                   />
+                  {selectedVisit.value !== sortedVisits[0].arrival && <button className='flex justify-center items-center bg-kv-red hover:bg-kv-logo-gray rounded-full ml-2 w-7 h-7' onClick={()=>handleEditArriveDepart()}> <AiOutlineEdit className='w-5 h-5' /></button>}
                   {selectedVisit.value !== sortedVisits[0].arrival && <button className='flex justify-center items-center bg-kv-red hover:bg-kv-logo-gray rounded-full ml-2 w-7 h-7' onClick={()=>handleVisitRemoval()}> <AiOutlineMinusCircle className='w-5 h-5' /></button>}
                 </div>
                 <div className='text-kv-gray mt-2 text-xl font-bold'>Arrival: {selectedVisit.value ? dateTimeTransformer(selectedVisit.value) : ''}</div>
@@ -471,7 +569,7 @@ export const NewPlayerNotesModal = ({ setShowModal, setSelectedVisit, poi, curre
           </div>
           {/*footer*/}
 
-          { editMode ?
+          { editMode &&
                         <>
                           <div className="flex items-center justify-end p-6 border-t border-solid border-slate-200 rounded-b">
                             <button
@@ -498,9 +596,44 @@ export const NewPlayerNotesModal = ({ setShowModal, setSelectedVisit, poi, curre
                             </button>
                           </div>
                         </>
+          }
+          { editArriveDepartMode &&
+                        <>
+                          <div className="flex items-center justify-end p-6 border-t border-solid border-slate-200 rounded-b">
+                            <button
+                              className="btn-close"
+                              type="button"
+                              onClick={() => {
+                                handleEdit(false, 'edited')
+                                setFormState((prev)=>({
+                                  ...prev,
+                                    curIndex: null,
+                                    editsMade:false,
+                                    updatedArrival: null,
+                                    updatedDeparture:null,
+                                }))
+                                setEditArriveDepartMode(false)
+                              }}
+                            >
+                              Close
+                            </button>
+                            <button
+                              type="button"
+                              className={formState.editsMade ? 'btn-gray' : 'hidden'}
+                              onClick={()=>{
+                                
+                                handleArriveDepartUpdate()
+                                setEditArriveDepartMode(false)
+                                }}
+                            >
+                              Save Changes
+                            </button>
+                          </div>
+                        </>
+          }
 
-                    :
-
+                    
+          { !editArriveDepartMode && !editMode &&
                         <>
                           <div className="flex items-center justify-end p-6 border-t border-solid border-slate-200 rounded-b">
                             <button
