@@ -81,12 +81,24 @@ export function Nav({}) {
             </button>
           </li>
           <li>
-            <button 
+          <button 
               className={`btn ${location.pathname === '/roster' ? 'bg-kv-red-force' : 'bg-black'}`} 
               onClick={handleNavigate('/roster')}>
               Roster
             </button>
           </li>
+          <li>
+            <button className={`btn bg-black`}>
+            <a 
+              href="https://docs.google.com/document/d/1JV8VMKwvr_m6UiIXB04P4WZIL-B2jpqqpPRD5icJ6Zs/edit?usp=sharing" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className={`btn ${location.pathname === '/roster' ? 'bg-kv-red-force' : 'bg-black'}`}>
+              Help
+            </a>
+            </button>
+          </li>
+
           <li>
             <Logout />
           </li>
@@ -100,7 +112,15 @@ export function Nav({}) {
               <li className="text-xl py-2 px-4 hover:bg-kv-gray cursor-pointer" onClick={handleNavigate('/')}>Input Engine</li>
               <li className="text-xl py-2 px-4 hover:bg-kv-gray cursor-pointer" onClick={handleNavigate('/lookup')}>Individual Lookup</li>
               <li className="text-xl py-2 px-4 hover:bg-kv-gray cursor-pointer" onClick={handleNavigate('/casinoView')}>Casino View</li>
-              <li className="text-xl py-2 px-4 hover:bg-kv-gray cursor-pointer" onClick={handleNavigate('/roster')}>Roster</li>
+              <li className={`text-xl py-2 px-4 hover:bg-kv-gray cursor-pointer`} onClick={handleNavigate('/roster')}>Roster</li>
+              <li className={`text-xl py-2 px-4 hover:bg-kv-gray cursor-pointer`}><a 
+                    href="https://docs.google.com/document/d/1JV8VMKwvr_m6UiIXB04P4WZIL-B2jpqqpPRD5icJ6Zs/edit?usp=sharing" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    >
+                  Help
+                </a>
+              </li>
               <li className="text-xl py-2 px-4 hover:bg-kv-red cursor-pointer" onClick={handleSignOut}>Logout</li>
             </ul>          
           }
