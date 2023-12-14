@@ -164,7 +164,7 @@ const Roster = (props) => {
                 />
             <button onClick={toggleInactiveRows} className='btn ml-4'>{showInactive ? 'Hide Inactive' : 'Show Inactive'}</button>
         </div>
-      <div className="flex justify-center items-center">
+      <div className="flex justify-center items-center mx-2">
         <table className='justify-center items-center mt-2 border  border-kv-gray'>
           <thead className='bg-dark-leather-2'> 
             <tr>

@@ -98,9 +98,16 @@ export const NewPlayerNotesModal = ({ setShowModal, setSelectedVisit, poi, curre
   }
 
   const handleArriveDepartUpdate = () => {
+    const newArray = [...currentPoiList];
+    const newArrayIndex = newArray.findIndex((item) => item.id === poi.id);
     const newVisits = [...sortedVisits];
     const visitIndex = newVisits.findIndex(visit => visit.arrival === selectedVisit.value);
     const originalVisit = { ...newVisits[visitIndex] }; // Save original visit for comparison
+
+    console.log('originalVisit')
+    console.log(originalVisit)
+    console.log('selectedVisit')
+    console.log(selectedVisit)
 
     let updatedVisit = newVisits[visitIndex];
 
@@ -138,9 +145,17 @@ export const NewPlayerNotesModal = ({ setShowModal, setSelectedVisit, poi, curre
             };
             updatedEditedVisits = [...existingEdits, editDetails];
         }
+        console.log('updatedVisit')
+        console.log(updatedVisit)
 
         return {
             ...prevState,
+            selectedVisit: {
+              value: updatedVisit.arrival,
+              label: dateTimeTransformer(updatedVisit.arrival),
+              departure: updatedVisit.departure,
+              transactions: updatedVisit.transactions,
+            },
             edits: {
                 ...prevState.edits,
                 editedVisits: updatedEditedVisits
@@ -148,8 +163,11 @@ export const NewPlayerNotesModal = ({ setShowModal, setSelectedVisit, poi, curre
             editsMade: true
         };
     });
+    newVisits.sort((a, b) => new Date(b.arrival) - new Date(a.arrival))
 
+    // newArray[newArrayIndex].visits = newVisits
     setSortedVisits(newVisits);
+    // sessionStorage.setItem('currentPoiList', JSON.stringify(newArray));
 };
 
 
@@ -461,7 +479,7 @@ export const NewPlayerNotesModal = ({ setShowModal, setSelectedVisit, poi, curre
         }
   }});
 
-    sessionStorage.setItem('currentPoiList', JSON.stringify(newArray));
+    // sessionStorage.setItem('currentPoiList', JSON.stringify(newArray));
     setEditMode(false);
 };
 
@@ -563,11 +581,11 @@ export const NewPlayerNotesModal = ({ setShowModal, setSelectedVisit, poi, curre
                 <div className='mt-2 text-kv-gray justify-center text-center items-center text-xl font-bold'>Total: <span className={winLoss == 'Win' ? 'text-blue-500' : 'text-kv-red'}>{total}</span></div>
               </>
             }
-            <div className={selectedVisit.transactions.length === 0 ? 'flex justify-center items-center mt-2' :'hidden'}>
+            <div className={selectedVisit.transactions.length === 0 && !editMode ? 'flex justify-center items-center mt-2' :'hidden'}>
               <button className='btn-xs-red mx-auto ml-2' onClick={()=>
                                 {
                                   sessionStorage.setItem('currentIndex', JSON.stringify(null));
-                                  setOpenPlayerTransactionEditModal(true)
+                                  setEditMode(true)
                                 }
                               }><AiOutlinePlusCircle/></button>
             </div>

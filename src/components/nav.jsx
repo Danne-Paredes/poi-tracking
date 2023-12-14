@@ -93,7 +93,7 @@ export function Nav({}) {
               href="https://docs.google.com/document/d/1JV8VMKwvr_m6UiIXB04P4WZIL-B2jpqqpPRD5icJ6Zs/edit?usp=sharing" 
               target="_blank" 
               rel="noopener noreferrer"
-              className={`btn ${location.pathname === '/roster' ? 'bg-kv-red-force' : 'bg-black'}`}>
+              className={`btn bg-black`}>
               Help
             </a>
             </button>

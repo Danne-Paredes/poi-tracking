@@ -14,7 +14,6 @@ const NotesTable = ({
     editedTransaction,
         }) => {
 
-
             const [ defaultItem, setDefaultItem ] = useState(()=>{
                 const currentDate = new Date();
                 const timezoneOffsetInMinutes = currentDate.getTimezoneOffset();
@@ -25,7 +24,7 @@ const NotesTable = ({
                 const newDefault = {
                     transactionAmount: 0,
                     selectedGame:'',
-                    date: adjustedDateTime,
+                    date: selectedVisit.arrival,
                     type: 'Buy In',
                     note: '',
                     edited: false,}
@@ -56,7 +55,14 @@ const NotesTable = ({
 
                             <td>
                                 <button className={selectedVisit.value !== poi.arrival ? 'btn-xs-red mx-auto ml-2' : 'hidden'} onClick={() => {
-                                    editedTransaction(defaultItem, null)
+                                    console.log('selectedVisit')
+                                    console.log(selectedVisit)
+                                    const newDefault = {...defaultItem}
+                                    newDefault.date=selectedVisit.value
+                                    console.log(newDefault)
+
+
+                                    editedTransaction(newDefault, null)
                                     setEditMode(true)
                                     }}><AiOutlinePlusCircle />
                                 </button>
