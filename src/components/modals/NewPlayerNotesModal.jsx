@@ -572,8 +572,11 @@ export const NewPlayerNotesModal = ({ setShowModal, setSelectedVisit, poi, curre
                     value={selectedVisit}
                     onChange={handleVisitSelect}
                   />
-                  {selectedVisit.departure && <button className='flex justify-center items-center bg-kv-red hover:bg-kv-logo-gray rounded-full ml-2 w-7 h-7' onClick={()=>handleEditArriveDepart()}> <AiOutlineEdit className='w-5 h-5' /></button>}
-                  {selectedVisit.departure && <button className='flex justify-center items-center bg-kv-red hover:bg-kv-logo-gray rounded-full ml-2 w-7 h-7' onClick={()=>handleVisitRemoval()}> <AiOutlineMinusCircle className='w-5 h-5' /></button>}
+                  {selectedVisit.departure && <button className='flex justify-center items-center bg-kv-red hover:bg-kv-logo-gray rounded-full ml-2 w-7 h-7' 
+                                                      onClick={()=>handleEditArriveDepart()}> <AiOutlineEdit className='w-5 h-5' /></button>}
+                  {selectedVisit.departure && <button className={`flex justify-center items-center bg-kv-red hover:bg-kv-logo-gray rounded-full ml-2 w-7 h-7 ${sortedVisits.length===1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                      onClick={() => handleVisitRemoval()}
+                                                      disabled={sortedVisits.length===1}> <AiOutlineMinusCircle className='w-5 h-5' /></button>}
                 </div>
                 <div className='text-kv-gray mt-2 text-xl font-bold'>Arrival: {selectedVisit.value ? dateTimeTransformer(selectedVisit.value) : ''}</div>
                 <div className='text-kv-gray mt-2 text-xl font-bold '>Departure: {selectedVisit.departure ? dateTimeTransformer(selectedVisit.departure) : ''}</div>

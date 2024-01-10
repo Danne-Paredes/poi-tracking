@@ -206,7 +206,7 @@ const CasinoView = () => {
                 </td>
                 <td className='text-center border-r border-b border-black font-bold p-4'>{mostRecentVisitDate && mostRecentVisitDate.toLocaleDateString()}</td>
                 <td className= ' text-center border-r border-b border-black font-bold p-4' >{buyInsThisMonth < 0 ? `-$${Math.abs(buyInsThisMonth).toLocaleString()}` : `$${buyInsThisMonth.toLocaleString()}`}</td>
-                <td className={(results > 0  ? 'text-blue-500' : 'text-kv-red') + (results === 0 ? 'text-black' : '') + ' text-center border-b border-black font-bold p-4'}>{results < 0 ? `-$${Math.abs(results).toLocaleString()}` : `$${results.toLocaleString()}`}</td>
+                <td className={(results > 0  ? 'bg-blue-500' : 'bg-kv-red') + (results === 0 ? 'text-black' : '') + ' text-center border-b border-black font-bold p-4'}>{results < 0 ? `-$${Math.abs(results).toLocaleString()}` : `$${results.toLocaleString()}`}</td>
             </tr>
 
             <tr key={`xs-${poi.id}`} className={`sm:hidden ${index % 2 === 0 ? 'bg-kv-logo-gray' : 'bg-slate-gray'}`}>
@@ -214,13 +214,13 @@ const CasinoView = () => {
                   {poi.name} <br/>
                   <span className='text-xs italic'>"{poi.description}"</span>
               </td>
-              <td colSpan={3} className='text-center border-r border-b border-black p-4'>
+              <td colSpan={3} className={(results > 0  ? 'bg-blue-500' : 'bg-kv-red')+' text-center border-r border-b border-black p-4'}>
                 Last Visit: {mostRecentVisitDate && mostRecentVisitDate.toLocaleDateString()}
                 <br/>
                 <br/>
                 Buy In: {buyInsThisMonth < 0 ? `-$${Math.abs(buyInsThisMonth).toLocaleString()}` : `$${buyInsThisMonth.toLocaleString()}`}
                 <br/>
-                Result: <span className={(results > 0  ? 'text-blue-500' : 'text-kv-red') + (results === 0 ? 'text-black' : '') + ' text-center'}>{results < 0 ? `-$${Math.abs(results).toLocaleString()}` : `$${results.toLocaleString()}`}</span>
+                Result: <span className={(results === 0 ? 'text-black' : '') + ' text-center'}>{results < 0 ? `-$${Math.abs(results).toLocaleString()}` : `$${results.toLocaleString()}`}</span>
               </td>
             </tr>
           </>

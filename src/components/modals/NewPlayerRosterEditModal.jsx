@@ -123,7 +123,7 @@ export const NewPlayerRosterEditModal = ({ setShowModal, editPoi, poiInfo, casin
       ...poiInfo,
       name: poi,
       description: description,
-      notes: notes,
+      notes: notes? notes: "",
       casinos: selectedLocations,
       active: isActive,
     };
