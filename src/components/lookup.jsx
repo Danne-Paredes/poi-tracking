@@ -99,8 +99,21 @@ const Lookup = (props) => {
 
       
             // 1. If there's a matching POI from data2, use its visits, else use the currentPoi's visits.
-            let visits = matchingPoi.visits ? [...matchingPoi.visits] : [...currentPoi.visits];
-            let casinos = matchingPoi.casinos ? [...matchingPoi.casinos] : [...currentPoi.casinos];
+            let visits = [];
+
+            if (matchingPoi && matchingPoi.visits) {
+                visits = [...matchingPoi.visits];
+            } else if (currentPoi && currentPoi.visits) {
+                visits = [...currentPoi.visits];
+            }
+
+            let casinos = [];
+
+            if (matchingPoi && matchingPoi.casinos) {
+                casinos = [...matchingPoi.casinos];
+            } else if (currentPoi && currentPoi.casinos) {
+                casinos = [...currentPoi.casinos];
+            }
 
             
             id && casinos && setActiveCasinos(casinos);
@@ -139,9 +152,15 @@ const Lookup = (props) => {
           // Filter visits within the date range
           const filteredVisits = currentPoi.visits.filter(visit => {
             const arrivalDate = new Date(visit.arrival);
-            const departureDate = new Date(visit.departure);
-            return arrivalDate >= startDate && departureDate <= endDate;
-          });
+            const departureDate = visit.departure? new Date(visit.departure): new Date(visit.arrival);
+        
+            // Adjust startDate and endDate to cover the full day
+            const startOfDay = startDate.setHours(0,0,0,0);
+            const endOfDay = endDate.setHours(23,59,59,999);
+        
+            return arrivalDate.getTime() >= startOfDay && departureDate.getTime() <= endOfDay;
+        });
+        
       
           // Update filteredPoi with a copy of currentPoi with the filtered visits
           setFilteredPoi({
@@ -169,17 +188,17 @@ const Lookup = (props) => {
       visits.forEach(visit => {
         const arrivalDate = new Date(visit.arrival);
         
-        if (arrivalDate < earliest) {
+        if (arrivalDate <= earliest) {
           earliest = arrivalDate;
         }
       
         if (visit.departure) { // If departure exists, use it for comparison
           const departureDate = new Date(visit.departure);
-          if (departureDate > latest) {
+          if (departureDate >= latest) {
             latest = departureDate;
           }
         } else { // If no departure, use the largest arrival date so far
-          if (arrivalDate > latest) {
+          if (arrivalDate >= latest) {
             latest = arrivalDate;
           }
         }
