@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { PoiCard } from './poiCard';
 import { useState, useEffect } from "react";
 import { updateDoc , getDocs, collection, doc, arrayUnion} from 'firebase/firestore'
-import {db, updateCollection, getDataVals, getPoiData, sendDataToFirebase} from '../config/firebase'
+import {db, updateCollection,getCurrentPois, updateCurrentPoiList, getDataVals, getPoiData, sendDataToFirebase} from '../config/firebase'
 import SingleSelect from '../components/singleSelect'
 import { AiOutlinePlusCircle  } from 'react-icons/ai'
 
@@ -54,6 +54,9 @@ const refetchDataVals = async () => {
   setDataValsList(data);
   setPoiList(data2);
 };
+
+const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
 
 useEffect(() => {
   if (user && user.location) {
@@ -312,15 +315,15 @@ useEffect(() => {
           placeholder='Select a casino'
         />
       </div>
-      {/* <div className='flex justify-center mt-10'>
-            <button className='btn' onClick={()=>handleBQUpload(currentPoiList[2])}>test bq</button>
-            <button className='btn' onClick={()=>console.log(currentPoiList[2])}>current poiList</button>
-            <button className='btn' onClick={()=>console.log(selectedCasino)}>current selectedCasino</button>
+      {isLocalhost && <div className='flex justify-center mt-10'>
+            <button className='btn' onClick={()=>updateCurrentPoiList(selectedCasino,currentPoiList)}>test current_pois</button>
+            <button className='btn' onClick={()=>console.log(currentPoiList)}>current poiList</button>
+            <button className='btn' onClick={()=>console.log(getCurrentPois())}>current poiLits from FireBase</button>
             <button className='btn' onClick={()=>{
                                   setSelectedCasino('')
                                   sessionStorage.setItem("currentCasino", JSON.stringify(''))
             }}>reset selectedCasino poiList</button>
-      </div> */}
+      </div>}
 
       {poiList.length !== 0 && currentPoiList.length === 0  && (
                     <div className='flex justify-center mt-10'>
