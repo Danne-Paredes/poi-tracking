@@ -1134,6 +1134,8 @@ export const exportToClipboard = (selectedCasino) => {
             const secondRowCells = headerRows[1].querySelectorAll('th');
             if (secondRowCells.length > 1) { // Assuming the last cell needs modification
                 console.log(`Second Row Last Cell:`, secondRowCells[1].textContent);
+                secondRowCells[0].style.cssText = 'font-size: 1.5rem; color: white; padding: 1rem; border: 1px solid #b8b4b4;'; // Ensure visibility
+
                 secondRowCells[1].style.cssText = 'color: white'; // Ensure visibility
             }
     

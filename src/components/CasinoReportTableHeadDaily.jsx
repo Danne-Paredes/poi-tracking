@@ -86,14 +86,14 @@ const CasinoReportTableHeadDaily = (props) => {
                 <th className='border border-kv-gray p-4'colSpan={3}>Buy-In: <span className='font-bold'>${totalBuyIn?.toLocaleString()}</span><br/>Results: <span className={`font-bold ${totalResults > 0 ? 'text-blue-500' : 'text-kv-red'}`}>{totalResults < 0 ? `-$${Math.abs(totalResults)?.toLocaleString()}` : `$${totalResults?.toLocaleString()}`}</span><br/>Visits: {numberOfVisits} </th>
               </tr>
             )}
-            {/* 
+            
             <tr>
               <th className='border border-kv-gray p-4' onClick={()=>console.log(poiList)}>POI</th>
-              <th className='sm:hidden border border-kv-gray p-4'>Details</th>
+              {/* <th className='sm:hidden border border-kv-gray p-4'>Details</th> */}
               <th className='hidden sm:table-cell border border-kv-gray p-4'>Last Visit</th>
               <th className='hidden sm:table-cell border border-kv-gray p-4'>Buy-In</th>
               <th className='hidden sm:table-cell border border-kv-gray p-4'>Results</th>
-            </tr> */}
+            </tr>
           </thead>
   )
 }
