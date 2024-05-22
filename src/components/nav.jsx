@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { auth } from '../config/firebase';
 import { useNavigate, useLocation } from 'react-router-dom';
-import Logout from './logout';
+import Logout from './Logout';
 import { GiIronCross } from 'react-icons/gi';
 
-export function Nav({}) {
+export default function Nav({}) {
   const navigate = useNavigate();
   const location = useLocation();
 

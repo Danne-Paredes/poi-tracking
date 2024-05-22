@@ -1,10 +1,18 @@
 import React, {useState, useEffect, useRef} from 'react'
-import SingleSelect from '../singleSelect';
-import MultiSelect from '../multiSelect';
+import {db, updateCollection, getDataVals, getPoiData} from '../config/firebase'
+import SingleSelect from '../components/SingleSelect';
+import MultiSelect from '../components/MultiSelect';
+import { handleStateUpdate } from '../components/functions';
+import { toHaveAccessibleName } from '@testing-library/jest-dom/matchers';
 
-export const NewPlayerRosterEditModal = ({ setShowModal, editPoi, poiInfo, casinos, poiListInfo, index  }) => {
+export const RosterEditModal = (props) => {
+  const { state: parentState, setState: setParentState, handleKeyDown,  selectedPoi, index, poiListInfo, editPoi } = props;
+  const { poiList = [],
+          casinos = parentState?.dataValsList.casinos,
+      } = parentState || {};
+
   const [formState, setFormState] = useState({
-    poi: '',
+    name: '',
     description: '',
     notes: '',
     poiIndex: '',
@@ -12,10 +20,9 @@ export const NewPlayerRosterEditModal = ({ setShowModal, editPoi, poiInfo, casin
     selectedLocations: [],
   });
 
-  const { poi, poiList, isActive, selectedLocations, poiIndex, poiId, description, locations, notes } = formState;
+  const { isActive, selectedLocations, poiIndex, poiId, description, locations, notes, name } = formState;
   const inputRef = useRef(null);
   const modalRef = useRef(null);
-
 
   useEffect(() => {
     const currentDate = new Date();
@@ -23,19 +30,19 @@ export const NewPlayerRosterEditModal = ({ setShowModal, editPoi, poiInfo, casin
     const adjustedDate = new Date(currentDate.getTime() - timezoneOffsetInMinutes * 60000);
 
     const adjustedDateTime = adjustedDate.toISOString().slice(0, 16);
-
+    console.log('selectedPoi', selectedPoi)
     setFormState((prevState) => ({
       ...prevState,
       selectedDateTime: adjustedDateTime,
-      poi: poiInfo.name,
-      description: poiInfo.description,
-      notes: poiInfo.notes,
+      name: selectedPoi.name,
+      description: selectedPoi.description,
+      notes: selectedPoi.notes,
       poiList: poiListInfo,
       poiIndex: index,
-      poiId: poiInfo.id,
-      isActive:poiInfo.active,
+      poiId: selectedPoi.id,
+      isActive:selectedPoi.active,
       locations: casinos,
-      selectedLocations: poiInfo.casinos
+      selectedLocations: selectedPoi.casinos
     }));
 
     if (inputRef.current) {
@@ -44,60 +51,16 @@ export const NewPlayerRosterEditModal = ({ setShowModal, editPoi, poiInfo, casin
 
     const handleEscape = (event) => {
       if (event.key === 'Escape') {
-        setShowModal(false);
+        handleStateUpdate(false, 'openModal', setParentState)
       }
     };
     
     document.addEventListener('keydown', handleEscape);
-    // document.addEventListener('mousedown', handleClickOutside);
 
     return () => {
       document.removeEventListener('keydown', handleEscape);
-      // document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-
-  const handleKeyDown = (event) => {
-    if (event.key === 'Enter') {
-      handleSubmit();
-      // console.log('click')
-    }
-  };
-
-  const handleEditPoi = (e) => {
-    const enteredPoi = e.target.value;
-
-    setFormState((prevState) => ({
-      ...prevState,
-      poi: enteredPoi,
-    }));
-  };
-  const handleEditDescription = (e) => {
-    const enteredDescription = e.target.value;
-    console.log(enteredDescription)
-
-    setFormState((prevState) => ({
-      ...prevState,
-      description: enteredDescription,
-    }));
-  };
-
-  const handleEditNotes = (e) => {
-    const enteredNotes = e.target.value;
-    console.log(enteredNotes)
-
-    setFormState((prevState) => ({
-      ...prevState,
-      notes: enteredNotes,
-    }));
-  };
-
-  const handleStatusChange = () => {
-    setFormState((prevState) => ({
-      ...prevState,
-      isActive: !isActive,
-    }));
-  };
 
   const handleLocationChange = (selectedLocations) => {
     setFormState((prevState) => ({
@@ -106,22 +69,23 @@ export const NewPlayerRosterEditModal = ({ setShowModal, editPoi, poiInfo, casin
     }));
   }; 
 
+
+
   const handleSubmit = () => {
-    console.log(poi)
-    console.log(poiInfo)
-    const selectedPoi = poiList.find(
-      (pois) => pois.name.toLowerCase() === poi.toLowerCase() && pois.id !== poiId
+    const poiToEdit = poiList.find(
+      (pois) => pois.name.toLowerCase() === name.toLowerCase() && pois.id !== poiId
     );
-    if (selectedPoi && isActive) {
+    console.log('poiToEdit',poiToEdit)
+    if (poiToEdit && isActive) {
       console.log("selected:");
-      console.log(selectedPoi);
-      const casinosList = selectedPoi.casinos.join('\n');
-      window.alert(`Name Unavailable\n${selectedPoi.name} is already listed at the following casinos:\n${casinosList}`);
+      console.log(poiToEdit);
+      const casinosList = poiToEdit.casinos.join('\n');
+      window.alert(`Name Unavailable\n${poiToEdit.name} is already listed at the following casinos:\n${casinosList}`);
       return;
     }
     const newPoiInfo = {
-      ...poiInfo,
-      name: poi,
+      ...selectedPoi,
+      name: name,
       description: description,
       notes: notes? notes: "",
       casinos: selectedLocations,
@@ -153,10 +117,11 @@ export const NewPlayerRosterEditModal = ({ setShowModal, editPoi, poiInfo, casin
             <label className="relative inline-flex items-center cursor-pointer">
                 <input 
                     type="checkbox" 
-                    name={`toggle-${poi.id}`} 
-                    id={`toggle-${poi.id}`} 
+                    name={`toggle-${selectedPoi.id}`} 
+                    id={`toggle-${selectedPoi.id}`} 
                     checked={isActive}
-                    onChange={() => handleStatusChange()} className="sr-only peer"/>
+                    onChange={() => handleStateUpdate(!isActive, 'isActive', setFormState)} className="sr-only peer"
+                    />
                 <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-red-300 dark:peer-focus:ring-red-800 dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-kv-red"></div>
             </label>
         </div>
@@ -174,8 +139,8 @@ export const NewPlayerRosterEditModal = ({ setShowModal, editPoi, poiInfo, casin
                 type="text"
                 onKeyDown={handleKeyDown}
                 placeholder="Enter POI Name"
-                onChange={handleEditPoi}
-                value={poi}
+                onChange={(e) => handleStateUpdate(e.target.value, 'name', setFormState)}
+                value={name}
                 required
                 />
         </div>
@@ -188,7 +153,7 @@ export const NewPlayerRosterEditModal = ({ setShowModal, editPoi, poiInfo, casin
             className='justify-center mx-auto items-center text-center block mt-2'
             onKeyDown={handleKeyDown}
             placeholder="Enter Description"
-            onChange={handleEditDescription}
+            onChange={(e) => handleStateUpdate(e.target.value, 'description', setFormState)}
             value={description}
             required
             />
@@ -200,7 +165,7 @@ export const NewPlayerRosterEditModal = ({ setShowModal, editPoi, poiInfo, casin
             className='justify-center mx-auto items-center text-center block mt-2'
             onKeyDown={handleKeyDown}
             placeholder="Enter Notes"
-            onChange={handleEditNotes}
+            onChange={(e) => handleStateUpdate(e.target.value, 'notes', setFormState)}
             value={notes}
             required
             />
@@ -224,7 +189,7 @@ export const NewPlayerRosterEditModal = ({ setShowModal, editPoi, poiInfo, casin
             <button
               className="btn-close"
               type="button"
-              onClick={() => setShowModal(false)}
+              onClick={() => handleStateUpdate(false, 'openModal', setParentState)}
             >
               Close
             </button>

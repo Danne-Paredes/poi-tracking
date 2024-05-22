@@ -23,6 +23,9 @@
 .btn-xs {
     @apply bg-black hover:bg-kv-red disabled:hover:bg-black text-kv-gray font-bold w-16 h-8 rounded flex items-center justify-center mr-2 shadow-kv-gray;
 }
+.btn-xxs {
+    @apply bg-black hover:bg-kv-logo-gray disabled:hover:bg-black text-kv-gray font-bold w-7 h-5 rounded flex items-center justify-center shadow-kv-gray;
+}
 .btn-xs-gray {
     @apply bg-kv-logo-gray hover:bg-kv-red disabled:hover:bg-black text-kv-gray font-bold w-16 h-8 rounded flex items-center justify-center mr-2 shadow-kv-gray;
 }

@@ -1,5 +1,5 @@
 import React from 'react'
-import SingleSelect from '../components/singleSelect'
+import SingleSelect from '../components/SingleSelect'
 import '@hassanmojab/react-modern-calendar-datepicker/lib/DatePicker.css';
 import DatePicker from '@hassanmojab/react-modern-calendar-datepicker';
 

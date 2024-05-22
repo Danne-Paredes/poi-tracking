@@ -1,14 +1,14 @@
-import { VisitViewer } from './visitViewer';
+import { VisitViewer } from '../components/VisitViewer';
 import React, { useState, useEffect } from 'react'
 import { getDataVals, getPoiData } from '../config/firebase'
 import { useParams, useLocation } from 'react-router-dom';
-import SingleSelect from './singleSelect';
-import MultiSelect from './multiSelect';
-import { dateTimeTransformer, dateTransformer, timeTransformer } from './functions'
+import SingleSelect from '../components/SingleSelect';
+import MultiSelect from '../components/MultiSelect';
+import { dateTimeTransformer, dateTransformer, timeTransformer } from '../components/functions'
 import '@hassanmojab/react-modern-calendar-datepicker/lib/DatePicker.css';
 import DatePicker from '@hassanmojab/react-modern-calendar-datepicker';
-import LookupSelector from './lookupSelector';
-import LookupDescription from './lookupDescription';
+import LookupSelector from '../components/LookupSelector';
+import LookupDescription from '../components/LookupDescription';
 
 
 const Lookup = (props) => {
@@ -25,21 +25,6 @@ const Lookup = (props) => {
       from: null,
         to: null
       });
-    //   const currentDate = new Date();
-      
-    //   return {
-    //     from: {
-    //       day: 1,
-    //       month: 1, // January
-    //       year: currentDate.getFullYear() // Current year
-    //     },
-    //     to: {
-    //       day: currentDate.getDate(), // Current day
-    //       month: currentDate.getMonth() + 1, // getMonth() is zero-based, so add 1
-    //       year: currentDate.getFullYear() // Current year
-    //     }
-    //   };
-    // });
       
 
     const [dataValsList, setDataValsList] = useState({ casinos: [] })

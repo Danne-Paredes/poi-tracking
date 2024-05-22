@@ -16,7 +16,7 @@ const SingleSelect = React.forwardRef(({ options, placeholder, onChange, classNa
 
   const handleChange = (selectedOption) => {
     if(onChange) {
-      console.log(selectedOption)
+      // console.log(selectedOption)
       onChange(selectedOption);  // Call the passed down onChange method
     }
   };

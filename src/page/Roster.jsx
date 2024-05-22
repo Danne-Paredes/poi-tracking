@@ -1,28 +1,40 @@
 import React, { useState, useEffect, useRef } from 'react'
-import SingleSelect from '../components/singleSelect'
+import SingleSelect from '../components/SingleSelect'
 import {db, updateCollection, getDataVals, getPoiData} from '../config/firebase'
 import { doc, updateDoc, getDocs, collection } from 'firebase/firestore';
 import { AiOutlineEdit }  from 'react-icons/ai'
 import { ImCancelCircle } from 'react-icons/im'
-import { NewPlayerRosterEditModal } from "./modals/NewPlayerRosterEditModal";
+import { RosterEditModal } from "../modals/RosterEditModal";
+import { handleStateUpdate } from '../components/functions';
 
 
 
 const Roster = (props) => {
-    const [openPlayerRosterEditModal,setOpenPlayerRosterEditModal] = useState(false);
-    const [openPlayerNotesEditModal,setOpenPlayerNotesEditModal] = useState(false)
-    const [casinoList, setCasinoList] = useState()
-    const [dataValsList, setDataValsList] = useState({ casinos: [] })
-    const [showInactive, setShowInactive] = useState(false);
-    const [poiList, setPoiList] = useState([])
-    const [filteredPoiList, setFilteredPoiList] = useState([])
-    const [poiIndex, setPoiIndex] = useState('');
-    const [poi, setPoi] = useState([]);
-    const [filteredPoi, setFilteredPoi] = useState('')
-    const [selectedCasino, setSelectedCasino] = useState(() => {
-        const savedCasino = sessionStorage.getItem('currentCasino');
-        return savedCasino ? JSON.parse(savedCasino) : 'All Casinos';
-      }); // Initialize as an empty array
+    const [ state, setState ] = useState({
+      openModal: false,
+      casinoList:[],
+      dataValsList: {
+        casinos:[]
+      },
+      showInactive:false,
+      poiList:[],
+      filteredPoiList:[],
+      poiIndex:'',
+      poi:{},
+      filteredPoi:'',
+      selectedCasino:'All Casinos',
+      selectedPoi:{},
+    })
+
+    const {openModal, casinoList, dataValsList, showInactive, poiList, filteredPoiList, poiIndex, poi, filteredPoi, selectedCasino, selectedPoi} = state
+
+    useEffect(() => {
+      const savedCasino = sessionStorage.getItem('currentCasino');
+      savedCasino && handleStateUpdate(JSON.parse(savedCasino), 'selectedCasino', setState)
+
+      fetchDataVals();
+    }, [])
+    
     
     const options = [ 
       { value: 'All Casinos', label: 'All Casinos' },
@@ -56,20 +68,19 @@ const Roster = (props) => {
     const tbodyRef = useRef(null);
 
     const toggleInactiveRows = () => {
-        setShowInactive(!showInactive);
+        handleStateUpdate(!showInactive, 'showInactive', setState);
       };
     
     const fetchDataVals = async () => {
         const data = await getDataVals();
         const data2 = await getPoiData();
-        setDataValsList(data);
-        setPoiList(data2);
-        setCasinoList(data.casinos)
+
+        handleStateUpdate(data, 'dataValsList', setState);
+        handleStateUpdate(data2, 'poiList', setState);
+        handleStateUpdate(data.casinos, 'casinoList', setState);
     };
 
-    useEffect(() => {
-        fetchDataVals();
-      }, []);
+
 
     useEffect(() => {
       if (filteredPoi) {
@@ -77,20 +88,20 @@ const Roster = (props) => {
         const newFilteredPoiList = poiList.filter(poi => 
           poi.name.toLowerCase().includes(lowerCaseFilteredPoi)
         );
-        setFilteredPoiList(newFilteredPoiList);
+        handleStateUpdate(newFilteredPoiList, 'filteredPoiList', setState);
       } else {
-        setFilteredPoiList(poiList); // No filter applied
+        handleStateUpdate(poiList, 'filteredPoiList', setState);
       }
     }, [filteredPoi, poiList]); // Re-run when either filteredPoi or poiList changes
       
 
     const handleCasinoChange = (selectedOption) => {
-    setSelectedCasino(selectedOption.value);
-    sessionStorage.setItem("currentCasino", JSON.stringify(selectedOption.value));
-    };
+      handleStateUpdate(selectedOption.value, 'selectedCasino', setState);
+      sessionStorage.setItem("currentCasino", JSON.stringify(selectedOption.value));
+      };
     const handlePoiChange = (selectedOption) => {
-    setFilteredPoi(selectedOption.value);
-    };
+      handleStateUpdate(selectedOption.value, 'filteredPoi', setState);
+      };
 
     const handleStatusChange = async (poiId, active, casinos) => {
         try {
@@ -99,9 +110,14 @@ const Roster = (props) => {
             await updateDoc(poiRef, { active: !active });
             console.log('Document updated successfully!');
           } else {
-            const updatedCasinos = casinos.filter(casino => casino !== selectedCasino);
-            await updateDoc(poiRef, { casinos: updatedCasinos });
-            console.log('Document updated successfully!');
+            if (active) {
+              const updatedCasinos = casinos.filter(casino => casino !== selectedCasino);
+              await updateDoc(poiRef, { casinos: updatedCasinos });
+              console.log('Document updated successfully!');
+            } else {
+              await updateDoc(poiRef, { active: true });
+              console.log('Document updated successfully!');
+            }
           }
           fetchDataVals();
         } catch (error) {
@@ -124,30 +140,20 @@ const Roster = (props) => {
           console.error('Error updating document:', error);
         }
       
-        setOpenPlayerRosterEditModal(false);
+        handleStateUpdate(false, 'openModal', setState);
       };
 
-      const handleOpenPlayerRosterEdit = (poi)=>{
-        const index = poiList.findIndex(obj => obj.id === poi.id);
-    
-        setPoi(poi)
-        setPoiIndex(index)
-        setOpenPlayerRosterEditModal(true)
-        console.log(poi)
-      }
-      const handleOpenPlayerNotesEdit = (poi)=>{
-        const index = poiList.findIndex(obj => obj.id === poi.id);
-    
-        setPoi(poi)
-        setPoiIndex(index)
-        setOpenPlayerRosterEditModal(true)
-        console.log(poi)
-      }
+    const handleOpenEditPoiModal = (poi, index) =>{
+      console.log('click')
+      handleStateUpdate(poi, 'selectedPoi',setState)
+      handleStateUpdate(index, 'poiIndex',setState)
+      handleStateUpdate(true, 'openModal',setState)
+    }
 
   return (
     <>
         <div className='flex justify-center mt-10 items-center'>
-            {filteredPoi && <button onClick={()=>setFilteredPoi(null)} className='bg-kv-gray mr-1 rounded-full'><ImCancelCircle/></button>}
+            {filteredPoi && <button onClick={()=>handleStateUpdate(null, 'filteredPoi', setState)} className='bg-kv-gray mr-1 rounded-full'><ImCancelCircle/></button>}
             <SingleSelect
                 className="max-w-xs snap-center mr-2"
                 onChange={handlePoiChange}
@@ -220,7 +226,8 @@ const Roster = (props) => {
                         </td>
 
                       <td className='text-center border-b border-black p-4'>
-                        <button onClick={() => handleOpenPlayerRosterEdit(poi)} className="btn-sm bg-dark-leather">
+                        {/* <button onClick={() => console.log('hi')} className="btn-sm bg-dark-leather"> */}
+                        <button onClick={() => handleOpenEditPoiModal(poi, index)} className="btn-sm bg-dark-leather">
                             <AiOutlineEdit  />
                         </button>
                       </td>
@@ -229,7 +236,7 @@ const Roster = (props) => {
             </tbody>
         </table>
       </div>
-        {openPlayerRosterEditModal && <NewPlayerRosterEditModal setShowModal={setOpenPlayerRosterEditModal} editPoi={handleEditPoi} poiInfo={poi} poiListInfo={poiList} index={poiIndex} casinos={casinoList}/>}
+        {openModal && <RosterEditModal  editPoi={handleEditPoi} state={state} setState={setState} selectedPoi={selectedPoi} poiListInfo={poiList} index={poiIndex} casinos={casinoList}/>}
     </>
   )
 }
