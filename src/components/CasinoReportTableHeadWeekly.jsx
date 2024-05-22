@@ -94,7 +94,7 @@ const CasinoReportTableHeadWeekly = (props) => {
   }, [selectedWeek, poiList, selectedCasino, setState]); // Include all dependencies that can affect filteredVisits
 
 
-
+  
 
 
 
@@ -131,7 +131,7 @@ const CasinoReportTableHeadWeekly = (props) => {
       )}
       <tr>
         <th className='border border-kv-gray p-4' onClick={() => console.log(poiList)}>POI</th>
-        <th className='sm:hidden border border-kv-gray p-4'>Details</th>
+        {/* <th className='sm:hidden border border-kv-gray p-4'>Details</th> */}
         <th className='hidden sm:table-cell border border-kv-gray p-4'>Last Visit</th>
         <th className='hidden sm:table-cell border border-kv-gray p-4'>Buy-In</th>
         <th className='hidden sm:table-cell border border-kv-gray p-4'>Results</th>

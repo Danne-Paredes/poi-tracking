@@ -8,7 +8,9 @@ const DataExporter = ({ data }) => {
     };
 
     return (
-        <button onClick={handleExport}>Export to Clipboard</button>
+        <button
+                className='btn'
+                onClick={handleExport}>Export to Clipboard</button>
     );
 };
 

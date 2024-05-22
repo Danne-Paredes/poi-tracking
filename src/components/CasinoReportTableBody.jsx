@@ -44,7 +44,8 @@ const CasinoReportTableBody = (props) => {
   };
   
 const longPressEventHandlers = useLongPress(handleLongPress, 500); // 500ms for long press
-    
+
+
 
   return (
     <tbody>

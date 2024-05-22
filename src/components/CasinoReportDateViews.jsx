@@ -1,10 +1,10 @@
 import React from 'react'
-import { handleStateUpdate, convertDataToHtmlTable, copyToClipboard } from './functions'
+import { handleStateUpdate, convertDataToHtmlTable, copyToClipboard, exportToClipboard } from './functions'
 import DataExporter from './DataExporter'
 
 const CasinoReportDateViews = (props) => {
     const { state, setState } = props
-    const { dateViewMode = 'monthly' } = state
+    const { dateViewMode = 'monthly', filteredPois, selectedCasino } = state
 
     const data = [
       { Name: "John Doe", Email: "john@example.com", Status: "Active" },
@@ -13,7 +13,7 @@ const CasinoReportDateViews = (props) => {
 
   return (
     <div className="flex justify-between items-center">
-        <ul className="flex-1 flex justify-center items-center gap-3 sm:flex hidden">
+        <ul className="flex-1 flex justify-center items-center gap-3">
           <li>
             <button 
               onClick={()=>{
@@ -53,8 +53,15 @@ const CasinoReportDateViews = (props) => {
               Daily View
             </button>
           </li>
+          <li>
+            <button 
+              onClick={()=>exportToClipboard(selectedCasino)}
+              className={`btn`}>
+              export
+            </button>
+          </li>
           {/* <li>
-            <DataExporter data={data}/>
+            <DataExporter data={filteredPois}/>
           </li> */}
         </ul>
     </div>

@@ -48,7 +48,7 @@ const CasinoView = () => {
     {/* <div onClick={()=>console.log(`${dateViewMode}Body`)}> */}
       <CasinoReportDateViews {...props} />
       <div className='flex justify-center items-center' >
-        <table className='justify-center items-center mt-2 border  border-kv-gray mx-2 mb-5' >
+        <table className='casino-view justify-center items-center mt-2 border  border-kv-gray mx-2 mb-5' >
             { getComponentByName(`${dateViewMode}Head`, props) }
             {/* <CasinoReportTableHeadMonthly {...props} />
             */}

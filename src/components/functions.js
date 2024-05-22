@@ -1054,3 +1054,115 @@ export const convertDataToHtmlTable = (data) => {
     html += "</tbody></table>";
     return html;
 };
+
+
+export const exportToClipboard = (selectedCasino) => {
+    const styleMap = {
+        // Basic Tailwind CSS utilities mapped to CSS
+        'mt-2': 'margin-top: 0.5rem;',
+        'border': 'border: 1px solid;',
+        'border-r': 'border-right: 1px solid;',
+        'border-b': 'border-bottom: 1px solid;',
+        'border-black': 'border-color: black;',
+        'p-4': 'padding: 1rem;',
+        'text-lg': 'font-size: 1.125rem;',
+        'text-xs': 'font-size: 0.75rem;',
+        'text-center': 'text-align: center;',
+        'font-bold': 'font-weight: bold;',
+        'italic': 'font-style: italic;',
+        'w-1/2': 'width: 50%;',
+    
+        // Handling custom color classes and complex classes
+        'bg-kv-red': 'background-color: #d02424;',
+        'kv-gray': 'color: #b8b4b4;',
+        'bg-kv-logo-gray': 'background-color: #5c605c;',
+        'bg-slate-gray': 'background-color: #6D6D6D;',
+        'white-400': 'color: rgba(255, 255, 255, 0.80);',
+    
+        // Handling specific background image or fall back to black background
+        'bg-dark-leather': 'background-color: black; background-image: url(\'../images/dark_leather.png\');',
+    
+        // Example to map conditions inside JavaScript functions
+        'bg-blue-500': 'background-color: #3B82F6;',  // Tailwind blue-500
+        'text-black': 'color: black;',
+    
+        // Specific cases handling
+        'bg-dark-leather-2': 'background-color: black;', // Assuming you use dark leather texture here too
+        'border-kv-gray': 'border-color: #b8b4b4;',
+        
+        'text-white': 'color: white;',
+        'text-lg': 'font-size: 1.125rem;',
+    };
+    // This function will convert Tailwind classes to inline styles
+    const convertClassesToInlineStyles = (classNames, index) => {
+        return classNames.split(' ').reduce((acc, className) => {
+            if (className === "row-bg") {  // Assuming 'row-bg' is used as a placeholder for your conditional backgrounds
+                return acc + (index % 2 === 0 ? styleMap['bg-kv-logo-gray'] : styleMap['bg-slate-gray']);
+            }
+            // Handling results condition
+            if (className.startsWith('results-')) {
+                const [_, result] = className.split('-');
+                return acc + (result === 'positive' ? styleMap['bg-blue-500'] : styleMap['bg-kv-red']) + (result === 'neutral' ? styleMap['text-black'] : '');
+            }
+            return acc + (styleMap[className] || '');
+        }, '');
+    };
+
+    const applyStylesToAllElements = (element, index) => {
+        const children = Array.from(element.children);
+        children.forEach(child => applyStylesToAllElements(child, index));
+        const classAttribute = element.getAttribute('class');
+        if (classAttribute) {
+            const inlineStyles = convertClassesToInlineStyles(classAttribute, index);
+            element.setAttribute('style', inlineStyles);
+            element.removeAttribute('class');  // Optionally remove class attribute after conversion
+        }
+    };
+    
+    const modifyHeader = (table) => {
+        const headerRows = table.querySelectorAll('thead > tr'); // Get all rows in the thead
+        console.log('Total header rows:', headerRows.length);
+    
+        if (headerRows.length > 0) {
+            const firstRowCells = headerRows[0].querySelectorAll('th');
+            if (firstRowCells.length > 0) {
+                console.log(`First Row Cells:`, firstRowCells[0].textContent);
+                firstRowCells[0].textContent = selectedCasino ? selectedCasino : "No Casino Selected";
+                firstRowCells[0].style.cssText = 'font-size: 1.5rem; color: white; padding: 1rem; border: 1px solid #b8b4b4;'; // Ensure visibility
+            }
+    
+            const secondRowCells = headerRows[1].querySelectorAll('th');
+            if (secondRowCells.length > 1) { // Assuming the last cell needs modification
+                console.log(`Second Row Last Cell:`, secondRowCells[1].textContent);
+                secondRowCells[1].style.cssText = 'color: white'; // Ensure visibility
+            }
+    
+    
+            // Modify third row, if exists
+            if (headerRows.length > 2) {
+                const thirdRowCells = headerRows[2].querySelectorAll('th');
+                thirdRowCells.forEach((cell, index) => {
+                    console.log(`Third Row Cell ${index}:`, cell.textContent);
+                    cell.style.color = 'white'; // Change text color to white
+                });
+            }
+        }
+    };
+    
+    
+    
+    
+    
+    const table = document.querySelector('.casino-view');
+    if (table) {
+        const clonedTable = table.cloneNode(true);
+        applyStylesToAllElements(clonedTable, 0); // Apply styles recursively
+        modifyHeader(clonedTable); // Modify headers as required
+        const tableHTML = clonedTable.outerHTML;
+        navigator.clipboard.writeText(tableHTML).then(() => {
+            console.log('HTML copied to clipboard');
+        }).catch(err => {
+            console.error('Failed to copy HTML: ', err);
+        });
+    }
+};
