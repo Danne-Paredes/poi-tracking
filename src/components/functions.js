@@ -99,6 +99,11 @@ export const handleCasinoChange = (selectedOption, setCurrentPoiList, setState) 
     console.log(selectedOption)
     fetchCurrentPoiList(selectedOption.value, setCurrentPoiList)
   };
+
+export const refreshPoiList = async (setState) =>{
+    const data = await getPoiData();  // Assuming this returns data for 'poiList'
+    handleStateUpdate(data, 'poiList', setState)
+}
   
 export const fetchDataVals = async (setState, selectedCasino, setCurrentPoiList) => {
     const data = await getDataVals();  // Assuming this returns data for 'dataValsList'
@@ -205,8 +210,9 @@ export const handleIsNewChange = (e, setState, setParentState) => {
       poiId:newUUID,
     }));
     setParentState((prevState) => ({
-      ...prevState,
-      isNew: !prevState.isNew,
+        ...prevState,
+        poiId:newUUID,
+        isNew: !prevState.isNew,
     }));
   };
 
@@ -355,7 +361,7 @@ export const addPoi = (state, setState, currentPoiList, setCurrentPoiList, selec
     const { 
             poi = state.poi,
             arrival = state.poi.arrival,
-            id = state.poi.id,
+            id = state.poiId,
             casinos = state.poi.casinos || [] ,
             isNew = state.isNew,
             poiList,
@@ -405,7 +411,7 @@ export const addPoi = (state, setState, currentPoiList, setCurrentPoiList, selec
     ];
   
     const newPoi = {
-      id: poi.id,
+      id: id,
       name: poi.name,
       arrival: arrival,
       casinos: casinos.length ? casinos : [selectedCasino],
@@ -417,7 +423,7 @@ export const addPoi = (state, setState, currentPoiList, setCurrentPoiList, selec
 
 
     const logEntry = {
-        id: poi.id,
+        id: id,
         user: user.email,
         visitId: newUUID,
         timestamp: getAdjustedDateTime(),
@@ -438,12 +444,13 @@ export const addPoi = (state, setState, currentPoiList, setCurrentPoiList, selec
     sessionStorage.setItem('currentPoiList', JSON.stringify(newList));
   
   
-    // isNew
-    //   ? (() => {
-    //         console.log('Is New')
-    //       updateCollection('poi', newPoi,id);
-    //     })()
-    //   : console.log('Not New');
+    isNew
+      ? (() => {
+            console.log('Is New')
+          updateCollection('poi', newPoi,id);
+          refreshPoiList(setState)
+        })()
+      : console.log('Not New');
   
     modalClose( setState);
   };
