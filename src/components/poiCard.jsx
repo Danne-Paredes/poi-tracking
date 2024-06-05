@@ -38,15 +38,7 @@ export function PoiCard({
   const visitResult = cashOutsThisVisit - totalBuyIn;
 
   const handleLongPress = (index) => {
-    // // Define the action to be performed on long press
-    // const customAmount = updatedPoi.transactions[index].type === 'Buy In' ? `+${updatedPoi.transactions[index].amount}` : `-${updatedPoi.transactions[index].amount}`
-    // console.log(updatedPoi.transactions[index])
-    // console.log('Handling long press on index:', index); // Make sure this logs
-    // if (window.confirm(`Remove Transaction? \nAmount: ${customAmount}\nTime: ${timeTransformer(updatedPoi.transactions[index].date)}`)) {
-        // handleTransactionRemove(index, updatedPoi.transactions, currentPoiList, setCurrentPoiList, parentState, setFormState)
-        // handleStateUpdate(calculatedTotal(), 'total', setFormState)
-    // }
-    handleOpenModal( "playerInfo", setState, index, currentPoiList )
+    handleOpenModal( "playerInfo", state, setState, index, currentPoiList )
   };
   
 const longPressEventHandlers = useLongPress(handleLongPress, 500); // 500ms for long press
@@ -66,10 +58,10 @@ const longPressEventHandlers = useLongPress(handleLongPress, 500); // 500ms for 
             {hasCashOut && <p>Result: {visitResult < 0 ? `-$${Math.abs(visitResult).toLocaleString()}` : `$${visitResult.toLocaleString()}`}</p>}
           </div>
           <div id="btn-menu" className="py-5 grid grid-cols-4 xxxxs:grid-cols-2 xxs:grid-cols-4 sm:grid-cols-4 md:grid-cols-4 gap-4 justify-items-center">
-              <button type="button" className={`${hasCashOut && visitResult < -7999 ? 'btn-sm-red' : 'btn-sm'}`} onClick={()=>handleOpenModal( "transactionAdd", setState, index, currentPoiList )}><FiDollarSign className="inner-icon"  /></button>
-              <button type="button" className={`${hasCashOut && visitResult < -7999 ? 'btn-sm-red' : 'btn-sm'}`} onClick={()=>handleOpenModal( "arriveDepart", setState, index, currentPoiList )} ><BsClock className="inner-icon"   /></button>
+              <button type="button" className={`${hasCashOut && visitResult < -7999 ? 'btn-sm-red' : 'btn-sm'}`} onClick={()=>handleOpenModal( "transactionAdd", state, setState, index, currentPoiList )}><FiDollarSign className="inner-icon"  /></button>
+              <button type="button" className={`${hasCashOut && visitResult < -7999 ? 'btn-sm-red' : 'btn-sm'}`} onClick={()=>handleOpenModal( "arriveDepart", state, setState, index, currentPoiList )} ><BsClock className="inner-icon"   /></button>
               { poi.visits && poi.visits.length !== 0 ? 
-                <button type="button" className={`${hasCashOut && visitResult < -7999 ? 'btn-sm-red' : 'btn-sm'}`} onClick={()=>handleOpenModal( "notesViewer", setState, index, currentPoiList )}  ><PiNotepadLight className="inner-icon" /></button>
+                <button type="button" className={`${hasCashOut && visitResult < -7999 ? 'btn-sm-red' : 'btn-sm'}`} onClick={()=>handleOpenModal( "notesViewer", state, setState, index, currentPoiList )}  ><PiNotepadLight className="inner-icon" /></button>
                 :
                 <button type="button" className={`${hasCashOut && visitResult < -7999 ? 'btn-sm-red' : 'btn-sm'}`} disabled></button>
               }
@@ -78,9 +70,9 @@ const longPressEventHandlers = useLongPress(handleLongPress, 500); // 500ms for 
           </div>
         </div>
         <div id="btn-menu-2" className="flex flex-row xxs:flex-col space-x-4 xxs:space-x-0 xxs:space-y-4 items-center justify-center py-3 mx-auto">
-          <button type="button" className="btn-sm bg-dark-leather h-10 w-10 flex items-center justify-center" onClick={()=>handleOpenModal( "playerAdd", setState )}><AiOutlinePlusCircle className="inner-icon"  /></button>
+          <button type="button" className="btn-sm bg-dark-leather h-10 w-10 flex items-center justify-center" onClick={()=>handleOpenModal( "playerAdd", state, setState )}><AiOutlinePlusCircle className="inner-icon"  /></button>
           <button type="button" className="btn-sm bg-dark-leather h-10 w-10 flex items-center justify-center" onClick={() => {
-                                  if (window.confirm('Are you sure you want to remove this POI?')) {
+                                  if (window.confirm('Are you sure you want to remove this POI? \n\nKeep in mind that this action will delete this visits data. If you wish to save this visit to the database please set a departure time.')) {
                                     
                                     handlePoiRemove(index,state, currentPoiList, setCurrentPoiList, selectedCasino);
                                   }

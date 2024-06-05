@@ -81,7 +81,7 @@ const PlayerAdd = (props) => {
             className='justify-center mx-auto items-center text-center block mb-2'
             type="datetime-local"
             defaultValue={selectedDateTime}
-            onChange={(event)=>handleStateUpdate(event.target.value, selectedDateTime, setState)}
+            onChange={(event)=>handleStateUpdate(event.target.value, 'selectedDateTime', setState)}
         />
          <label className='text-kv-gray' onClick={()=>console.log(parentState)}>New POI:</label>
         <input type="checkbox" checked={isNew} onChange={(e)=>{

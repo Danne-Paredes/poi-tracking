@@ -3,7 +3,7 @@ import SingleSelect from '../components/SingleSelect';
 import { PoiCard } from '../components/PoiCard';
 import { Modal } from '../components/Modal';
 import { useNavigate } from 'react-router-dom';
-import { handleCasinoChange, fetchDataVals, handleOpenModal, handleStateUpdate, fetchCurrentPoiList, handleVisibilityChange, handleFocus, handleBlur, logoutUser } from '../components/functions';
+import { handleCasinoChange, fetchDataVals, handleOpenModal, handleStateUpdate, fetchCurrentPoiList, handleVisibilityChange, handleFocus, handleBlur, logoutUser, handleSignOut } from '../components/functions';
 import { AiOutlinePlusCircle  } from 'react-icons/ai'
 
 const PoiTracker = ({user}) => {
@@ -137,7 +137,7 @@ const PoiTracker = ({user}) => {
       </div>
       {isLocalhost && <div className='flex justify-center mt-10'>
           <button className='btn' onClick={()=>console.log(currentPoiList)}>current poiList</button>
-          <button className='btn' onClick={()=>console.log(user)}>user</button>
+          <button className='btn' onClick={handleSignOut}>handleSignOut</button>
           <button className='btn' onClick={()=>console.log(state)}>current state</button>
           <button className='btn' onClick={()=>{
                                                 sessionStorage.setItem("currentACLUser", JSON.stringify(null));
@@ -154,7 +154,7 @@ const PoiTracker = ({user}) => {
                     <button
                       type="button"
                       className="btn-sm bg-dark-leather"
-                      onClick={()=>handleOpenModal( "playerAdd", setState )}
+                      onClick={()=>handleOpenModal( "playerAdd", state, setState )}
                       >
                       <AiOutlinePlusCircle className="inner-icon" />
                     </button>

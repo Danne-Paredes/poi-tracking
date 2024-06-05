@@ -143,7 +143,7 @@ export const Modal = (props) => {
         <div className="border-0 rounded-lg mt-0 items-center shadow-lg relative flex flex-col w-full bg-dark-leather-2 outline-none focus:outline-none">
           {/*header*/}
           <div className="flex items-start justify-between p-5 border-b border-solid border-slate-200 rounded-t">
-            <h3 className="text-3xl font-semibold text-center text-kv-gray" onClick={()=>console.log(selectedPoi)}>
+            <h3 className="text-3xl font-semibold text-center text-kv-gray" onClick={()=>console.log(state)}>
               {generateModalTitle(selectedModal)}
             </h3>
           </div>

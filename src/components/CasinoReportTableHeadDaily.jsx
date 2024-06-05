@@ -8,7 +8,7 @@ const CasinoReportTableHeadDaily = (props) => {
     const [options, setOptions ] = useState([])
 
     useEffect(() => {
-      setOptions([...dataValsList?.casinos.map(casino => ({ value: casino, label: casino }))]);
+      setOptions([...dataValsList?.casinos.sort((a, b) => a.localeCompare(b)).map(casino => ({ value: casino, label: casino }))]);
       handleStateUpdate(dateTransformer(getAdjustedDateTime()),'selectedDay', setState)
     },[poiList, selectedCasino, dataValsList?.casinos])
 

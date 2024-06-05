@@ -1,4 +1,4 @@
-import { db, getCurrentPois, getDataVals, getPoiData, updateCurrentPoiList, updateCollection, sendDataToBigQuery } from "../config/firebase"
+import { db, getCurrentPois, getDataVals, getPoiData, updateCurrentPoiList, updateCollection, sendDataToBigQuery, auth } from "../config/firebase"
 import { updateDoc , getDocs, collection, doc, arrayUnion} from 'firebase/firestore'
 import PlayerAdd from "../modals/PlayerAdd"
 import TransactionAdd from "../modals/TransactionAdd";
@@ -10,6 +10,7 @@ import CasinoReportTableHeadDaily from "./CasinoReportTableHeadDaily";
 import CasinoReportTableHeadWeekly from "./CasinoReportTableHeadWeekly";
 import { v4 as uuidv4 } from 'uuid';
 import PlayerInfo from "../modals/PlayerInfo";
+// import { useNavigate } from 'react-router-dom';
 
 
 export const getAdjustedDateTime = () => {
@@ -18,6 +19,18 @@ export const getAdjustedDateTime = () => {
     const adjustedDate = new Date(currentDate.getTime() - timezoneOffsetInMinutes * 60000);
     return adjustedDate.toISOString().slice(0, 16);
 };
+
+
+export const handleSignOut = async () => {
+    // const navigate = useNavigate();
+    try {
+      await auth.signOut();
+    //   navigate('/login');
+    } catch (error) {
+      // Handle error
+      console.error(error);
+    }
+  };
 
 
 export const dateTransformer = (date) => {
@@ -109,11 +122,16 @@ export const fetchDataVals = async (setState, selectedCasino, setCurrentPoiList)
     handleStateUpdate(data2, 'poiList', setState);
 };
 
-export const handleOpenModal = async ( modal, setState ,index='', currentPoiList={} ) => {
-    handleStateUpdate(modal, 'selectedModal', setState)
-    handleStateUpdate(true, 'openModal', setState)
-    handleStateUpdate(index, 'index', setState)
-    handleStateUpdate(currentPoiList[index], 'selectedPoi', setState)
+export const handleOpenModal = async ( modal, state, setState ,index='', currentPoiList={} ) => {
+    if (state.user.email) {
+                            handleStateUpdate(modal, 'selectedModal', setState)
+                            handleStateUpdate(true, 'openModal', setState)
+                            handleStateUpdate(index, 'index', setState)
+                            handleStateUpdate(currentPoiList[index], 'selectedPoi', setState)
+                            } else {
+                                    window.alert('Credentials expired, please login again.')
+                                    handleSignOut()
+                                    }
     // console.log(currentPoiList[index])
   };
 
