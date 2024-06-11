@@ -406,12 +406,12 @@ export const addPoi = (state, setState, currentPoiList, setCurrentPoiList, selec
             description: poi.description || '', 
             casinos: casinos.length ? casinos : [selectedCasino],
             visits: poi.visits || [],
-            id: id || 'default-id',
+            id: id || poi.id,
         },
     ];
   
     const newPoi = {
-      id: id,
+      id: id || poi.id,
       name: poi.name,
       arrival: arrival,
       casinos: casinos.length ? casinos : [selectedCasino],
@@ -423,7 +423,7 @@ export const addPoi = (state, setState, currentPoiList, setCurrentPoiList, selec
 
 
     const logEntry = {
-        id: id,
+        id: id || poi.id,
         user: user.email,
         visitId: newUUID,
         timestamp: getAdjustedDateTime(),
