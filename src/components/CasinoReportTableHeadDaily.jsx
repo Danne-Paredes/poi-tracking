@@ -13,30 +13,32 @@ const CasinoReportTableHeadDaily = (props) => {
     },[poiList, selectedCasino, dataValsList?.casinos])
 
     useEffect(() => {
-      const dateToDayStart = (dateString) => {
-        const date = new Date(dateString);
-        date.setHours(0, 0, 0, 0); // Set time to midnight to ignore time differences
-        return date;
-    };
-    
-    const filteredVisits = selectedDay && poiList
-        .flatMap(poi => poi.visits.map(visit => ({
-            ...visit,
-            poiID: poi.id,
-            name: poi.name,
-            description: poi.description,
-        })))
-        .filter(visit => visit.casino === selectedCasino)
-        .filter(visit => {
-            const departureDate = dateToDayStart(visit.departure);
-            const selectedDate = dateToDayStart(selectedDay);
-            return departureDate.getTime() === selectedDate.getTime(); // Compare timestamps for equality
-        })
-        .sort((a, b) => a.name.localeCompare(b.name));
-    
-          // console.log('selectedDay',selectedDay)
-        handleStateUpdate(filteredVisits, 'filteredVisits', setState);
+      const dateToDayStartUTC = (dateString) => {
+          const date = new Date(dateString);
+          // Get the UTC date
+          const utcDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+          return utcDate;
+      };
+  
+      const filteredVisits = selectedDay && poiList
+          .flatMap(poi => poi.visits.map(visit => ({
+              ...visit,
+              poiID: poi.id,
+              name: poi.name,
+              description: poi.description,
+          })))
+          .filter(visit => visit.casino === selectedCasino)
+          .filter(visit => {
+              const departureDate = dateToDayStartUTC(visit.departure);
+              const selectedDate = dateToDayStartUTC(selectedDay);
+              return departureDate.getTime() === selectedDate.getTime(); // Compare timestamps for equality
+          })
+          .sort((a, b) => a.name.localeCompare(b.name));
+  
+      // console.log('selectedDay', selectedDay)
+      handleStateUpdate(filteredVisits, 'filteredVisits', setState);
     }, [selectedDay, poiList, selectedCasino, setState]); // Include all dependencies that can affect filteredVisits
+  
 
     const numberOfVisits = filteredVisits?.length;
 

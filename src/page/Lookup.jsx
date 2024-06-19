@@ -51,8 +51,9 @@ const Lookup = (props) => {
           setExpandedVisitIndex(visitIndex);  // expand selected visit's transactions
         }
       };
+
     
-      const casinoOptions = dataValsList.casinos.map(casino => ({
+      const casinoOptions = dataValsList.casinos.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase())).map(casino => ({
         value: casino,
         label: casino
       }))

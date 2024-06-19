@@ -108,8 +108,9 @@ export const refreshPoiList = async (setState) =>{
 export const fetchDataVals = async (setState, selectedCasino, setCurrentPoiList) => {
     const data = await getDataVals();  // Assuming this returns data for 'dataValsList'
     const data2 = await getPoiData();  // Assuming this returns data for 'poiList'
-
-    console.log(selectedCasino)
+    
+    console.log("data",data)
+    data.casinos.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
     let data3;
       if(selectedCasino !== 'Select A Casino'){
         data3 = await getCurrentPois(selectedCasino);
@@ -481,6 +482,7 @@ export const addTransaction = (state, setState, currentPoiList, setCurrentPoiLis
         // Update transactions
         if (poi.transactions) {
             poi.transactions.push(transactionDetails);
+            poi.transactions.sort((a, b) => new Date(a.date) - new Date(b.date))
         } else {
             poi.transactions = [transactionDetails];
         }
@@ -509,6 +511,7 @@ export const addTransaction = (state, setState, currentPoiList, setCurrentPoiLis
         const newTransactions = [...poi.transactions]
         newTransactions[transactionIndex] = transactionDetails
         newArray[index].transactions = newTransactions
+        newTransactions.sort((a, b) => new Date(a.date) - new Date(b.date))
 
         // console.log(newArray)
 
