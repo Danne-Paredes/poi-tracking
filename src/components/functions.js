@@ -132,6 +132,7 @@ export const handleOpenModal = async ( modal, state, setState ,index='', current
     if (state.user.email) {
                             handleStateUpdate(modal, 'selectedModal', setState)
                             handleStateUpdate(true, 'openModal', setState)
+                            handleStateUpdate(false, 'isNew', setState)
                             handleStateUpdate(index, 'index', setState)
                             handleStateUpdate(currentPoiList[index], 'selectedPoi', setState)
                             } else {

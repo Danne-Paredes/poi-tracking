@@ -29,10 +29,10 @@ const ArriveDepart = (props) => {
         if (parentState.selectedPoi?.transactions) {
           parentState.selectedPoi?.transactions.forEach(transaction => {
             if (transaction.type === 'Buy In') {
-              console.log(`+${transaction.amount}`)
+              // console.log(`+${transaction.amount}`)
               total -= parseInt(transaction.amount, 10);
             } else if (transaction.type === 'Cash Out') {
-              console.log(`-${transaction.amount}`)
+              // console.log(`-${transaction.amount}`)
               total += parseInt(transaction.amount, 10);
             }
           });

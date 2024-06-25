@@ -5,6 +5,7 @@ import { Modal } from '../components/Modal';
 import { useNavigate } from 'react-router-dom';
 import { handleCasinoChange, fetchDataVals, handleOpenModal, handleStateUpdate, fetchCurrentPoiList, handleVisibilityChange, handleFocus, handleBlur, logoutUser, handleSignOut } from '../components/functions';
 import { AiOutlinePlusCircle  } from 'react-icons/ai'
+import { updateCurrentPoiList } from '../config/firebase';
 
 const PoiTracker = ({user}) => {
   const [isActive, setIsActive] = useState(!document.hidden);
@@ -140,9 +141,15 @@ const PoiTracker = ({user}) => {
           <button className='btn' onClick={handleSignOut}>handleSignOut</button>
           <button className='btn' onClick={()=>console.log(state)}>current state</button>
           <button className='btn' onClick={()=>{
-                                                sessionStorage.setItem("currentACLUser", JSON.stringify(null));
-                                                logoutUser()
-                                                }}>Logout</button>
+                                                const id2 = '50208499-694a-4299-9a91-f9a0bc32a76a'
+                                                const id = 'de333923-4f21-4737-8c15-850c47f58042'
+                                                const newCurrentPoiList = [...currentPoiList]
+                                                newCurrentPoiList[1].id = id2
+                                                newCurrentPoiList[0].id = id
+                                                console.log(newCurrentPoiList)
+                                                setCurrentPoiList(newCurrentPoiList)
+                                                updateCurrentPoiList(selectedCasino,newCurrentPoiList)
+                                                }}>update poiID</button>
           <button className='btn' onClick={()=>{
                                 handleStateUpdate('', 'selectedCasino', setState)
                                 sessionStorage.setItem("currentCasino", JSON.stringify(''))

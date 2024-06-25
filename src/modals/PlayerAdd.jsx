@@ -85,7 +85,7 @@ const PlayerAdd = (props) => {
         />
          <label className='text-kv-gray' onClick={()=>console.log(parentState)}>New POI:</label>
         <input type="checkbox" checked={isNew} onChange={(e)=>{
-            // console.log(state)
+            console.log(e.target.checked)
             handleIsNewChange(e,setState,setParentState)
         }}/>
         <br/>
