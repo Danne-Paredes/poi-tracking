@@ -1,4 +1,4 @@
-import { db, getCurrentPois, getDataVals, getPoiData, updateCurrentPoiList, updateCollection, sendDataToBigQuery, auth } from "../config/firebase"
+import { db, getCurrentPois, getDataVals, getPoiData, updateCurrentPoiList, updateCollection, sendDataToBigQuery, auth, getACL } from "../config/firebase"
 import { updateDoc , getDocs, collection, doc, arrayUnion} from 'firebase/firestore'
 import PlayerAdd from "../modals/PlayerAdd"
 import TransactionAdd from "../modals/TransactionAdd";
@@ -79,7 +79,22 @@ export const useLongPress = (onLongPress, ms = 100) => {
     });
 };
 
+export const getAdminEmails = async (selectedCasino, setState) => {
+// export const getAdminEmails = async (selectedCasino, setACLEmails) => {
+    const data = await getACL() || [];
+  
+    // Filter data based on selectedCasino and extract emails
+    const emails = data
+      .filter(item => item.location === selectedCasino)
+      .map(item => item.email);
 
+    console.log(emails)
+  
+    // Set the filtered emails using the provided setter function
+    // setState((prevData) => ({ ...prevData, emails:emails }));
+    handleStateUpdate(emails, 'emails', setState)
+    // return emails
+  };
 
 
 
@@ -1085,7 +1100,7 @@ export const convertDataToHtmlTable = (data) => {
 };
 
 
-export const exportToClipboard = (selectedCasino) => {
+export const exportToEmail = (selectedCasino) => {
     const styleMap = {
         // Basic Tailwind CSS utilities mapped to CSS
         'mt-2': 'margin-top: 0.5rem;',
@@ -1100,35 +1115,25 @@ export const exportToClipboard = (selectedCasino) => {
         'font-bold': 'font-weight: bold;',
         'italic': 'font-style: italic;',
         'w-1/2': 'width: 50%;',
-    
-        // Handling custom color classes and complex classes
         'bg-kv-red': 'background-color: #d02424;',
         'kv-gray': 'color: #b8b4b4;',
         'bg-kv-logo-gray': 'background-color: #5c605c;',
         'bg-slate-gray': 'background-color: #6D6D6D;',
         'white-400': 'color: rgba(255, 255, 255, 0.80);',
-    
-        // Handling specific background image or fall back to black background
         'bg-dark-leather': 'background-color: black; background-image: url(\'../images/dark_leather.png\');',
-    
-        // Example to map conditions inside JavaScript functions
-        'bg-blue-500': 'background-color: #3B82F6;',  // Tailwind blue-500
+        'bg-blue-500': 'background-color: #3B82F6;',
         'text-black': 'color: black;',
-    
-        // Specific cases handling
-        'bg-dark-leather-2': 'background-color: black;', // Assuming you use dark leather texture here too
+        'bg-dark-leather-2': 'background-color: black;',
         'border-kv-gray': 'border-color: #b8b4b4;',
-        
         'text-white': 'color: white;',
         'text-lg': 'font-size: 1.125rem;',
     };
-    // This function will convert Tailwind classes to inline styles
+    
     const convertClassesToInlineStyles = (classNames, index) => {
         return classNames.split(' ').reduce((acc, className) => {
-            if (className === "row-bg") {  // Assuming 'row-bg' is used as a placeholder for your conditional backgrounds
+            if (className === "row-bg") {
                 return acc + (index % 2 === 0 ? styleMap['bg-kv-logo-gray'] : styleMap['bg-slate-gray']);
             }
-            // Handling results condition
             if (className.startsWith('results-')) {
                 const [_, result] = className.split('-');
                 return acc + (result === 'positive' ? styleMap['bg-blue-500'] : styleMap['bg-kv-red']) + (result === 'neutral' ? styleMap['text-black'] : '');
@@ -1144,56 +1149,143 @@ export const exportToClipboard = (selectedCasino) => {
         if (classAttribute) {
             const inlineStyles = convertClassesToInlineStyles(classAttribute, index);
             element.setAttribute('style', inlineStyles);
-            element.removeAttribute('class');  // Optionally remove class attribute after conversion
+            element.removeAttribute('class');
         }
     };
     
     const modifyHeader = (table) => {
-        const headerRows = table.querySelectorAll('thead > tr'); // Get all rows in the thead
-        console.log('Total header rows:', headerRows.length);
-    
+        const headerRows = table.querySelectorAll('thead > tr');
         if (headerRows.length > 0) {
             const firstRowCells = headerRows[0].querySelectorAll('th');
             if (firstRowCells.length > 0) {
-                console.log(`First Row Cells:`, firstRowCells[0].textContent);
                 firstRowCells[0].textContent = selectedCasino ? selectedCasino : "No Casino Selected";
-                firstRowCells[0].style.cssText = 'font-size: 1.5rem; color: white; padding: 1rem; border: 1px solid #b8b4b4;'; // Ensure visibility
+                firstRowCells[0].style.cssText = 'font-size: 1.5rem; color: white; padding: 1rem; border: 1px solid #b8b4b4;';
             }
-    
             const secondRowCells = headerRows[1].querySelectorAll('th');
-            if (secondRowCells.length > 1) { // Assuming the last cell needs modification
-                console.log(`Second Row Last Cell:`, secondRowCells[1].textContent);
-                secondRowCells[0].style.cssText = 'font-size: 1.5rem; color: white; padding: 1rem; border: 1px solid #b8b4b4;'; // Ensure visibility
-
-                secondRowCells[1].style.cssText = 'color: white'; // Ensure visibility
+            if (secondRowCells.length > 1) {
+                secondRowCells[0].style.cssText = 'font-size: 1.5rem; color: white; padding: 1rem; border: 1px solid #b8b4b4;';
+                secondRowCells[1].style.cssText = 'color: white';
             }
-    
-    
-            // Modify third row, if exists
             if (headerRows.length > 2) {
                 const thirdRowCells = headerRows[2].querySelectorAll('th');
-                thirdRowCells.forEach((cell, index) => {
-                    console.log(`Third Row Cell ${index}:`, cell.textContent);
-                    cell.style.color = 'white'; // Change text color to white
+                thirdRowCells.forEach((cell) => {
+                    cell.style.color = 'white';
                 });
             }
         }
     };
     
-    
-    
-    
-    
     const table = document.querySelector('.casino-view');
     if (table) {
         const clonedTable = table.cloneNode(true);
-        applyStylesToAllElements(clonedTable, 0); // Apply styles recursively
-        modifyHeader(clonedTable); // Modify headers as required
+        applyStylesToAllElements(clonedTable, 0);
+        modifyHeader(clonedTable);
         const tableHTML = clonedTable.outerHTML;
-        navigator.clipboard.writeText(tableHTML).then(() => {
-            console.log('HTML copied to clipboard');
-        }).catch(err => {
-            console.error('Failed to copy HTML: ', err);
-        });
+        return tableHTML;
     }
+    return '';
 };
+
+export const generateHtmlTable = (filteredPois, state) => {
+    const {
+        selectedCasino,
+        // totalBuyIn,
+        // totalResults,
+        // numberOfVisits,
+        selectedDay,
+        selectedWeek,
+        selectedMonthYear,
+        dateViewMode
+      } = state
+
+      const numberOfVisits = filteredPois?.reduce((sum, poi) => sum + (poi.visits ? poi.visits.length : 0), 0);
+
+  // Calculate the total Buy-In
+  const totalBuyIn = filteredPois?.reduce((totalSum, poi) => {
+    const buyIns = poi.visits?.reduce((sum, visit) => {
+      const buyInTransactions = visit.transactions
+        .filter(transaction => transaction.type === 'Buy In')
+        .reduce((sum, transaction) => sum + transaction.amount, 0);
+      return sum + buyInTransactions;
+    }, 0);
+    return totalSum + buyIns;
+  }, 0);
+
+  // Calculate the total results
+  const totalResults = filteredPois?.reduce((totalSum, poi) => {
+    const results = poi.visits?.reduce((sum, visit) => {
+      const visitResults = visit.transactions.reduce((sum, transaction) => {
+        return sum + (transaction.type === 'Cash Out' ? -transaction.amount : transaction.amount);
+      }, 0);
+      return sum + visitResults;
+    }, 0);
+    return totalSum + results;
+  }, 0);
+
+    console.log(filteredPois)
+
+    let dateRange; 
+    if(dateViewMode === 'monthly'){dateRange = selectedMonthYear} else if(dateViewMode === 'weekly'){dateRange = selectedWeek} else {dateRange = selectedDay}
+    const resultStyle = totalResults > 0 ? 'font-weight: 700; color: #3B82F6;' : 'font-weight: 700; color: #d02424;';
+
+
+    let html = `<table style='border-collapse: collapse; width: 100%;'>
+  <thead>
+    <tr>
+      <th colspan='4' style='border: 1px solid #dddddd; text-align: center; padding: 12px; font-size: 24px; background-color: black; color: white;'>${selectedCasino}</th>
+    </tr>
+    <tr>
+      <th style='border: 1px solid #dddddd; text-align: center; padding: 12px; font-size: 20px; background-color: black; color: white;'>${dateRange}</th>
+      <th colspan='3' style='border: 1px solid #dddddd; text-align: center; padding: 12px; font-size: 20px; background-color: black; color: white;'>
+        Buy-In: <span style='font-weight: 700;'>${totalBuyIn?.toLocaleString()}</span><br/>
+        Results: <span style="${resultStyle}">${totalResults < 0 ? `-$${Math.abs(totalResults)?.toLocaleString()}` : `$${totalResults?.toLocaleString()}`}</span><br/>
+        Visits: ${numberOfVisits}
+      </th>
+    </tr>
+    <tr>
+      <th style='border: 1px solid #dddddd; text-align: left; padding: 8px; background-color: black; color: white;'>Name</th>
+      <th style='border: 1px solid #dddddd; text-align: center; padding: 8px; background-color: black; color: white;'>Most Recent Visit Date</th>
+      <th style='border: 1px solid #dddddd; text-align: center; padding: 8px; background-color: black; color: white;'>Buy-Ins This Month</th>
+      <th style='border: 1px solid #dddddd; text-align: center; padding: 8px; background-color: black; color: white;'>Results</th>
+    </tr>
+  </thead>
+  <tbody>`;
+    // // Add headers
+    // const headers = ["Name", "Most Recent Visit Date", "Buy-Ins This Month", "Results"];
+    // headers.forEach(header => {
+    //   html += `<th style='border: 1px solid #dddddd; text-align: left; padding: 8px;'>${header}</th>`;
+    // });
+    // html += "</tr></thead><tbody>";
+  
+    // Add rows
+    filteredPois.forEach((poi, index) => {
+      const transactions = (poi.visits || []).flatMap(visit => visit.transactions);
+      
+      const buyInsThisMonth = transactions
+        .filter(transaction => transaction.type === "Buy In")
+        .reduce((sum, transaction) => sum + transaction.amount, 0);
+  
+      const cashOutsThisMonth = transactions
+        .filter(transaction => transaction.type === "Cash Out")
+        .reduce((sum, transaction) => sum + transaction.amount, 0);
+  
+      const mostRecentVisitDate = (poi.visits || [])
+        .reduce((latestDate, visit) => {
+          const visitDate = new Date(visit.departure);
+          return !latestDate || visitDate > latestDate ? visitDate : latestDate;
+        }, null);
+  
+      const results = cashOutsThisMonth - buyInsThisMonth;
+  
+      html += `<tr style='background-color: ${index % 2 === 0 ? '#5c605c' : '#6D6D6D'};'>
+        <td style='border: 1px solid #dddddd; text-align: left; padding: 8px;'>${poi.name} <br/>
+          <span style='font-size: 0.75rem; font-style: italic;'>${poi.description}</span></td>
+        <td style='border: 1px solid #dddddd; text-align: center; padding: 8px; font-weight: bold;'>${mostRecentVisitDate ? mostRecentVisitDate.toLocaleDateString() : ''}</td>
+        <td style='border: 1px solid #dddddd; text-align: center; padding: 8px; font-weight: bold;'>${buyInsThisMonth < 0 ? `-$${Math.abs(buyInsThisMonth).toLocaleString()}` : `$${buyInsThisMonth.toLocaleString()}`}</td>
+        <td style='border: 1px solid #dddddd; text-align: center; padding: 8px; font-weight: bold; background-color: ${results > 0 ? '#3B82F6' : '#d02424'}; color: ${results === 0 ? 'black' : 'white'};'>${results < 0 ? `-$${Math.abs(results).toLocaleString()}` : `$${results.toLocaleString()}`}</td>
+      </tr>`;
+    });
+  
+    html += "</tbody></table>";
+    return html;
+  };

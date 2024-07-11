@@ -12,14 +12,7 @@ const CasinoReportTableHeadDaily = (props) => {
       handleStateUpdate(dateTransformer(getAdjustedDateTime()),'selectedDay', setState)
     },[poiList, selectedCasino, dataValsList?.casinos])
 
-    useEffect(() => {
-      const dateToDayStartUTC = (dateString) => {
-          const date = new Date(dateString);
-          // Get the UTC date
-          const utcDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
-          return utcDate;
-      };
-  
+    useEffect(() => {  
       const filteredVisits = selectedDay && poiList
           .flatMap(poi => poi.visits.map(visit => ({
               ...visit,
@@ -29,9 +22,8 @@ const CasinoReportTableHeadDaily = (props) => {
           })))
           .filter(visit => visit.casino === selectedCasino)
           .filter(visit => {
-              const departureDate = dateToDayStartUTC(visit.departure);
-              const selectedDate = dateToDayStartUTC(selectedDay);
-              return departureDate.getTime() === selectedDate.getTime(); // Compare timestamps for equality
+              const departureDate = visit.departure.split('T')[0];
+              return departureDate === selectedDay; // Compare timestamps for equality
           })
           .sort((a, b) => a.name.localeCompare(b.name));
   
