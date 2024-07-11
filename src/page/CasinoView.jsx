@@ -22,10 +22,11 @@ const CasinoView = ({user}) => {
     openEmailModal: false,
     emails: [user.email],
     htmlTable: '',
-    filteredPois:[]
+    filteredPois:[],
+    isLoading: false
   });
 
-  const { poiList, dataValsList, selectedCasino, currentMonth, currentYear, selectedMonthYear, dateViewMode, openModal, openEmailModal, filteredPois, } = state
+  const { poiList, dataValsList, selectedCasino, currentMonth, currentYear, selectedMonthYear, dateViewMode, openModal, openEmailModal, filteredPois, isLoading,} = state
   
   const [currentPoiList, setCurrentPoiList] = useState([])
 

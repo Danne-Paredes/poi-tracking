@@ -15,6 +15,7 @@ const CasinoReportDateViews = (props) => {
   
 
   const sendEmail = async () => {
+    window.alert(`Sending Report to ${user.email}`)
     const url = 'https://us-central1-poi-tracking.cloudfunctions.net/sendEmail';
     const emailData = {
       emails,
