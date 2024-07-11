@@ -15,28 +15,30 @@ const CasinoReportDateViews = (props) => {
   
 
   const sendEmail = async () => {
-    window.alert(`Sending Report to ${user.email}`)
-    const url = 'https://us-central1-poi-tracking.cloudfunctions.net/sendEmail';
-    const emailData = {
-      emails,
-      htmlTable
-
-    }
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(emailData)
-      });
-      if (response.ok) {
-        console.log('Emails sent successfully');
-      } else {
-        console.error('Error sending emails:', await response.text());
+    if (window.confirm(`Sending Report to ${user.email}`)) {
+      const url = 'https://us-central1-poi-tracking.cloudfunctions.net/sendEmail';
+      const emailData = {
+        
+        emails,
+        htmlTable
+        
       }
-    } catch (error) {
-      console.error('Error sending emails:', error);
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(emailData)
+        });
+        if (response.ok) {
+          console.log('Emails sent successfully');
+        } else {
+          console.error('Error sending emails:', await response.text());
+        }
+      } catch (error) {
+        console.error('Error sending emails:', error);
+      }
     }
   };
 
