@@ -22,11 +22,13 @@ function App() {
     const fetchDataVals = async (user) => {
       const data = await getACL();
       const currentUser =  data.find((currentUser)=>currentUser.email === user.email )
+      console.log('currentUser',currentUser)
       // currentUser.location !== "Corp - Knighted Ventures" && sessionStorage.setItem("currentACLUser", JSON.stringify(currentUser));
       sessionStorage.setItem("currentACLUser", JSON.stringify(currentUser));
       setACLUser(currentUser)
     }
     const unsubscribe = auth.onAuthStateChanged((user) => {
+      console.log('user',user)
       setUser(user)
       setLoading(false);
       user && fetchDataVals(user)

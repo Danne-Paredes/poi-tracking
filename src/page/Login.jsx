@@ -16,6 +16,7 @@ const Login = (props) => {
         console.log(result);
         const token = await result.user.getIdToken();
         sessionStorage.setItem('token', token);
+        // console.log(token)
         navigate('/');
       } else {
         // If the email domain is not 'knighted.com', sign out the user

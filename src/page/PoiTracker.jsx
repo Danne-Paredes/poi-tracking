@@ -5,7 +5,7 @@ import { Modal } from '../components/Modal';
 import { useNavigate } from 'react-router-dom';
 import { handleCasinoChange, fetchDataVals, handleOpenModal, handleStateUpdate, fetchCurrentPoiList, handleVisibilityChange, handleFocus, handleBlur, logoutUser, handleSignOut } from '../components/functions';
 import { AiOutlinePlusCircle  } from 'react-icons/ai'
-import { updateCurrentPoiList } from '../config/firebase';
+import { updateCurrentPoiList, manualAclUpdate } from '../config/firebase';
 
 const PoiTracker = ({user}) => {
   const [isActive, setIsActive] = useState(!document.hidden);
@@ -137,9 +137,10 @@ const PoiTracker = ({user}) => {
               />
       </div>
       {isLocalhost && <div className='flex justify-center mt-10'>
-          <button className='btn' onClick={()=>console.log(currentPoiList)}>current poiList</button>
+          <button className='btn' onClick={()=>console.log(user)}>current poiList</button>
           <button className='btn' onClick={handleSignOut}>handleSignOut</button>
           <button className='btn' onClick={()=>console.log(state)}>current state</button>
+          <button className='btn' onClick={()=>manualAclUpdate()}>manualAclUpdate</button>
           <button className='btn' onClick={()=>{
                                                 const today = new Date('2024-07-10')
                                                 console.log(new Date('2024-07-10').toLocaleString().split(',')[0] )
