@@ -144,7 +144,7 @@ export const fetchDataVals = async (setState, selectedCasino, setCurrentPoiList)
 };
 
 export const handleOpenModal = async ( modal, state, setState ,index='', currentPoiList={} ) => {
-    if (state.user.email) {
+    if (state.user && state.user.email) {
                             handleStateUpdate(modal, 'selectedModal', setState)
                             handleStateUpdate(true, 'openModal', setState)
                             handleStateUpdate(false, 'isNew', setState)

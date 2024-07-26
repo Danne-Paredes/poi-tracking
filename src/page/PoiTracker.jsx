@@ -137,7 +137,15 @@ const PoiTracker = ({user}) => {
               />
       </div>
       {isLocalhost && <div className='flex justify-center mt-10'>
-          <button className='btn' onClick={()=>console.log(user)}>current poiList</button>
+          <button className='btn' onClick={()=>{
+                                                // const newPoi = currentPoiList[1]
+                                                // newPoi.id = '46ecae38-8370-4ca4-8c2d-8c57e385788d'
+                                                // const newCurrent = [...currentPoiList]
+                                                // newCurrent[1] = newPoi
+                                                // setCurrentPoiList(newCurrent)
+                                                console.log(currentPoiList)
+                                              }
+                                                }>current poiList</button>
           <button className='btn' onClick={handleSignOut}>handleSignOut</button>
           <button className='btn' onClick={()=>console.log(state)}>current state</button>
           <button className='btn' onClick={()=>manualAclUpdate()}>manualAclUpdate</button>
