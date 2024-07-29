@@ -192,6 +192,7 @@ export const getComponentByName = (name, props) => {
     // or null if no match is found.
     return components[name] || null;
   }
+  
   export const getSubmitByName = (name, ...args) => {
     const [state] = args;  // Only to access state for checking transactionIndex
     // console.log('Transaction Index:', state.transactionIndex);

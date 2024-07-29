@@ -13,7 +13,12 @@ function App() {
   const [user, setUser] = useState(null);
   const [aclUser, setACLUser] = useState(() => {
     const savedACLUser = sessionStorage.getItem('currentACLUser');
-    return savedACLUser ? JSON.parse(savedACLUser) : null; // Ensure this is null if not set
+    try {
+      return savedACLUser ? JSON.parse(savedACLUser) : null;
+    } catch (error) {
+      console.error('Error parsing JSON:', error);
+      return null;
+    }
   });
 
   const [loading, setLoading] = useState(true);
@@ -21,6 +26,7 @@ function App() {
   useEffect(() => {
     const fetchDataVals = async (user) => {
       const data = await getACL();
+      console.log("data:",data)
       const currentUser =  data.find((currentUser)=>currentUser.email === user.email )
       console.log('currentUser',currentUser)
       // currentUser.location !== "Corp - Knighted Ventures" && sessionStorage.setItem("currentACLUser", JSON.stringify(currentUser));
