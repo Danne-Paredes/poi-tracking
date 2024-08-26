@@ -243,7 +243,7 @@ const Lookup = (props) => {
           handlePoiChange={handlePoiChange} 
         />
         <LookupDescription   
-          currentPoi={currentPoi} 
+          currentPoi={filteredPoi === null? currentPoi : filteredPoi}
           isLoading={isLoading} 
           activeCasinos={activeCasinos}  
           />

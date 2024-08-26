@@ -1,9 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { handleStateUpdate, timeTransformer, dateTimeTransformer, } from './functions'
 import { AiOutlinePlusCircle, AiOutlineEdit } from 'react-icons/ai'
 
 
 const TodaysTransaction = ({current_transactions, state,  setState, longPressEventHandlers, setFormState=null, current_visit = {label:null}, formState}) => {
+    const [isHovered, setIsHovered] = useState(false);
     // const { editedArrival, editedDeparture } = formState
     const handleEdit = (index)=> {
         if (state.selectedModal !== 'notesViewer'){
@@ -88,22 +89,37 @@ const TodaysTransaction = ({current_transactions, state,  setState, longPressEve
         <div className='text-kv-gray font-bold text-center'>Transactions:</div>
         <div className="flex flex-col justify-center items-center">
             <ul className='list-none font-bold'>
-                {current_transactions.filter(transaction => transaction.type !== "Note").map((transaction, index) => (
-                    <li key={index} className={`group flex items-center justify-between px-4 ${state?.transactionIndex === index ? 'bg-kv-red':''} ${formState?.transactionIndex === index ? 'bg-kv-red':''}`} {...longPressEventHandlers(index)}>
-                        <div className="flex flex-1 justify-center space-x-4">
-                            <span className="text-center">{timeTransformer(transaction.date)}</span>
-                            <span className="text-center">{transaction.type === 'Buy In' ? `+${transaction.amount}` : `-${transaction.amount}`}</span>
+            {current_transactions.filter(transaction => transaction.type !== "Note").map((transaction, index) => (
+                <li 
+                    key={index} 
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
+                    {...longPressEventHandlers(index)}
+                    className={`group flex justify-between items-center px-4 ${state?.transactionIndex === index ? 'bg-kv-red':''} ${formState?.transactionIndex === index ? 'bg-kv-red':''}`}
+                >
+                    <div className="flex flex-col flex-1">
+                    <div className="flex space-x-4 justify-between pr-2">
+                        <span>{timeTransformer(transaction.date)}</span>
+                        <span>{transaction.type === 'Buy In' ? `+$${transaction.amount.toLocaleString()}` : `-$${transaction.amount.toLocaleString()}`}</span>
+                        <span>{`${transaction.game}`}</span>
+                    </div>
+                    {transaction.note && (
+                        <div className="flex justify-center mt-2">
+                        <span className="text-center">{transaction.note}</span>
                         </div>
-                        <div className="flex space-x-2">
-                            <button className="btn-xxs ml-4 invisible group-hover:visible" onClick={(e) => {
-                                e.stopPropagation();
-                                handleEdit(index);
-                            }}>
-                                <AiOutlineEdit size="1em"/>
-                            </button>
-                        </div>
-                    </li>
+                    )}
+                    </div>
+                    <div className="flex items-center justify-center">
+                    <button className="btn-xxs invisible group-hover:visible" onClick={(e) => {
+                        e.stopPropagation();
+                        handleEdit(index);
+                    }}>
+                        <AiOutlineEdit size="1em"/>
+                    </button>
+                    </div>
+                </li>
                 ))}
+
             </ul>
             {state.selectedModal === 'notesViewer' && current_visit.departure && !state.notesEditMode && (
                 <div className="flex justify-center w-full mt-4"> {/* Ensures the button is centered under the list */}

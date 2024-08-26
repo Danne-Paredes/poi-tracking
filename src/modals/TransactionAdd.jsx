@@ -18,17 +18,22 @@ const {   state: parentState,
             
 
  // Destructure 'games' from 'dataValsList' within 'parentState'
-const { dataValsList: { games = [] } = {}, index, selectedPoi = { transactions: [] }, transactionDetails, transactionIndex } = parentState;
+const { dataValsList: { games = [], limits = [] } = {}, index, selectedPoi = { transactions: [] }, transactionDetails, transactionIndex } = parentState;
 
 let current_transactions;
 if (selectedPoi.transactions) {
   current_transactions = selectedPoi.transactions;
 }
 
-const options = games.map((game) => ({
-  value: game,
-  label: game
-}));
+// Use flatMap to combine games and limits
+const options = games.flatMap((game) =>
+  limits.map((limit) => ({
+    value: `${game}-${limit}`,
+    label: `${game.toUpperCase()}-${limit}`, // Label for the option, you can customize this
+  }))
+);
+
+
 
          
   const [formState, setFormState] = useState({
@@ -170,19 +175,15 @@ const longPressEventHandlers = useLongPress(handleLongPress, 500); // 500ms for 
               Note
           </label>
       </div>
-      {type === 'Cash Out' && 
-        <>
-            <div className='text-kv-gray font-bold'>Game:</div>
-            <div className='w-full flex justify-center'><SingleSelect
-              className =  'mb-2 w-28'
-              value={game ? { label: game, value: game } : null}
-              options={options}
-              onChange={(e) =>handleStateUpdate(e.value, 'game', setFormState)}
-            /></div>
-        </>
-      }
       { type !== "Note" && 
         <>
+          <div className='text-kv-gray font-bold'>Game:</div>
+          <div className='w-full flex justify-center'><SingleSelect
+            className =  'mb-2 w-28'
+            value={game ? { label: game, value: game } : null}
+            options={options}
+            onChange={(e) =>handleStateUpdate(e.value, 'game', setFormState)}
+          /></div>
           <div className='text-kv-gray font-bold'>Amount:</div>
           <div className='flex justify-center mx-auto items-center text-center block mb-2'>
             <input className='text-center' onKeyDown={handleKeyDown} ref={inputRef} type='number' value={amount}  placeholder='Amount' onChange={(e)=>handleStateUpdate(parseInt(e.target.value),'amount',setFormState)}/>
@@ -190,7 +191,7 @@ const longPressEventHandlers = useLongPress(handleLongPress, 500); // 500ms for 
         </>
       }
       <div className='text-kv-gray font-bold'>Notes:</div>
-      <div className='flex justify-center mx-auto items-center text-center block mb-2'>
+      <div className='flex justify-center mx-auto items-center text-center  mb-2'>
           <textarea onKeyDown={handleKeyDown} placeholder='Notes' value={note}   onChange={(e)=>handleStateUpdate(e.target.value,'note',setFormState)}></textarea>
       </div>
   </div>

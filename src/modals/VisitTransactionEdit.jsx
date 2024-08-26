@@ -18,7 +18,7 @@ const VisitTransactionEdit = ( props ) => {
         
 
     // Destructure 'games' from 'dataValsList' within 'parentState'
-    const { dataValsList: { games = [] } = {}, index, selectedPoi = { transactions: [] }, transactionDetails, transactionIndex } = parentState;
+    const { dataValsList: { games = [], limits = [] } = {}, index, selectedPoi = { transactions: [] }, transactionDetails, transactionIndex } = parentState;
 
     const { transactionToEdit, editedDate: date, editedType: type, editedAmount:amount, editedNote: note, editedGame: game  } = formState;
 
@@ -27,10 +27,13 @@ const VisitTransactionEdit = ( props ) => {
         current_transactions = selectedPoi.transactions;
     }
 
-    const options = games.map((game) => ({
-    value: game,
-    label: game
-    }));
+    // Use flatMap to combine games and limits
+    const options = games.flatMap((game) =>
+        limits.map((limit) => ({
+        value: `${game}-${limit}`,
+        label: `${game.toUpperCase()}-${limit}`, // Label for the option, you can customize this
+        }))
+    );
 
         
   
@@ -92,18 +95,19 @@ const VisitTransactionEdit = ( props ) => {
             Note
         </label>
     </div>
-    {type === 'Cash Out' && 
+    { type !== "Note" && 
+    <>
         <div className='w-full flex justify-center'><SingleSelect
         className =  'mb-2 w-28'
         value={game ? { label: game, value: game } : null}
         options={options}
         onChange={(e) =>handleStateUpdate(e.value, 'editedGame', setFormState)}
         /></div>
-    }
-    <div className='text-kv-gray font-bold'>Amount:</div>
-    { type !== "Note" && <div className='flex justify-center mx-auto items-center text-center block mb-2'>
+        <div className='flex justify-center mx-auto items-center text-center block mb-2'>
+        <div className='text-kv-gray font-bold'>Amount:</div>
         <input className='text-center' onKeyDown={handleKeyDown} ref={inputRef} type='number' value={amount}  placeholder='Amount' onChange={(e)=>handleStateUpdate(parseInt(e.target.value),'editedAmount',setFormState)}/>
-    </div>}
+        </div>
+    </>}
     <div className='text-kv-gray font-bold'>Notes:</div>
     <div className='flex justify-center mx-auto items-center text-center block mb-2'>
         <textarea onKeyDown={handleKeyDown} placeholder='Notes' value={note}   onChange={(e)=>handleStateUpdate(e.target.value,'editedNote',setFormState)}></textarea>
