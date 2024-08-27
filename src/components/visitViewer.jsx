@@ -30,6 +30,7 @@ export function VisitViewer({
           const buyInsThisVisit = visit.transactions.filter(transaction => transaction.type === "Buy In").reduce((sum, transaction) => sum + transaction.amount, 0);
           const cashOutsThisVisit = visit.transactions.filter(transaction => transaction.type === "Cash Out").reduce((sum, transaction) => sum + transaction.amount, 0);
           const visitResult = cashOutsThisVisit - buyInsThisVisit;
+          const gamesThisVisit = [...new Set(visit.transactions.map(transaction => transaction.game))];
 
           let textColor;
             if (visitResult > 0) {
@@ -45,7 +46,7 @@ export function VisitViewer({
                                         <tr key={`visit-${visitIndex}`} className={visitIndex % 2 === 0 ? 'bg-kv-logo-gray' : 'bg-slate-gray'} onClick={() => toggleVisibility(visitIndex)}>
                                             <td className='text-center border-r border-b border-black p-4'>{visit.casino ? visit.casino : null}</td>
                                             <td className='text-center border-r border-b border-black p-4 w-15'> Arrival: <br/>{visit.arrival ? dateTimeTransformer(visit.arrival) : null} <br/>Departure: <br/>{visit.departure ? dateTimeTransformer(visit.departure) : null}</td>
-                                            <td  className={`${textColor} text-center font-bold border-r border-b border-black p-4`}>{visitResult < 0 ? `-$${Math.abs(visitResult).toLocaleString()}` : `$${visitResult.toLocaleString()}`}</td>
+                                            <td  className={`${textColor} text-center font-bold border-r border-b border-black p-4`}>{gamesThisVisit.join(', ')}<br/>{visitResult < 0 ? `-$${Math.abs(visitResult).toLocaleString()}` : `$${visitResult.toLocaleString()}`}</td>
                                         </tr>
                                         {visitIndex === expandedVisitIndex && <>
                                                 <tr className='bg-dark-leather-2 text-kv-gray'>
