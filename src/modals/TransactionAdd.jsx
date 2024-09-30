@@ -18,20 +18,25 @@ const {   state: parentState,
             
 
  // Destructure 'games' from 'dataValsList' within 'parentState'
-const { dataValsList: { games = [], limits = [] } = {}, index, selectedPoi = { transactions: [] }, transactionDetails, transactionIndex } = parentState;
+const { dataValsList: { games = [], limits = [], casino_limits = {} } = {}, index, selectedPoi = { transactions: [] }, transactionDetails, transactionIndex } = parentState;
 
 let current_transactions;
 if (selectedPoi.transactions) {
   current_transactions = selectedPoi.transactions;
 }
 
+const gamesLimits = casino_limits[parentState?.selectedCasino] || null
+
 // Use flatMap to combine games and limits
-const options = games.flatMap((game) =>
-  limits.map((limit) => ({
-    value: `${game}-${limit}`,
-    label: `${game.toUpperCase()}-${limit}`, // Label for the option, you can customize this
-  }))
-);
+const options = gamesLimits ? gamesLimits.map((game) => ({
+                                                            value: game,
+                                                            label: game
+                                                          })) : games.flatMap((game) =>
+                                                                                        limits.map((limit) => ({
+                                                                                          value: `${game}-${limit}`,
+                                                                                          label: `${game.toUpperCase()}-${limit}`, // Label for the option, you can customize this
+                                                                                        }))
+                                                                                      );
 
 
 

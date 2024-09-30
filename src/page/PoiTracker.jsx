@@ -502,8 +502,8 @@ const PoiTracker = ({user}) => {
                                                 console.log(currentPoiList)
                                               }
                                                 }>Update id</button>
-          <button className='btn' onClick={handleSignOut}>handleSignOut</button>
-          <button className='btn' onClick={()=>console.log(state)}>current state</button>
+          {/* <button className='btn' onClick={user}>user</button> */}
+          <button className='btn' onClick={()=>console.log(user)}> user</button>
           <button className='btn' onClick={()=>manualAclUpdate()}>manualAclUpdate</button>
           <button className='btn' onClick={()=>{
                                                 const today = new Date('2024-07-10')
