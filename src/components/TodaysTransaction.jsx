@@ -98,7 +98,7 @@ const TodaysTransaction = ({current_transactions, state,  setState, longPressEve
                     className={`group flex justify-between items-center px-4 ${state?.transactionIndex === index ? 'bg-kv-red':''} ${formState?.transactionIndex === index ? 'bg-kv-red':''}`}
                 >
                     <div className="flex flex-col flex-1">
-                    <div className="flex space-x-4 justify-between pr-2">
+                    <div className="flex space-x-4 justify-between pr-">
                         <span>{timeTransformer(transaction.date)}</span>
                         <span>{transaction.type === 'Buy In' ? `+$${transaction.amount.toLocaleString()}` : `-$${transaction.amount.toLocaleString()}`}</span>
                         <span>{`${transaction.game}`}</span>
