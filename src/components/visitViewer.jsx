@@ -24,7 +24,7 @@ export function VisitViewer({
                     <tbody>
                     {currentPoi.visits && currentPoi.visits
                     .sort((a, b) => {
-                        return b.arrival.localeCompare(a.arrival);
+                        return (b.arrival || '').localeCompare(a.arrival || '');
                       })
                     .map((visit, visitIndex) => {
           const buyInsThisVisit = visit.transactions.filter(transaction => transaction.type === "Buy In").reduce((sum, transaction) => sum + transaction.amount, 0);
