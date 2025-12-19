@@ -22,9 +22,9 @@ const PlayerAdd = (props) => {
 
     const { poiId, isNew, selectedDateTime, selectedLocations, poiDescription, selectedPoi } = state;
 
-    const options = [ 
+    const options = [
         ...poiList
-          .filter((poi) => poi.casinos.includes(selectedCasino))
+          .filter((poi) => poi.casinos?.includes(selectedCasino))
           .filter((poi) => poi.active)
           .map((poi) => {
            return { value: poi.name, label: poi.name };

@@ -5,8 +5,8 @@
   "targets": {
     "poi-tracking": {
       "hosting": {
-        "poiBeta": [
-          "poi-tracking-beta"
+        "poiTracking": [
+          "poi-tracking"
         ]
       }
     }

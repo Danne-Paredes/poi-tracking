@@ -2,7 +2,6 @@
   "hosting": {
     "public": "build",
     "site": "poi-tracking",
-    "target": "poiProd",
     "ignore": [
       "firebase.json",
       "**/.*",
