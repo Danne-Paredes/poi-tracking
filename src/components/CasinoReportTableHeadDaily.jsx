@@ -12,14 +12,14 @@ const CasinoReportTableHeadDaily = (props) => {
       handleStateUpdate(dateTransformer(getAdjustedDateTime()),'selectedDay', setState)
     },[poiList, selectedCasino, dataValsList?.casinos])
 
-    useEffect(() => {  
+    useEffect(() => {
       const filteredVisits = selectedDay && poiList
-          .flatMap(poi => poi.visits.map(visit => ({
+          .flatMap(poi => poi.visits?.map(visit => ({
               ...visit,
               poiID: poi.id,
               name: poi.name,
               description: poi.description,
-          })))
+          })) || [])
           .filter(visit => visit.casino === selectedCasino)
           .filter(visit => {
               const departureDate = visit.departure.split('T')[0];

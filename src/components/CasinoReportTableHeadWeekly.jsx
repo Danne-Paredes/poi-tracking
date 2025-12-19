@@ -47,8 +47,8 @@ const CasinoReportTableHeadWeekly = (props) => {
 
     const allDates = poiList.flatMap(poi =>
       poi.visits
-        .filter(visit => visit.casino === selectedCasino)
-        .flatMap(visit => [toWeekString(new Date(visit.departure)), toWeekString(new Date(visit.arrival))])
+        ?.filter(visit => visit.casino === selectedCasino)
+        .flatMap(visit => [toWeekString(new Date(visit.departure)), toWeekString(new Date(visit.arrival))]) || []
     );
 
     const uniqueWeeks = Array.from(new Set(allDates));
@@ -70,12 +70,12 @@ const CasinoReportTableHeadWeekly = (props) => {
   
   useEffect(() => {
     const filteredVisits = selectedWeek && poiList
-        .flatMap(poi => poi.visits.map(visit => ({
+        .flatMap(poi => poi.visits?.map(visit => ({
             ...visit,
-            poiID: poi.id, 
+            poiID: poi.id,
             name: poi.name,
             description: poi.description,
-        })))
+        })) || [])
         .filter(visit => visit.casino === selectedCasino)
         .filter(visit => {
             const departureDate = new Date(visit.departure);

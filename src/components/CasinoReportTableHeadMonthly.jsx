@@ -36,8 +36,8 @@ const CasinoReportTableHeadMonthly = (props) => {
       // Map through the poiList to get all departure and arrival dates, convert to month-year strings
       const allDates = poiList.flatMap(poi =>
         poi.visits
-        .filter(visit => visit.casino === selectedCasino)
-        .flatMap(visit => [toMonthYearString(visit.departure), toMonthYearString(visit.arrival)])
+        ?.filter(visit => visit.casino === selectedCasino)
+        .flatMap(visit => [toMonthYearString(visit.departure), toMonthYearString(visit.arrival)]) || []
       );
 
       // Get unique month-year strings
@@ -61,12 +61,12 @@ const CasinoReportTableHeadMonthly = (props) => {
 
     useEffect(() => {
       const filteredVisits = poiList
-        .flatMap(poi => poi?.visits.map(visit =>({
+        .flatMap(poi => poi?.visits?.map(visit =>({
           ...visit,
-          poiID: poi.id, 
+          poiID: poi.id,
           name: poi.name,
           description: poi.description,
-        })))
+        })) || [])
         .filter(visit => visit?.casino === selectedCasino)
         .filter(visit => {
           const visitDate = new Date(visit?.arrival);

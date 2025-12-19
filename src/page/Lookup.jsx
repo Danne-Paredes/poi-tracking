@@ -53,12 +53,12 @@ const Lookup = (props) => {
       };
 
     
-      const casinoOptions = dataValsList.casinos.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase())).map(casino => ({
+       const casinoOptions = dataValsList.casinos.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase())).map(casino => ({
         value: casino,
         label: casino
       }))
 
-      const poiOptions = poiList.filter(poi => selectedCasino ? poi.casinos.includes(selectedCasino) : true).map(poi => ({
+       const poiOptions = poiList.filter(poi => selectedCasino ? poi.casinos?.includes(selectedCasino) : true).map(poi => ({
         value: poi.name,
         label: poi.name
       })).sort((a, b) => a.label.localeCompare(b.label))
@@ -228,7 +228,7 @@ const Lookup = (props) => {
 
   return (
     <div className='justify-center items-center'> 
-        <div className="overflow-y-auto h-screen">
+        <div className="overflow-y-auto h-screen" onClick={()=>console.log(poiList)}>
         <LookupSelector 
           currentPoi={currentPoi} 
           selectedCasino={selectedCasino} 

@@ -1,5 +1,14 @@
 {
   "projects": {
     "default": "poi-tracking"
+  },
+  "targets": {
+    "poi-tracking": {
+      "hosting": {
+        "poiBeta": [
+          "poi-tracking-beta"
+        ]
+      }
+    }
   }
 }

@@ -138,7 +138,7 @@ const PoiTracker = ({user}) => {
       </div>
       {isLocalhost && <div className='flex justify-center mt-10'>
           <button className='btn' onClick={()=>{
-                                                // const newPoi = currentPoiList[1]
+                                                 // const newPoi = currentPoiList[1]
                                                 // newPoi.id = '46ecae38-8370-4ca4-8c2d-8c57e385788d'
                                                 // const newCurrent = [...currentPoiList]
                                                 // newCurrent[1] = newPoi
